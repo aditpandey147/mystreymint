@@ -1,0 +1,262 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&family=Playfair+Display:wght@600;700&display=swap" rel="stylesheet">
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  @page {
+    size: A4;
+    margin: 0;                     /* PDF physical margins = 0 */
+  }
+
+  html, body {
+    margin: 0;
+    padding: 0;
+    background: #fff;
+    color: #0b1a22;
+    font-family: 'Inter', Arial, sans-serif;
+    font-size: 11pt;
+    line-height: 1.6;
+    -webkit-print-color-adjust: exact;
+    print-color-adjust: exact;
+  }
+
+  /* ============================================================
+     PAGE 1 — COVER, FULL BLEED (aubergine + gold theme)
+     ============================================================ */
+  .cover {
+    background: linear-gradient(135deg, #1a0f1e 0%, #241531 60%, #1e1120 100%);
+    color: #fff;
+    padding: 40pt 32pt;
+    margin: 0;
+    border-radius: 0;
+    width: 210mm;
+    min-height: 297mm;
+    display: flex;
+    flex-direction: column;
+    page-break-after: always;
+    break-after: page;
+  }
+  .cover-eyebrow {
+    font-size: 10pt; text-transform: uppercase; letter-spacing: 2pt;
+    color: #f5b942; font-weight: 700; margin-bottom: 12pt;
+  }
+  .cover h1 {
+    font-family: 'Playfair Display', Georgia, serif;
+    font-size: 40pt; line-height: 1.08; font-weight: 700;
+    margin-bottom: 14pt; color: #fff;
+  }
+  .cover .gold { color: #f5b942; }
+  .cover-lead {
+    font-size: 12pt; color: #e0d8e8; max-width: 420pt; line-height: 1.55;
+    margin-bottom: 20pt;
+  }
+  .cover-img {
+    width: 100%; max-height: 300pt; object-fit: cover;
+    border-radius: 6pt; margin: 20pt 0;
+    border: 1pt solid rgba(245,185,66,.45);
+    box-shadow: 0 8pt 20pt rgba(0,0,0,.35);
+  }
+  .cover-meta {
+    display: flex; flex-wrap: wrap; gap: 22pt;
+    margin-top: auto;
+    padding-top: 16pt; border-top: 1pt solid rgba(245,185,66,.35);
+  }
+  .cover-meta div { font-size: 10pt; color: #c8bcd0; }
+  .cover-meta strong {
+    display: block; color: #f5b942; font-size: 8.5pt;
+    text-transform: uppercase; letter-spacing: 1.4pt; margin-bottom: 4pt;
+  }
+
+  /* ============================================================
+     ONE SUSPECT = ONE PAGE
+     22mm top · 18mm sides · 20mm bottom
+     ============================================================ */
+  .suspect-page {
+    width: 210mm;
+    min-height: 297mm;
+    padding: 22mm 18mm 20mm 18mm;
+    margin: 0;
+    background: #ffffff;
+    page-break-after: always;
+    break-after: page;
+    display: flex;
+    flex-direction: column;
+    position: relative;
+  }
+  .suspect-page:last-of-type {
+    page-break-after: auto;
+    break-after: auto;
+  }
+
+  /* ============================================================
+     SECTION HEADER (only used if no characters / shared header)
+     ============================================================ */
+  .section-title {
+    font-family: 'Playfair Display', Georgia, serif;
+    font-size: 22pt; font-weight: 700;
+    border-bottom: 2pt solid #d99c3e;
+    padding-bottom: 8pt; margin-bottom: 18pt;
+    color: #0b1a22;
+  }
+
+  /* ============================================================
+     SUSPECT CARD — fills its own page
+     ============================================================ */
+  .suspect {
+    border: 1.5pt solid #d99c3e;
+    border-radius: 8pt;
+    background: #fffdf6;
+    padding: 18pt 20pt;
+    page-break-inside: avoid;
+    break-inside: avoid;
+    display: flex;
+    flex-direction: column;
+    flex: 1;
+  }
+  .suspect-header {
+    display: flex; gap: 16pt; align-items: flex-start; margin-bottom: 14pt;
+  }
+  .suspect-portrait {
+    width: 110pt; height: 140pt; border-radius: 6pt;
+    background: #1a0f1e center/cover no-repeat;
+    border: 1pt solid #d99c3e;
+    flex-shrink: 0;
+    display: flex; align-items: center; justify-content: center;
+    color: #f5b942;
+    font-family: 'Playfair Display', Georgia, serif;
+    font-size: 36pt; font-weight: 700;
+    overflow: hidden;
+  }
+  .suspect-info { flex: 1; min-width: 0; }
+  .suspect-role {
+    font-size: 9pt; text-transform: uppercase; letter-spacing: 1.4pt;
+    color: #b8862e; font-weight: 700; margin-bottom: 5pt;
+  }
+  .suspect-name {
+    font-family: 'Playfair Display', Georgia, serif;
+    font-size: 22pt; font-weight: 700; color: #0b1a22;
+    line-height: 1.15; margin-bottom: 6pt;
+  }
+  .suspect-meta { font-size: 10.5pt; color: #6b5a2e; }
+
+  .suspect-fields {
+    font-size: 10.5pt; line-height: 1.65;
+  }
+  .suspect-fields p {
+    margin-bottom: 8pt; color: #2a2a2a;
+  }
+  .suspect-fields p:last-child { margin-bottom: 0; }
+  .suspect-fields strong { color: #8a5f1a; font-weight: 700; }
+
+  .divider {
+    height: 1pt; background: #e8e0c8; margin: 12pt 0;
+  }
+
+  /* ============================================================
+     TAGS
+     ============================================================ */
+  .tag {
+    display: inline-block; padding: 2pt 8pt;
+    font-size: 8.5pt; border-radius: 20pt;
+    background: #fff2cc; border: 1pt solid #d99c3e;
+    color: #8a5f1a; font-weight: 700;
+    text-transform: uppercase; letter-spacing: .5pt;
+    margin-right: 4pt;
+  }
+
+  /* ============================================================
+     EMPTY STATE
+     ============================================================ */
+  .empty-note {
+    color: #7a6a44; font-style: italic;
+    padding: 14pt 0;
+  }
+</style>
+</head>
+<body>
+
+  <!-- ========================================================
+       PAGE 1 — COVER (full bleed, aubergine + gold)
+       ======================================================== -->
+  <div class="cover">
+    <div class="cover-eyebrow">Suspect Dossier</div>
+    <h1><span class="gold">{{title}}</span></h1>
+    <p class="cover-lead">
+      Profiles of all {{characters.length}} suspects — motives, alibis
+      and secrets. Study them carefully. One of them is lying.
+    </p>
+
+    {{#if coverImage}}
+      <img class="cover-img" src="{{coverImage}}" alt="{{title}}">
+    {{/if}}
+
+    <div class="cover-meta">
+      <div><strong>Genre</strong>{{genre}}</div>
+      <div><strong>Setting</strong>{{setting}}</div>
+      <div><strong>Difficulty</strong>{{difficulty}}</div>
+      <div><strong>Audience</strong>{{targetAudience}}</div>
+      <div><strong>Suspects</strong>{{characters.length}}</div>
+    </div>
+  </div>
+
+  <!-- ========================================================
+       ONE SUSPECT PER PAGE
+       ======================================================== -->
+  {{#if characters.length}}
+    {{#each characters}}
+    <div class="suspect-page">
+      <div class="suspect">
+        <div class="suspect-header">
+          <div class="suspect-portrait"
+               {{#if portraitUrl}}
+                 style="background-image:url('{{portraitUrl}}'); color:transparent;"
+               {{/if}}>
+            {{#unless portraitUrl}}{{name.[0]}}{{/unless}}
+          </div>
+          <div class="suspect-info">
+            <div class="suspect-role">{{role}}</div>
+            <div class="suspect-name">{{name}}</div>
+            <div class="suspect-meta">Age {{age}} · {{occupation}}</div>
+          </div>
+        </div>
+
+        <div class="suspect-fields">
+          {{#if personality}}<p><strong>Personality:</strong> {{personality}}</p>{{/if}}
+          {{#if background}}<p><strong>Background:</strong> {{background}}</p>{{/if}}
+          {{#if motive}}<p><strong>Possible Motive:</strong> {{motive}}</p>{{/if}}
+          {{#if alibi}}<p><strong>Stated Alibi:</strong> {{alibi}}</p>{{/if}}
+
+          {{#if publicInformation.appearance}}
+            <div class="divider"></div>
+            <p><strong>Appearance:</strong> {{publicInformation.appearance}}</p>
+          {{/if}}
+          {{#if publicInformation.mannerisms}}
+            <p><strong>Mannerisms:</strong> {{publicInformation.mannerisms}}</p>
+          {{/if}}
+          {{#if publicInformation.knownFacts.length}}
+            <div class="divider"></div>
+            <p><strong>Known Facts:</strong></p>
+            <ul style="padding-left:20pt; margin-top:4pt;">
+              {{#each publicInformation.knownFacts}}
+              <li style="margin-bottom:4pt; font-size:10.5pt; color:#2a2a2a;">{{this}}</li>
+              {{/each}}
+            </ul>
+          {{/if}}
+        </div>
+      </div>
+    </div>
+    {{/each}}
+  {{else}}
+    <!-- Empty state — one clean page -->
+    <div class="suspect-page">
+      <div class="section-title">The Suspects</div>
+      <p class="empty-note">No suspects were generated for this mystery.</p>
+    </div>
+  {{/if}}
+
+</body>
+</html>

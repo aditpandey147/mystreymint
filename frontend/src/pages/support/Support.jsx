@@ -35,6 +35,27 @@ import {
   Building2,
 } from "lucide-react";
 
+// ================================================================
+// 🎨 THEME
+// ================================================================
+const C = {
+  mainBg: "#000C16",
+  card: "#031520",
+  cardSecondary: "#0C1926",
+  input: "#000611",
+  gold: "#F6C55D",
+  goldHover: "#FFD36D",
+  darkGold: "#B77B32",
+  cyan: "#00D4D9",
+  heading: "#F5F5F3",
+  secondary: "#AAB3B9",
+  muted: "#707F88",
+  border: "#29414C",
+  rose: "#ff8fa8",
+  goldGradient:
+    "linear-gradient(135deg, #FFD36D 0%, #F6C55D 50%, #B77B32 100%)",
+};
+
 const Support = () => {
   const { user } = useAuth();
   const [copied, setCopied] = useState(null);
@@ -141,8 +162,8 @@ const Support = () => {
   );
 
   return (
-    <div className="flex min-h-screen" style={{ background: "#020914" }}>
-      <div className="flex-1 ml-0  flex flex-col min-h-screen">
+    <div className="flex min-h-screen" style={{ background: C.mainBg }}>
+      <div className="flex-1 ml-0 flex flex-col min-h-screen">
         <main className="flex-1 overflow-y-auto p-4 md:p-6">
           <div className="max-w-7xl mx-auto">
             {/* ===== HERO ===== */}
@@ -150,19 +171,18 @@ const Support = () => {
               className="relative overflow-hidden rounded-3xl p-8 md:p-12 mb-8"
               style={{
                 background:
-                  "radial-gradient(circle at 0% 0%, rgba(110,53,237,.15), transparent 40%), radial-gradient(circle at 100% 100%, rgba(52,131,255,.12), transparent 40%), linear-gradient(135deg, #06162b 0%, #041124 100%)",
-                border: "1px solid rgba(80,150,255,.25)",
-                boxShadow:
-                  "0 22px 70px rgba(0,0,0,.6), 0 0 0 1px rgba(255,255,255,.03) inset",
+                  "linear-gradient(135deg, #000C16 0%, #031520 60%, #00101A 100%)",
+                border: `1px solid ${C.gold}33`,
+                boxShadow: `0 22px 70px rgba(0,0,0,.6), 0 0 60px rgba(246,197,93,.06)`,
               }}
             >
               <div
                 className="absolute top-0 right-0 w-96 h-96 rounded-full blur-3xl"
-                style={{ background: "rgba(110,53,237,.08)" }}
+                style={{ background: "rgba(246,197,93,.06)" }}
               />
               <div
                 className="absolute bottom-0 left-0 w-96 h-96 rounded-full blur-3xl"
-                style={{ background: "rgba(52,131,255,.08)" }}
+                style={{ background: "rgba(0,212,217,.05)" }}
               />
 
               <div className="relative z-10 flex flex-col md:flex-row items-center justify-between gap-8">
@@ -171,9 +191,9 @@ const Support = () => {
                   <div
                     className="inline-flex items-center gap-2 px-4 py-2 rounded-full text-sm font-medium mb-6"
                     style={{
-                      background: "rgba(110,53,237,.15)",
-                      border: "1px solid rgba(150,120,255,.4)",
-                      color: "#c9b5ff",
+                      background: "rgba(246,197,93,.12)",
+                      border: `1px solid ${C.gold}55`,
+                      color: C.gold,
                     }}
                   >
                     <span
@@ -186,13 +206,15 @@ const Support = () => {
                     24/7 Support Available
                   </div>
 
-                  <h1 className="text-4xl md:text-5xl font-bold text-[#eaf1ff] mb-4 leading-tight">
+                  <h1
+                    className="font-['Playfair_Display',Georgia,serif] text-4xl md:text-5xl font-bold mb-4 leading-tight"
+                    style={{ color: C.heading }}
+                  >
                     How can we{" "}
                     <span
                       className="bg-clip-text text-transparent"
                       style={{
-                        backgroundImage:
-                          "linear-gradient(90deg, #b65bff, #7855ff, #338dff)",
+                        backgroundImage: C.goldGradient,
                         WebkitBackgroundClip: "text",
                       }}
                     >
@@ -201,7 +223,10 @@ const Support = () => {
                     you?
                   </h1>
 
-                  <p className="text-lg text-[#aebfd5] max-w-2xl">
+                  <p
+                    className="text-lg max-w-2xl"
+                    style={{ color: C.secondary }}
+                  >
                     Get instant answers, find solutions, and connect with our
                     support team.
                   </p>
@@ -211,25 +236,27 @@ const Support = () => {
                     <div
                       className="relative rounded-2xl"
                       style={{
-                        background: "rgba(6,34,74,.55)",
-                        border: "1px solid #17385f",
+                        background: C.input,
+                        border: `1px solid ${C.border}`,
                         backdropFilter: "blur(10px)",
                         WebkitBackdropFilter: "blur(10px)",
                       }}
                     >
                       <div className="flex items-center px-5">
-                        <Search size={20} className="text-[#7d8fa8]" />
+                        <Search size={20} style={{ color: C.muted }} />
                         <input
                           type="text"
                           placeholder="Search for help..."
                           value={searchQuery}
                           onChange={(e) => setSearchQuery(e.target.value)}
-                          className="w-full px-4 py-3 text-[#eaf1ff] bg-transparent border-0 focus:outline-none focus:ring-0 placeholder-[#7d8fa8] text-sm"
+                          className="w-full px-4 py-3 bg-transparent border-0 focus:outline-none focus:ring-0 text-sm"
+                          style={{ color: C.heading }}
                         />
                         {searchQuery && (
                           <button
                             onClick={() => setSearchQuery("")}
-                            className="text-[#7d8fa8] hover:text-white transition"
+                            className="transition"
+                            style={{ color: C.muted }}
                           >
                             ×
                           </button>
@@ -250,16 +277,22 @@ const Support = () => {
                       key={i}
                       className="rounded-2xl p-4 text-center min-w-[110px]"
                       style={{
-                        background: "rgba(6,34,74,.55)",
-                        border: "1px solid rgba(150,120,255,.3)",
+                        background: C.card,
+                        border: `1px solid ${C.gold}40`,
                         backdropFilter: "blur(10px)",
                         WebkitBackdropFilter: "blur(10px)",
                       }}
                     >
-                      <div className="text-3xl font-bold text-[#c9b5ff]">
+                      <div
+                        className="text-3xl font-bold"
+                        style={{ color: C.gold }}
+                      >
                         {s.value}
                       </div>
-                      <div className="text-xs text-[#8fa0ba] mt-1">
+                      <div
+                        className="text-xs mt-1"
+                        style={{ color: C.secondary }}
+                      >
                         {s.label}
                       </div>
                     </div>
@@ -275,12 +308,15 @@ const Support = () => {
                 <div
                   className="rounded-2xl p-4 sticky top-4"
                   style={{
-                    background: "#06162b",
-                    border: "1px solid #17385f",
+                    background: C.card,
+                    border: `1px solid ${C.border}`,
                     boxShadow: "0 4px 20px rgba(0,0,0,.35)",
                   }}
                 >
-                  <h3 className="text-sm font-semibold text-[#8fa0ba] uppercase tracking-wider mb-4 px-2">
+                  <h3
+                    className="text-sm font-semibold uppercase tracking-wider mb-4 px-2"
+                    style={{ color: C.secondary }}
+                  >
                     Support Topics
                   </h3>
 
@@ -296,27 +332,26 @@ const Support = () => {
                           style={
                             isActive
                               ? {
-                                  background:
-                                    "linear-gradient(100deg, #6e35ed, #3483ff)",
-                                  color: "#ffffff",
+                                  background: C.goldGradient,
+                                  color: C.mainBg,
                                   boxShadow:
-                                    "0 8px 24px rgba(110,53,237,.35)",
+                                    "inset 0 1px 1px rgba(255,255,255,.25), 0 8px 24px rgba(246,197,93,.35)",
                                 }
                               : {
-                                  color: "#aebfd5",
+                                  color: C.secondary,
                                 }
                           }
                           onMouseEnter={(e) => {
                             if (!isActive) {
                               e.currentTarget.style.background =
-                                "rgba(80,150,255,.08)";
-                              e.currentTarget.style.color = "#eaf1ff";
+                                "rgba(246,197,93,.08)";
+                              e.currentTarget.style.color = C.heading;
                             }
                           }}
                           onMouseLeave={(e) => {
                             if (!isActive) {
                               e.currentTarget.style.background = "transparent";
-                              e.currentTarget.style.color = "#aebfd5";
+                              e.currentTarget.style.color = C.secondary;
                             }
                           }}
                         >
@@ -324,17 +359,17 @@ const Support = () => {
                             className="w-8 h-8 rounded-lg flex items-center justify-center shrink-0"
                             style={{
                               background: isActive
-                                ? "rgba(255,255,255,.15)"
-                                : "rgba(6,20,42,.7)",
+                                ? "rgba(0,0,0,.2)"
+                                : C.input,
                               border: isActive
-                                ? "1px solid rgba(255,255,255,.2)"
-                                : "1px solid rgba(80,150,255,.25)",
+                                ? "1px solid rgba(0,0,0,.2)"
+                                : `1px solid ${C.border}`,
                             }}
                           >
                             <Icon
                               size={16}
                               style={{
-                                color: isActive ? "#ffffff" : "#c9b5ff",
+                                color: isActive ? C.mainBg : C.gold,
                               }}
                             />
                           </div>
@@ -342,7 +377,7 @@ const Support = () => {
                           {isActive && (
                             <div
                               className="w-1.5 h-6 rounded-full"
-                              style={{ background: "rgba(255,255,255,.6)" }}
+                              style={{ background: "rgba(0,0,0,.3)" }}
                             />
                           )}
                         </button>
@@ -353,9 +388,12 @@ const Support = () => {
                   {/* Quick Contact */}
                   <div
                     className="mt-6 pt-6"
-                    style={{ borderTop: "1px solid #17385f" }}
+                    style={{ borderTop: `1px solid ${C.border}` }}
                   >
-                    <h4 className="text-xs font-medium text-[#8fa0ba] uppercase tracking-wider mb-3">
+                    <h4
+                      className="text-xs font-medium uppercase tracking-wider mb-3"
+                      style={{ color: C.secondary }}
+                    >
                       Quick Contact
                     </h4>
                     <a
@@ -364,16 +402,17 @@ const Support = () => {
                       rel="noopener noreferrer"
                       className="flex items-center gap-3 px-4 py-2.5 rounded-xl text-sm font-medium transition"
                       style={{
-                        background: "rgba(110,53,237,.15)",
-                        color: "#c9b5ff",
-                        border: "1px solid rgba(150,120,255,.35)",
+                        background: "rgba(246,197,93,.12)",
+                        color: C.gold,
+                        border: `1px solid ${C.gold}55`,
                       }}
                     >
                       <MessageCircle size={18} />
                       Support
                       <ExternalLink
                         size={14}
-                        className="ml-auto text-[#7d8fa8]"
+                        className="ml-auto"
+                        style={{ color: C.muted }}
                       />
                     </a>
                   </div>
@@ -382,21 +421,29 @@ const Support = () => {
                   <div
                     className="mt-4 p-4 rounded-xl"
                     style={{
-                      background:
-                        "linear-gradient(135deg, rgba(110,53,237,.15), rgba(52,131,255,.1))",
-                      border: "1px solid rgba(150,120,255,.35)",
+                      background: "rgba(246,197,93,.08)",
+                      border: `1px solid ${C.gold}45`,
                     }}
                   >
                     <div className="flex items-center gap-2 mb-2">
-                      <Clock size={16} className="text-[#c9b5ff]" />
-                      <span className="text-sm font-semibold text-[#eaf1ff]">
+                      <Clock size={16} style={{ color: C.gold }} />
+                      <span
+                        className="text-sm font-semibold"
+                        style={{ color: C.heading }}
+                      >
                         Support Hours
                       </span>
                     </div>
-                    <div className="space-y-1 text-xs text-[#8fa0ba]">
+                    <div
+                      className="space-y-1 text-xs"
+                      style={{ color: C.secondary }}
+                    >
                       <p>Mon-Fri: 9:00 AM - 9:00 PM EST</p>
                       <p>Sat-Sun: 10:00 AM - 6:00 PM EST</p>
-                      <p className="text-[#0ce4bd] font-medium mt-1">
+                      <p
+                        className="font-medium mt-1"
+                        style={{ color: "#0ce4bd" }}
+                      >
                         ⚡ Average response: &lt; 2 hours
                       </p>
                     </div>
@@ -409,8 +456,8 @@ const Support = () => {
                 <div
                   className="rounded-2xl overflow-hidden"
                   style={{
-                    background: "#06162b",
-                    border: "1px solid #17385f",
+                    background: C.card,
+                    border: `1px solid ${C.border}`,
                     boxShadow: "0 4px 20px rgba(0,0,0,.35)",
                   }}
                 >
@@ -419,23 +466,26 @@ const Support = () => {
                     <div>
                       <div
                         className="px-6 py-5"
-                        style={{
-                          background:
-                            "linear-gradient(100deg, #6e35ed, #3483ff)",
-                        }}
+                        style={{ background: C.goldGradient }}
                       >
                         <div className="flex items-center gap-3">
                           <div
                             className="w-10 h-10 rounded-xl flex items-center justify-center"
-                            style={{ background: "rgba(255,255,255,.2)" }}
+                            style={{ background: "rgba(0,0,0,.15)" }}
                           >
-                            <Key size={20} className="text-white" />
+                            <Key size={20} style={{ color: C.mainBg }} />
                           </div>
                           <div>
-                            <h2 className="text-xl font-bold text-white">
+                            <h2
+                              className="text-xl font-bold"
+                              style={{ color: C.mainBg }}
+                            >
                               Login Credentials
                             </h2>
-                            <p className="text-white/80 text-sm">
+                            <p
+                              className="text-sm"
+                              style={{ color: C.mainBg, opacity: 0.75 }}
+                            >
                               Use these credentials to login to your account
                             </p>
                           </div>
@@ -448,20 +498,29 @@ const Support = () => {
                           <div
                             className="rounded-xl p-5 transition"
                             style={{
-                              background: "rgba(6,20,42,.6)",
-                              border: "1px solid #17385f",
+                              background: C.input,
+                              border: `1px solid ${C.border}`,
                             }}
                           >
                             <div className="flex items-center justify-between">
                               <div>
-                                <p className="text-xs text-[#8fa0ba] font-medium uppercase tracking-wider flex items-center gap-2">
-                                  <User size={14} className="text-[#8fa0ba]" />
+                                <p
+                                  className="text-xs font-medium uppercase tracking-wider flex items-center gap-2"
+                                  style={{ color: C.secondary }}
+                                >
+                                  <User size={14} style={{ color: C.muted }} />
                                   Login Email
                                 </p>
-                                <p className="text-base font-bold text-[#eaf1ff] mt-2 font-mono break-all">
+                                <p
+                                  className="text-base font-bold mt-2 font-mono break-all"
+                                  style={{ color: C.heading }}
+                                >
                                   {userCredentials.loginEmail}
                                 </p>
-                                <p className="text-xs text-[#7d8fa8] mt-1">
+                                <p
+                                  className="text-xs mt-1"
+                                  style={{ color: C.muted }}
+                                >
                                   Your purchase email is your login email
                                 </p>
                               </div>
@@ -473,16 +532,14 @@ const Support = () => {
                                   )
                                 }
                                 className="p-2.5 rounded-xl transition"
-                                style={{
-                                  color: "#7d8fa8",
-                                }}
+                                style={{ color: C.muted }}
                                 onMouseEnter={(e) => {
-                                  e.currentTarget.style.color = "#c9b5ff";
+                                  e.currentTarget.style.color = C.gold;
                                   e.currentTarget.style.background =
-                                    "rgba(110,53,237,.15)";
+                                    "rgba(246,197,93,.15)";
                                 }}
                                 onMouseLeave={(e) => {
-                                  e.currentTarget.style.color = "#7d8fa8";
+                                  e.currentTarget.style.color = C.muted;
                                   e.currentTarget.style.background =
                                     "transparent";
                                 }}
@@ -496,21 +553,29 @@ const Support = () => {
                           <div
                             className="rounded-xl p-5 transition"
                             style={{
-                              background:
-                                "linear-gradient(135deg, rgba(110,53,237,.12), rgba(52,131,255,.08))",
-                              border: "1px solid rgba(150,120,255,.35)",
+                              background: "rgba(246,197,93,.08)",
+                              border: `1px solid ${C.gold}45`,
                             }}
                           >
                             <div className="flex items-center justify-between">
                               <div>
-                                <p className="text-xs text-[#8fa0ba] font-medium uppercase tracking-wider flex items-center gap-2">
-                                  <Lock size={14} className="text-[#8fa0ba]" />
+                                <p
+                                  className="text-xs font-medium uppercase tracking-wider flex items-center gap-2"
+                                  style={{ color: C.secondary }}
+                                >
+                                  <Lock size={14} style={{ color: C.muted }} />
                                   Default Password
                                 </p>
-                                <p className="text-base font-bold text-[#eaf1ff] mt-2 font-mono break-all">
+                                <p
+                                  className="text-base font-bold mt-2 font-mono break-all"
+                                  style={{ color: C.heading }}
+                                >
                                   {userCredentials.defaultPassword}
                                 </p>
-                                <p className="text-xs text-[#c9b5ff] mt-1">
+                                <p
+                                  className="text-xs mt-1"
+                                  style={{ color: C.gold }}
+                                >
                                   ⚠️ Your purchase email is your default password
                                 </p>
                               </div>
@@ -522,14 +587,14 @@ const Support = () => {
                                   )
                                 }
                                 className="p-2.5 rounded-xl transition"
-                                style={{ color: "#7d8fa8" }}
+                                style={{ color: C.muted }}
                                 onMouseEnter={(e) => {
-                                  e.currentTarget.style.color = "#c9b5ff";
+                                  e.currentTarget.style.color = C.gold;
                                   e.currentTarget.style.background =
-                                    "rgba(110,53,237,.15)";
+                                    "rgba(246,197,93,.15)";
                                 }}
                                 onMouseLeave={(e) => {
-                                  e.currentTarget.style.color = "#7d8fa8";
+                                  e.currentTarget.style.color = C.muted;
                                   e.currentTarget.style.background =
                                     "transparent";
                                 }}
@@ -545,28 +610,34 @@ const Support = () => {
                           <div
                             className="rounded-xl p-5"
                             style={{
-                              background: "rgba(6,20,42,.5)",
-                              border: "1px solid #17385f",
+                              background: C.input,
+                              border: `1px solid ${C.border}`,
                             }}
                           >
                             <div className="flex items-start gap-3">
                               <div
                                 className="w-8 h-8 rounded-lg flex items-center justify-center shrink-0"
                                 style={{
-                                  background: "rgba(110,53,237,.2)",
-                                  border: "1px solid rgba(150,120,255,.4)",
+                                  background: "rgba(246,197,93,.15)",
+                                  border: `1px solid ${C.gold}55`,
                                 }}
                               >
-                                <LogIn size={16} className="text-[#c9b5ff]" />
+                                <LogIn size={16} style={{ color: C.gold }} />
                               </div>
                               <div>
-                                <p className="text-sm font-semibold text-[#eaf1ff]">
+                                <p
+                                  className="text-sm font-semibold"
+                                  style={{ color: C.heading }}
+                                >
                                   How to Login
                                 </p>
-                                <ol className="text-sm text-[#aebfd5] mt-2 space-y-1.5 list-decimal list-inside">
+                                <ol
+                                  className="text-sm mt-2 space-y-1.5 list-decimal list-inside"
+                                  style={{ color: C.secondary }}
+                                >
                                   <li>
                                     Go to{" "}
-                                    <strong className="text-[#c9b5ff]">
+                                    <strong style={{ color: C.gold }}>
                                       {userCredentials.appUrl}
                                     </strong>
                                   </li>
@@ -589,29 +660,34 @@ const Support = () => {
                           <div
                             className="rounded-xl p-5"
                             style={{
-                              background:
-                                "linear-gradient(135deg, rgba(110,53,237,.12), rgba(52,131,255,.08))",
-                              border: "1px solid rgba(150,120,255,.35)",
+                              background: "rgba(246,197,93,.08)",
+                              border: `1px solid ${C.gold}45`,
                             }}
                           >
                             <div className="flex items-start gap-3">
                               <div
                                 className="w-8 h-8 rounded-lg flex items-center justify-center shrink-0"
                                 style={{
-                                  background: "rgba(110,53,237,.25)",
-                                  border: "1px solid rgba(150,120,255,.4)",
+                                  background: "rgba(246,197,93,.15)",
+                                  border: `1px solid ${C.gold}55`,
                                 }}
                               >
-                                <Shield size={16} className="text-[#c9b5ff]" />
+                                <Shield size={16} style={{ color: C.gold }} />
                               </div>
                               <div>
-                                <p className="text-sm font-semibold text-[#eaf1ff]">
+                                <p
+                                  className="text-sm font-semibold"
+                                  style={{ color: C.heading }}
+                                >
                                   Security Tip
                                 </p>
-                                <p className="text-sm text-[#aebfd5] mt-2 leading-relaxed">
-                                  For better security, we recommend changing your
-                                  password after first login. Go to{" "}
-                                  <strong className="text-[#c9b5ff]">
+                                <p
+                                  className="text-sm mt-2 leading-relaxed"
+                                  style={{ color: C.secondary }}
+                                >
+                                  For better security, we recommend changing
+                                  your password after first login. Go to{" "}
+                                  <strong style={{ color: C.gold }}>
                                     Settings → Security → Change Password
                                   </strong>
                                   .
@@ -629,23 +705,26 @@ const Support = () => {
                     <div>
                       <div
                         className="px-6 py-5"
-                        style={{
-                          background:
-                            "linear-gradient(100deg, #6e35ed, #3483ff)",
-                        }}
+                        style={{ background: C.goldGradient }}
                       >
                         <div className="flex items-center gap-3">
                           <div
                             className="w-10 h-10 rounded-xl flex items-center justify-center"
-                            style={{ background: "rgba(255,255,255,.2)" }}
+                            style={{ background: "rgba(0,0,0,.15)" }}
                           >
-                            <HelpCircle size={20} className="text-white" />
+                            <HelpCircle size={20} style={{ color: C.mainBg }} />
                           </div>
                           <div>
-                            <h2 className="text-xl font-bold text-white">
+                            <h2
+                              className="text-xl font-bold"
+                              style={{ color: C.mainBg }}
+                            >
                               Frequently Asked Questions
                             </h2>
-                            <p className="text-white/80 text-sm">
+                            <p
+                              className="text-sm"
+                              style={{ color: C.mainBg, opacity: 0.75 }}
+                            >
                               Common questions about logging into your account
                             </p>
                           </div>
@@ -663,11 +742,11 @@ const Support = () => {
                                   className="rounded-xl overflow-hidden transition-all duration-200"
                                   style={{
                                     background: isOpen
-                                      ? "linear-gradient(135deg, rgba(110,53,237,.12), rgba(52,131,255,.08))"
-                                      : "rgba(6,20,42,.5)",
+                                      ? "rgba(246,197,93,.08)"
+                                      : "rgba(0,6,17,.6)",
                                     border: isOpen
-                                      ? "1px solid rgba(150,120,255,.5)"
-                                      : "1px solid #17385f",
+                                      ? `1px solid ${C.gold}66`
+                                      : `1px solid ${C.border}`,
                                     boxShadow: isOpen
                                       ? "0 8px 24px rgba(0,0,0,.35)"
                                       : "none",
@@ -680,7 +759,10 @@ const Support = () => {
                                     <span className="text-2xl mt-0.5 shrink-0">
                                       {faq.icon}
                                     </span>
-                                    <span className="text-sm font-medium text-[#eaf1ff] pr-4 flex-1">
+                                    <span
+                                      className="text-sm font-medium pr-4 flex-1"
+                                      style={{ color: C.heading }}
+                                    >
                                       {faq.question}
                                     </span>
                                     <span
@@ -689,7 +771,7 @@ const Support = () => {
                                         transform: isOpen
                                           ? "rotate(180deg)"
                                           : "rotate(0)",
-                                        color: isOpen ? "#c9b5ff" : "#7d8fa8",
+                                        color: isOpen ? C.gold : C.muted,
                                       }}
                                     >
                                       <ChevronDown size={18} />
@@ -700,10 +782,13 @@ const Support = () => {
                                     <div
                                       className="px-5 pb-4 pt-0"
                                       style={{
-                                        borderTop: "1px solid #17385f",
+                                        borderTop: `1px solid ${C.border}`,
                                       }}
                                     >
-                                      <p className="text-sm text-[#aebfd5] leading-relaxed whitespace-pre-line pt-4">
+                                      <p
+                                        className="text-sm leading-relaxed whitespace-pre-line pt-4"
+                                        style={{ color: C.secondary }}
+                                      >
                                         {faq.answer}
                                       </p>
                                     </div>
@@ -715,9 +800,9 @@ const Support = () => {
                         ) : (
                           <div className="text-center py-12">
                             <div className="text-5xl mb-4">🔍</div>
-                            <p className="text-[#8fa0ba]">
+                            <p style={{ color: C.secondary }}>
                               No results found for "
-                              <strong className="text-[#c9b5ff]">
+                              <strong style={{ color: C.gold }}>
                                 {searchQuery}
                               </strong>
                               "
@@ -725,7 +810,7 @@ const Support = () => {
                             <button
                               onClick={() => setSearchQuery("")}
                               className="mt-3 text-sm font-medium transition"
-                              style={{ color: "#c9b5ff" }}
+                              style={{ color: C.gold }}
                             >
                               Clear search
                             </button>
@@ -740,23 +825,26 @@ const Support = () => {
                     <div>
                       <div
                         className="px-6 py-5"
-                        style={{
-                          background:
-                            "linear-gradient(100deg, #6e35ed, #3483ff)",
-                        }}
+                        style={{ background: C.goldGradient }}
                       >
                         <div className="flex items-center gap-3">
                           <div
                             className="w-10 h-10 rounded-xl flex items-center justify-center"
-                            style={{ background: "rgba(255,255,255,.2)" }}
+                            style={{ background: "rgba(0,0,0,.15)" }}
                           >
-                            <BookOpen size={20} className="text-white" />
+                            <BookOpen size={20} style={{ color: C.mainBg }} />
                           </div>
                           <div>
-                            <h2 className="text-xl font-bold text-white">
+                            <h2
+                              className="text-xl font-bold"
+                              style={{ color: C.mainBg }}
+                            >
                               Help Topics
                             </h2>
-                            <p className="text-white/80 text-sm">
+                            <p
+                              className="text-sm"
+                              style={{ color: C.mainBg, opacity: 0.75 }}
+                            >
                               Browse through our help articles and guides
                             </p>
                           </div>
@@ -803,21 +891,19 @@ const Support = () => {
                                 key={i}
                                 className="p-4 rounded-xl transition cursor-pointer"
                                 style={{
-                                  background: "rgba(6,20,42,.5)",
-                                  border: "1px solid #17385f",
+                                  background: C.input,
+                                  border: `1px solid ${C.border}`,
                                 }}
                                 onMouseEnter={(e) => {
                                   e.currentTarget.style.background =
-                                    "linear-gradient(135deg, rgba(110,53,237,.12), rgba(52,131,255,.08))";
-                                  e.currentTarget.style.borderColor =
-                                    "rgba(150,120,255,.5)";
+                                    "rgba(246,197,93,.08)";
+                                  e.currentTarget.style.borderColor = `${C.gold}66`;
                                   e.currentTarget.style.transform =
                                     "translateY(-2px)";
                                 }}
                                 onMouseLeave={(e) => {
-                                  e.currentTarget.style.background =
-                                    "rgba(6,20,42,.5)";
-                                  e.currentTarget.style.borderColor = "#17385f";
+                                  e.currentTarget.style.background = C.input;
+                                  e.currentTarget.style.borderColor = C.border;
                                   e.currentTarget.style.transform =
                                     "translateY(0)";
                                 }}
@@ -826,21 +912,26 @@ const Support = () => {
                                   <div
                                     className="w-10 h-10 rounded-lg flex items-center justify-center shrink-0"
                                     style={{
-                                      background: "rgba(110,53,237,.2)",
-                                      border:
-                                        "1px solid rgba(150,120,255,.4)",
+                                      background: "rgba(246,197,93,.15)",
+                                      border: `1px solid ${C.gold}55`,
                                     }}
                                   >
                                     <Icon
                                       size={18}
-                                      className="text-[#c9b5ff]"
+                                      style={{ color: C.gold }}
                                     />
                                   </div>
                                   <div>
-                                    <h4 className="text-sm font-semibold text-[#eaf1ff]">
+                                    <h4
+                                      className="text-sm font-semibold"
+                                      style={{ color: C.heading }}
+                                    >
                                       {topic.title}
                                     </h4>
-                                    <p className="text-xs text-[#8fa0ba] mt-1">
+                                    <p
+                                      className="text-xs mt-1"
+                                      style={{ color: C.secondary }}
+                                    >
                                       {topic.desc}
                                     </p>
                                   </div>
@@ -859,35 +950,44 @@ const Support = () => {
                   className="mt-6 relative overflow-hidden rounded-2xl p-8 text-center"
                   style={{
                     background:
-                      "radial-gradient(circle at 50% 0%, rgba(110,53,237,.15), transparent 60%), linear-gradient(135deg, #06162b 0%, #041124 100%)",
-                    border: "1px solid rgba(150,120,255,.4)",
+                      "linear-gradient(135deg, #000C16 0%, #031520 100%)",
+                    border: `1px solid ${C.gold}40`,
                     boxShadow:
-                      "0 22px 70px rgba(0,0,0,.5), 0 0 0 1px rgba(255,255,255,.03) inset",
+                      "0 22px 70px rgba(0,0,0,.5), 0 0 60px rgba(246,197,93,.06)",
                   }}
                 >
                   <div
                     className="absolute top-0 right-0 w-48 h-48 rounded-full blur-2xl"
-                    style={{ background: "rgba(110,53,237,.15)" }}
+                    style={{ background: "rgba(246,197,93,.12)" }}
                   />
                   <div
                     className="absolute bottom-0 left-0 w-48 h-48 rounded-full blur-2xl"
-                    style={{ background: "rgba(52,131,255,.15)" }}
+                    style={{ background: "rgba(246,197,93,.08)" }}
                   />
 
                   <div className="relative z-10">
                     <div
                       className="w-16 h-16 mx-auto rounded-2xl flex items-center justify-center mb-4"
                       style={{
-                        background: "rgba(110,53,237,.2)",
-                        border: "1px solid rgba(150,120,255,.5)",
+                        background: "rgba(246,197,93,.15)",
+                        border: `1px solid ${C.gold}55`,
                       }}
                     >
-                      <MessageCircle size={28} className="text-[#c9b5ff]" />
+                      <MessageCircle
+                        size={28}
+                        style={{ color: C.gold }}
+                      />
                     </div>
-                    <h3 className="text-2xl font-bold text-[#eaf1ff] mb-3">
+                    <h3
+                      className="font-['Playfair_Display',Georgia,serif] text-2xl font-bold mb-3"
+                      style={{ color: C.heading }}
+                    >
                       Still Need Help?
                     </h3>
-                    <p className="text-[#8fa0ba] mb-6 max-w-md mx-auto">
+                    <p
+                      className="mb-6 max-w-md mx-auto"
+                      style={{ color: C.secondary }}
+                    >
                       Our support team is ready to assist you with any questions.
                     </p>
                     <div className="flex flex-wrap gap-4 justify-center">
@@ -895,11 +995,13 @@ const Support = () => {
                         href={SUPPORT_DESK_URL}
                         target="_blank"
                         rel="noopener noreferrer"
-                        className="inline-flex items-center gap-2 px-6 py-3 rounded-xl font-bold text-white transition-all hover:-translate-y-0.5"
+                        className="inline-flex items-center gap-2 px-6 py-3 rounded-xl font-bold transition-all hover:-translate-y-[1px]"
                         style={{
-                          background:
-                            "linear-gradient(100deg, #6e35ed, #3483ff)",
-                          boxShadow: "0 8px 24px rgba(110,53,237,.4)",
+                          background: C.goldGradient,
+                          color: C.mainBg,
+                          border: `1px solid ${C.goldHover}`,
+                          boxShadow:
+                            "inset 0 1px 1px rgba(255,255,255,.25), 0 8px 24px rgba(246,197,93,.4)",
                         }}
                       >
                         <MessageCircle size={18} />

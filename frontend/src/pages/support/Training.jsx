@@ -1,9 +1,9 @@
 // frontend/src/pages/support/Training.jsx
-import React, { useState, useRef, useEffect } from 'react';
-import { useAuth } from '../../context/AuthContext';
-import Sidebar from '../../components/Sidebar';
-import Navbar from '../../components/Navbar';
-import videoThumbnail from '../../assets/video-thumbnail.jpg';
+import React, { useState, useRef, useEffect } from "react";
+import { useAuth } from "../../context/AuthContext";
+import Sidebar from "../../components/Sidebar";
+import Navbar from "../../components/Navbar";
+import videoThumbnail from "../../assets/video-thumbnail.jpg";
 import {
   Play,
   BookOpen,
@@ -19,279 +19,275 @@ import {
   Rocket,
   Headphones,
   PlayCircle,
-} from 'lucide-react';
+} from "lucide-react";
+
+// ================================================================
+// 🎨 THEME
+// ================================================================
+const C = {
+  mainBg: "#000C16",
+  card: "#031520",
+  cardSecondary: "#0C1926",
+  input: "#000611",
+  gold: "#F6C55D",
+  goldHover: "#FFD36D",
+  darkGold: "#B77B32",
+  cyan: "#00D4D9",
+  heading: "#F5F5F3",
+  secondary: "#AAB3B9",
+  muted: "#707F88",
+  border: "#29414C",
+  goldGradient:
+    "linear-gradient(135deg, #FFD36D 0%, #F6C55D 50%, #B77B32 100%)",
+};
 
 const Training = () => {
   const { user } = useAuth();
   const [expandedFaq, setExpandedFaq] = useState(null);
-  const [searchTerm, setSearchTerm] = useState('');
-  const [selectedCategory, setSelectedCategory] = useState('all');
+  const [searchTerm, setSearchTerm] = useState("");
+  const [selectedCategory, setSelectedCategory] = useState("all");
   const [showScrollTop, setShowScrollTop] = useState(false);
   const [isVideoPlaying, setIsVideoPlaying] = useState(false);
   const [thumbnailError, setThumbnailError] = useState(false);
   const faqContainerRef = useRef(null);
 
   // Demo Video Configuration
-  const VIDEO_ID = 'YOUR_VIDEO_ID'; // Replace with your YouTube video ID
+  const VIDEO_ID = "YOUR_VIDEO_ID"; // Replace with your YouTube video ID
   const videoUrl = `https://www.youtube.com/embed/${VIDEO_ID}`;
 
   // ================================================================
-  // FAQ DATA — PodcastAI specific
+  // FAQ DATA — MysteryMint AI specific
   // ================================================================
   const faqs = [
     // ============ Getting Started (5) ============
     {
       id: 1,
-      category: 'Getting Started',
-      question: 'What is PodcastAI and how does it work?',
+      category: "Getting Started",
+      question: "What is MysteryMint AI and how does it work?",
       answer:
-        'PodcastAI is an AI-powered platform that helps you create, design, and launch podcast videos instantly. Enter your topic, pick a category, choose a template, and our AI generates host & guest dialogues, AI cover art, and cinematic video — all in minutes. Perfect for YouTube Shorts, TikTok, Spotify, and all major platforms.',
-      icon: '🎙️',
+        "MysteryMint AI is an AI-powered platform that creates complete, ready-to-play mystery games in minutes. Enter your title, genre, and setting — our AI generates the story, suspects, clues, evidence documents, puzzles, timeline, and a full Game Master solution. Everything exports as a professional PDF kit you can print and play.",
+      icon: "🎭",
     },
     {
       id: 2,
-      category: 'Getting Started',
-      question: 'How do I create my first podcast video?',
+      category: "Getting Started",
+      question: "How do I create my first mystery?",
       answer:
-        'Go to your dashboard → click "Create New Podcast" → choose a template from the library → enter your topic and details → select tone and style → click "Generate". Our AI crafts the dialogue, generates cover art, and produces your video. Download when complete.',
-      icon: '➕',
+        "Go to your dashboard → click 'Create New Mystery' → fill in the title, genre, setting, difficulty, player count and duration → optionally pick a template or write a story idea → click 'Generate My Mystery'. The pipeline runs through 9 stages over 2-4 minutes, then your complete mystery is ready to preview and download.",
+      icon: "➕",
     },
     {
       id: 3,
-      category: 'Getting Started',
-      question: 'How long does it take to generate a podcast video?',
+      category: "Getting Started",
+      question: "How long does mystery generation take?",
       answer:
-        'Video generation takes 1–3 minutes depending on the format and length. The AI dialogue appears in seconds; cover art streams in as it finishes. You can continue using the platform while generation runs in the background.',
-      icon: '⏱️',
+        "A complete mystery takes 2-4 minutes to generate. This includes the hidden blueprint, story, characters, clues, evidence documents, puzzles, timelines, solution guide, and AI-generated images (cover, portraits, scenes). You can track live progress on the My Mysteries page while it runs in the background.",
+      icon: "⏱️",
     },
     {
       id: 4,
-      category: 'Getting Started',
-      question: 'What podcast categories are available?',
+      category: "Getting Started",
+      question: "What genres and settings are supported?",
       answer:
-        'We support multiple categories including True Crime, Comedy & Entertainment, Business, Technology, Health & Wellness, Education, News, Sports, and more. Each category has professionally designed templates optimized for that niche.',
-      icon: '📊',
+        "MysteryMint AI supports Murder Mystery, Detective Mystery, Spy Thriller, Horror Mystery, Sci-Fi Mystery, Historical Mystery, Escape Room adventures and more. Settings are unlimited — Luxury Hotels, Cruise Ships, Victorian Manors, Space Stations, Ancient Tombs, or anything you can imagine.",
+      icon: "📚",
     },
     {
       id: 5,
-      category: 'Getting Started',
-      question: 'Can I edit my podcast after generation?',
+      category: "Getting Started",
+      question: "Can I edit or regenerate my mystery?",
       answer:
-        'Yes! Go to "My Podcasts", select the video, and click "Edit". You can modify the title, dialogue, cover image, category, and regenerate with new information at any time.',
-      icon: '🔄',
+        "Yes — from the Mystery Detail page you can regenerate any section individually (Story, Suspects, Clues, Puzzles, Solution) without redoing the whole mystery. You can also delete any mystery and generate a fresh one with new parameters.",
+      icon: "🔄",
     },
 
-    // ============ Podcast Creation (6) ============
+    // ============ Mystery Creation (6) ============
     {
       id: 6,
-      category: 'Podcast Creation',
-      question: 'What information do I need to create a podcast?',
+      category: "Mystery Creation",
+      question: "What's included in a complete mystery kit?",
       answer:
-        'To create a podcast, you need: Topic (or let AI suggest one), Category, Host & Guest Line (or use AI Dialogue generator), Tone (Professional, Casual, Inspiring), Music, Format (16:9 or 9:16), and Language. The more detailed your inputs, the better the AI output.',
-      icon: '📝',
+        "Every mystery includes: a full Story PDF with chapters, Suspect Cards with detailed character dossiers and portraits, Clues & Evidence PDF, Puzzle Sheets with printable answer space, Timeline, Solution Guide for the Game Master, and Player Instructions. The complete kit downloads as a single ZIP file.",
+      icon: "📦",
     },
     {
       id: 7,
-      category: 'Podcast Creation',
-      question: 'Can I generate cover art for my podcast?',
+      category: "Mystery Creation",
+      question: "How are mystery images generated?",
       answer:
-        'Yes! Our AI generates professional podcast cover art automatically. Each video gets a unique AI-generated image based on your topic and mood. You can also regenerate covers from the Templates page or use the Branding Suite for a full identity kit.',
-      icon: '🎨',
+        "Every mystery gets AI-generated visuals: a cinematic cover image, portraits for each suspect, and crime scene illustrations for key locations. All images are generated through Replicate and saved locally to your kit — they're included in the ZIP download and in the individual section PDFs.",
+      icon: "🎨",
     },
     {
       id: 8,
-      category: 'Podcast Creation',
-      question: 'How do I download my podcast video?',
+      category: "Mystery Creation",
+      question: "How do I download my mystery kit?",
       answer:
-        'Once your video is marked "Completed", go to "My Podcasts", find your video, and click the "Download" button. Your video downloads as MP4 with all assets bundled (video + cover art).',
-      icon: '📥',
+        "From the Mystery Detail page, click 'Download Complete Kit' — this builds a ZIP containing all 6 PDFs (Story, Suspects, Clues & Evidence, Puzzles, Solution, Instructions) plus all images. You can also view or download individual section PDFs from each tab.",
+      icon: "📥",
     },
     {
       id: 9,
-      category: 'Podcast Creation',
-      question: 'Can I create multiple podcasts at once?',
+      category: "Mystery Creation",
+      question: "Can I generate multiple mysteries at once?",
       answer:
-        'Yes! You can create multiple podcast videos simultaneously. Each generation runs independently, and you can track progress for each one from your My Podcasts page.',
-      icon: '📚',
+        "Yes! Each generation runs independently in the background. You can start as many mysteries as your plan allows and track every one from the My Mysteries page — each with its own progress ring, current stage, and status.",
+      icon: "📚",
     },
     {
       id: 10,
-      category: 'Podcast Creation',
-      question: 'What video formats and durations are supported?',
+      category: "Mystery Creation",
+      question: "What player counts and durations work best?",
       answer:
-        'We support 16:9 (landscape) and 9:16 (portrait/vertical) formats. Standard duration is 5 seconds per video segment. Premium plans unlock longer durations up to 60 seconds. Export formats include MP4 for all major platforms.',
-      icon: '📄',
+        "We support 2-4, 4-8, and 8-12 player counts. Durations range from 30 minutes (quick party games) up to 120+ minutes (elaborate dinner mysteries). The AI adjusts the number of suspects, clue complexity, and puzzle difficulty based on your selected player count and duration.",
+      icon: "⏳",
     },
     {
       id: 11,
-      category: 'Podcast Creation',
-      question: 'Can I add my own branding to podcasts?',
+      category: "Mystery Creation",
+      question: "Can I use templates to speed things up?",
       answer:
-        'Yes! The Branding Suite generates a complete brand identity — name, tagline, colors, fonts, logo concept, voice, and social bios. Agency plans let you share your brand with team members.',
-      icon: '🏷️',
+        "Yes — browse the Templates page to pick from ready-made mystery concepts across all genres. Each template prefills title, genre, setting, difficulty, players, duration, and even a story seed. Click any template card to jump straight into Create Mystery with everything prefilled.",
+      icon: "⚡",
     },
 
-    // ============ AI Dialogue (4) ============
+    // ============ Studios & Tools (5) ============
     {
       id: 12,
-      category: 'AI Dialogue',
-      question: 'What is the AI Dialogue Generator?',
+      category: "Studios & Tools",
+      question: "What is the Character Studio?",
       answer:
-        'The AI Dialogue Generator creates natural, punchy host-and-guest conversations for your podcast videos. Enter a topic, pick a tone and style, and AI writes the dialogue — optimized for short-form viral clips (5-10 words per line).',
-      icon: '💬',
+        "Character Studio generates deeply detailed suspects — name, age, role, occupation, personality, background, motive, alibi, public and private information, and a cinematic AI portrait. Characters are saved to your library and can be reused across any mystery.",
+      icon: "👥",
     },
     {
       id: 13,
-      category: 'AI Dialogue',
-      question: 'How do I create an AI dialogue?',
+      category: "Studios & Tools",
+      question: "What is the Clue & Evidence Studio?",
       answer:
-        'Go to "AI Dialogue" in the sidebar → enter your topic → select a category → add optional context → choose tone (Professional / Casual / Educational) and style (Conversational / Interview / Storytelling) → click "Generate Dialogue". You\'ll get 2-part host/guest sections you can save.',
-      icon: '✍️',
+        "Clue & Evidence Studio creates individual clues and evidence documents with cinematic AI visuals. Generate clues by type (Physical, Testimony, Document, Observation, Forensic), importance level (Critical / Major / Minor), and red-herring toggle. Evidence includes letters, diaries, reports, and photos — all with editable body copy.",
+      icon: "🔍",
     },
     {
       id: 14,
-      category: 'AI Dialogue',
-      question: 'Can I save my dialogues for later?',
+      category: "Studios & Tools",
+      question: "What is the AI Puzzle Studio?",
       answer:
-        'Yes! Each Content card has its own "Save dialogue" button. Saved dialogues are stored in your browser\'s local storage and can be re-loaded anytime. Perfect for iterating on scripts.',
-      icon: '💾',
+        "AI Puzzle Studio generates 8 puzzle types — Cipher, Riddle, Logic, Deduction, Pattern, Timeline, Relationship, and Math. Each puzzle comes with a question, structured puzzle data, an answer, an explanation, and 3 hints. Difficulty is Easy / Medium / Hard. Perfect for inserting puzzles into existing mysteries.",
+      icon: "🧩",
     },
     {
       id: 15,
-      category: 'AI Dialogue',
-      question: 'What line lengths work best for 5-second videos?',
+      category: "Studios & Tools",
+      question: "What is the Escape Room AI?",
       answer:
-        'Each line should be 6-10 words maximum — one punchy sentence. The AI automatically optimizes for this. Longer lines get truncated to keep your video tight and viral-friendly.',
-      icon: '⏱️',
+        "Escape Room AI designs complete escape-room experiences: 4-6 interconnected puzzles, room descriptions, a final exit lock with combination, cinematic room visuals, per-puzzle hints, and a full solution walkthrough with GM notes. Choose from 9 themes (Haunted Library, Cyber Heist, Victorian Asylum, Pirate Shipwreck, and more).",
+      icon: "🚪",
     },
-
-    // ============ Trending & Templates (3) ============
     {
       id: 16,
-      category: 'Trending & Templates',
-      question: 'What is the Trending Podcasts page?',
+      category: "Studios & Tools",
+      question: "What are the Sales Kit and Party Planner?",
       answer:
-        'The Trending Podcasts page lets you search any topic — AI returns the top 12 trending podcasts across YouTube, Spotify, Apple Podcasts, Amazon Music, and Google Podcasts, complete with AI-generated cover art. Perfect for inspiration or market research.',
-      icon: '🔥',
+        "The Sales Kit generates platform-optimized marketing copy for 10 platforms (Etsy, Gumroad, Amazon KDP, Fiverr, Pinterest, TikTok, Instagram, Facebook, LinkedIn, Blog) — titles, descriptions, tags, hashtags, and prices per platform. The Party Planner builds a complete host's runbook: invitations, prep timeline, character assignments, food & drink, décor, icebreakers, and GM cue cards.",
+      icon: "🎉",
     },
+
+    // ============ DFY Packs (3) ============
     {
       id: 17,
-      category: 'Trending & Templates',
-      question: 'How many templates are available?',
+      category: "DFY Mystery Packs",
+      question: "What are DFY Mystery Packs?",
       answer:
-        'We offer 50+ templates across all categories including True Crime, Comedy, Business, Health, Education, and more. New templates are added regularly. The Templates page has category filters and search to find the perfect match.',
-      icon: '📋',
+        "DFY (Done-For-You) Mystery Packs are pre-built, ready-to-play mystery games. Each pack includes a complete kit — story, suspect cards, clues, evidence, puzzles, and solution — delivered as a print-ready ZIP. No AI generation needed — just download, print, and play instantly.",
+      icon: "📦",
     },
     {
       id: 18,
-      category: 'Trending & Templates',
-      question: 'Can I use templates commercially?',
+      category: "DFY Mystery Packs",
+      question: "How many DFY packs are available?",
       answer:
-        'Yes! All templates and AI-generated assets are royalty-free and can be used for commercial purposes — YouTube monetization, client work, sponsorships, and more.',
-      icon: '💼',
+        "We currently offer 10 DFY packs spanning multiple genres: Victorian Manor, Museum Heist, Luxury Train, Remote Lighthouse, Space Station, Clockmaker's Workshop, Egyptian Tomb, Masquerade Ball, Radio Station, and Restaurant Kitchen. Each pack varies in difficulty (Easy / Medium / Hard) and supports 4-8 players.",
+      icon: "📚",
     },
-
-    // ============ Premium Features (4) ============
     {
       id: 19,
-      category: 'Premium Features',
-      question: 'What is Podcast Creator Pro?',
+      category: "DFY Mystery Packs",
+      question: "Can I sell or resell DFY packs?",
       answer:
-        'Podcast Creator Pro unlocks 30 cinematic templates, 4× faster renders, AI enhance, and instant export to all platforms. Available with Unlimited Silver, Gold, or as a standalone plan.',
-      icon: '👑',
-    },
-    {
-      id: 20,
-      category: 'Premium Features',
-      question: 'What is Viral Shorts AI?',
-      answer:
-        'Viral Shorts AI analyzes your generated podcast video and platform, then generates a complete publishing kit — title, description, hashtags, tags, thumbnail text, best posting time, hook, and CTA — all optimized per platform.',
-      icon: '✨',
-    },
-    {
-      id: 21,
-      category: 'Premium Features',
-      question: 'What is Podcast Growth Studio?',
-      answer:
-        'Podcast Growth Studio builds a personalized 4-week roadmap, content plan, and monetization strategy based on your video. Includes growth score, positioning analysis, distribution channels, and monetization paths.',
-      icon: '📈',
-    },
-    {
-      id: 22,
-      category: 'Premium Features',
-      question: 'What is the AI Podcast Branding Suite?',
-      answer:
-        'The Branding Suite generates a complete brand identity: name, tagline, mission, 5-color palette, typography system, logo concept, voice & tone guide, 4 platform bios, thumbnail formula, and a launch checklist — all in 30 seconds.',
-      icon: '🎨',
+        "Yes! DFY packs are royalty-free and can be used commercially. With the RESELLER plan you can rebrand and resell them under your own business — perfect for party planners, event hosts, escape room owners, and digital product sellers.",
+      icon: "💼",
     },
 
     // ============ Plans & Pricing (4) ============
     {
+      id: 20,
+      category: "Plans & Pricing",
+      question: "What plans are available?",
+      answer:
+        "We offer: FE Front-End ($12), FE + TURBO ($27), Unlimited Silver ($47), Unlimited Gold ($69), Mystery Creator Pro ($37), Viral Shorts AI ($49), Mystery Growth Studio ($67), AI Mystery Branding Suite ($47), DFY Mystery Pack Silver ($97), DFY Mystery Pack Gold ($129), AI Ranker ($69), Agency ($197), and RESELLER ($249).",
+      icon: "💎",
+    },
+    {
+      id: 21,
+      category: "Plans & Pricing",
+      question: "Can I upgrade my plan later?",
+      answer:
+        "Yes — upgrades are instant. Buy a higher tier anytime and you immediately unlock all new features. All your existing mysteries, characters, clues, and DFY pack downloads stay exactly where they are.",
+      icon: "⬆️",
+    },
+    {
+      id: 22,
+      category: "Plans & Pricing",
+      question: "Do you offer refunds?",
+      answer:
+        "Yes — we offer a 30-day money-back guarantee. If you're not satisfied for any reason, contact support within 30 days of purchase for a full refund, no questions asked.",
+      icon: "✅",
+    },
+    {
       id: 23,
-      category: 'Plans & Pricing',
-      question: 'What plans are available?',
+      category: "Plans & Pricing",
+      question: "What payment methods do you accept?",
       answer:
-        'We offer: FE ($12), FE + TURBO ($27), Unlimited Silver ($47), Unlimited Gold ($69), Podcast Creator Pro ($37), Viral Shorts AI ($49), Podcast Growth Studio ($67), AI Podcast Branding Suite ($47), DFY Podcast Pack Silver ($97), DFY Podcast Pack Gold ($129), AI Ranker ($69), Agency ($197), and RESELLER ($249).',
-      icon: '💎',
-    },
-    {
-      id: 24,
-      category: 'Plans & Pricing',
-      question: 'Can I upgrade my plan later?',
-      answer:
-        'Yes! Upgrade to a higher plan anytime — the upgrade is instant and you get immediate access to all new features. Your existing podcasts, dialogues, and saved work are all preserved.',
-      icon: '⬆️',
-    },
-    {
-      id: 25,
-      category: 'Plans & Pricing',
-      question: 'Do you offer refunds?',
-      answer:
-        'Yes — we offer a 30-day money-back guarantee. If you\'re not satisfied for any reason, contact support within 30 days of purchase for a full refund, no questions asked.',
-      icon: '✅',
-    },
-    {
-      id: 26,
-      category: 'Plans & Pricing',
-      question: 'What payment methods do you accept?',
-      answer:
-        'We accept all major credit cards (Visa, Mastercard, American Express), PayPal, and bank transfers through our payment partners JVZoo and LaunchPad.',
-      icon: '💳',
+        "We accept all major credit cards (Visa, Mastercard, American Express), PayPal, and bank transfers through our payment partners JVZoo and LaunchPad.",
+      icon: "💳",
     },
 
     // ============ General (3) ============
     {
-      id: 27,
-      category: 'General',
-      question: 'How do I contact support?',
+      id: 24,
+      category: "General",
+      question: "How do I contact support?",
       answer:
-        'Contact us via the Support page in your dashboard or use our live chat. Our team responds within 24-48 hours (excluding Sundays). For urgent issues, live chat is the fastest way to get help.',
-      icon: '📧',
+        "Open a support ticket from the Support page in your dashboard, or use live chat for faster responses. Our team replies within 24-48 hours (excluding Sundays). For urgent issues, live chat is the fastest path.",
+      icon: "📧",
     },
     {
-      id: 28,
-      category: 'General',
-      question: 'Can I create unlimited podcast videos?',
+      id: 25,
+      category: "General",
+      question: "Can I create unlimited mysteries?",
       answer:
-        'With Unlimited Silver and Unlimited Gold plans, yes — unlimited podcast videos, AI shorts, and all premium features. Lower plans have reasonable monthly limits.',
-      icon: '♾️',
+        "With Unlimited Silver and Unlimited Gold plans, yes — unlimited mysteries, unlimited studios usage, and unlimited exports. Lower plans have reasonable monthly generation limits that reset each billing cycle.",
+      icon: "♾️",
     },
     {
-      id: 29,
-      category: 'General',
-      question: 'How do I change my password?',
+      id: 26,
+      category: "General",
+      question: "How do I change my password?",
       answer:
-        'Go to Settings → Security → Change Password. Enter your current password and your new password, then click Save. Your default password is the same as your purchase email — we recommend changing it after first login.',
-      icon: '🔐',
+        "Go to Settings → Security → Change Password. Enter your current password and your new password, then click Save. Your initial password is the same as your purchase email — we strongly recommend changing it after first login.",
+      icon: "🔐",
     },
   ];
 
-  const categories = ['all', ...new Set(faqs.map(faq => faq.category))];
+  const categories = ["all", ...new Set(faqs.map((faq) => faq.category))];
 
-  const filteredFaqs = faqs.filter(faq => {
-    const matchesSearch = faq.question.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                          faq.answer.toLowerCase().includes(searchTerm.toLowerCase());
-    const matchesCategory = selectedCategory === 'all' || faq.category === selectedCategory;
+  const filteredFaqs = faqs.filter((faq) => {
+    const matchesSearch =
+      faq.question.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      faq.answer.toLowerCase().includes(searchTerm.toLowerCase());
+    const matchesCategory =
+      selectedCategory === "all" || faq.category === selectedCategory;
     return matchesSearch && matchesCategory;
   });
 
@@ -308,71 +304,90 @@ const Training = () => {
 
   useEffect(() => {
     const handleScroll = () => setShowScrollTop(window.scrollY > 400);
-    window.addEventListener('scroll', handleScroll);
-    return () => window.removeEventListener('scroll', handleScroll);
+    window.addEventListener("scroll", handleScroll);
+    return () => window.removeEventListener("scroll", handleScroll);
   }, []);
 
   const toggleFaq = (id) => setExpandedFaq(expandedFaq === id ? null : id);
-  const scrollToTop = () => window.scrollTo({ top: 0, behavior: 'smooth' });
+  const scrollToTop = () => window.scrollTo({ top: 0, behavior: "smooth" });
   const scrollToCategory = (category) => {
-    const element = document.getElementById(`faq-${category.replace(/\s+/g, '-')}`);
-    if (element) element.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    const element = document.getElementById(
+      `faq-${category.replace(/\s+/g, "-")}`
+    );
+    if (element)
+      element.scrollIntoView({ behavior: "smooth", block: "start" });
   };
   const handlePlayVideo = () => setIsVideoPlaying(true);
 
   return (
-    <div className="flex h-screen" style={{ background: '#020914' }}>
+    <div
+      className="flex h-screen"
+      style={{ background: C.mainBg }}
+    >
       <Sidebar />
       <div className="flex-1 ml-0 md:ml-[18rem] flex flex-col overflow-hidden">
         <Navbar />
 
-        <div className="flex-1 overflow-y-auto custom-scroll" ref={faqContainerRef}>
+        <div
+          className="flex-1 overflow-y-auto custom-scroll"
+          ref={faqContainerRef}
+        >
           <div className="max-w-7xl mx-auto px-4 md:px-6 py-6">
-
             {/* ===== HEADER ===== */}
             <div className="mb-6">
-              <h1 className="text-2xl md:text-3xl font-bold text-[#eaf1ff] flex items-center gap-3">
-                <BookOpen size={28} className="text-[#c9b5ff]" />
+              <h1
+                className="font-['Playfair_Display',Georgia,serif] text-2xl md:text-3xl font-bold flex items-center gap-3"
+                style={{ color: C.heading }}
+              >
+                <BookOpen size={28} style={{ color: C.gold }} />
                 Training Center
               </h1>
-              <p className="text-sm text-[#8fa0ba] mt-1">
+              <p className="text-sm mt-1" style={{ color: C.secondary }}>
                 Watch our demo video and find answers to common questions
               </p>
             </div>
 
             {/* ===== TWO COLUMN LAYOUT ===== */}
             <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-
-              {/* ===== LEFT COLUMN - Main Content ===== */}
+              {/* ===== LEFT COLUMN ===== */}
               <div className="lg:col-span-2 space-y-6">
-
                 {/* ===== Video Section ===== */}
                 <div
                   className="rounded-2xl overflow-hidden"
                   style={{
-                    background: '#06162b',
-                    border: '1px solid #17385f',
-                    boxShadow: '0 4px 20px rgba(0,0,0,.35)',
+                    background: C.card,
+                    border: `1px solid ${C.border}`,
+                    boxShadow: "0 4px 20px rgba(0,0,0,.35)",
                   }}
                 >
                   <div
                     className="px-6 py-4"
-                    style={{
-                      background: 'linear-gradient(100deg, #6e35ed, #3483ff)',
-                    }}
+                    style={{ background: C.goldGradient }}
                   >
                     <div className="flex items-center gap-2">
-                      <Video size={20} className="text-white" />
-                      <h2 className="text-lg font-bold text-white">Demo Video</h2>
+                      <Video size={20} style={{ color: C.mainBg }} />
+                      <h2
+                        className="text-lg font-bold"
+                        style={{ color: C.mainBg }}
+                      >
+                        Demo Video
+                      </h2>
                     </div>
-                    <p className="text-white/80 text-sm">
+                    <p
+                      className="text-sm"
+                      style={{ color: C.mainBg, opacity: 0.75 }}
+                    >
                       Watch this quick demo to get started
                     </p>
                   </div>
 
                   <div className="p-4 md:p-6">
-                    <div className="relative aspect-video rounded-xl overflow-hidden shadow-lg group"
-                      style={{ background: '#041124', border: '1px solid #17385f' }}
+                    <div
+                      className="relative aspect-video rounded-xl overflow-hidden shadow-lg group"
+                      style={{
+                        background: C.cardSecondary,
+                        border: `1px solid ${C.border}`,
+                      }}
                     >
                       {!isVideoPlaying ? (
                         <>
@@ -393,45 +408,53 @@ const Training = () => {
                             <div className="relative">
                               <div
                                 className="absolute inset-0 rounded-full animate-ping"
-                                style={{ background: 'rgba(110,53,237,.35)' }}
+                                style={{ background: "rgba(246,197,93,.35)" }}
                               ></div>
                               <div
                                 className="relative w-20 h-20 md:w-28 md:h-28 rounded-full flex items-center justify-center transition-transform duration-300 group-hover:scale-110 shadow-2xl"
                                 style={{
-                                  background: 'rgba(255,255,255,.15)',
-                                  backdropFilter: 'blur(6px)',
-                                  border: '2px solid rgba(255,255,255,.3)',
+                                  background: "rgba(255,255,255,.15)",
+                                  backdropFilter: "blur(6px)",
+                                  border: "2px solid rgba(255,255,255,.3)",
                                 }}
                               >
                                 <div
                                   className="w-16 h-16 md:w-20 md:h-20 rounded-full flex items-center justify-center shadow-lg transition"
-                                  style={{
-                                    background:
-                                      'linear-gradient(135deg, #6e35ed, #3483ff)',
-                                  }}
+                                  style={{ background: C.goldGradient }}
                                 >
-                                  <Play size={28} className="text-white ml-1" />
+                                  <Play
+                                    size={28}
+                                    style={{ color: C.mainBg }}
+                                    className="ml-1"
+                                  />
                                 </div>
                               </div>
                             </div>
                           </button>
 
                           <div className="absolute bottom-0 left-0 right-0 p-4 bg-gradient-to-t from-black/80 via-black/40 to-transparent">
-                            <p className="text-white font-semibold text-sm flex items-center gap-2">
-                              <PlayCircle size={16} className="text-[#c9b5ff]" />
+                            <p
+                              className="font-semibold text-sm flex items-center gap-2"
+                              style={{ color: C.heading }}
+                            >
+                              <PlayCircle size={16} style={{ color: C.gold }} />
                               Watch Demo Video
                             </p>
-                            <p className="text-gray-300 text-xs">
+                            <p
+                              className="text-xs"
+                              style={{ color: C.secondary }}
+                            >
                               Click play to watch the demo • ~5 minutes
                             </p>
                           </div>
 
                           <div
-                            className="absolute top-4 right-4 px-3 py-1.5 rounded-lg text-white text-xs font-medium flex items-center gap-2"
+                            className="absolute top-4 right-4 px-3 py-1.5 rounded-lg text-xs font-medium flex items-center gap-2"
                             style={{
-                              background: 'rgba(2,7,19,.6)',
-                              backdropFilter: 'blur(6px)',
-                              border: '1px solid rgba(255,255,255,.15)',
+                              background: "rgba(0,12,22,.75)",
+                              backdropFilter: "blur(6px)",
+                              border: `1px solid rgba(255,255,255,.15)`,
+                              color: C.heading,
                             }}
                           >
                             <span className="w-2 h-2 bg-green-500 rounded-full animate-pulse"></span>
@@ -456,24 +479,28 @@ const Training = () => {
                 <div
                   className="rounded-2xl overflow-hidden"
                   style={{
-                    background: '#06162b',
-                    border: '1px solid #17385f',
-                    boxShadow: '0 4px 20px rgba(0,0,0,.35)',
+                    background: C.card,
+                    border: `1px solid ${C.border}`,
+                    boxShadow: "0 4px 20px rgba(0,0,0,.35)",
                   }}
                 >
                   <div
                     className="px-6 py-4"
-                    style={{
-                      background: 'linear-gradient(100deg, #6e35ed, #3483ff)',
-                    }}
+                    style={{ background: C.goldGradient }}
                   >
                     <div className="flex items-center gap-2">
-                      <HelpCircle size={20} className="text-white" />
-                      <h2 className="text-lg font-bold text-white">
+                      <HelpCircle size={20} style={{ color: C.mainBg }} />
+                      <h2
+                        className="text-lg font-bold"
+                        style={{ color: C.mainBg }}
+                      >
                         Frequently Asked Questions
                       </h2>
                     </div>
-                    <p className="text-white/80 text-sm">
+                    <p
+                      className="text-sm"
+                      style={{ color: C.mainBg, opacity: 0.75 }}
+                    >
                       Find answers to common questions
                     </p>
                   </div>
@@ -483,7 +510,8 @@ const Training = () => {
                     <div className="relative mb-4">
                       <Search
                         size={18}
-                        className="absolute left-4 top-1/2 transform -translate-y-1/2 text-[#7d8fa8]"
+                        className="absolute left-4 top-1/2 transform -translate-y-1/2"
+                        style={{ color: C.muted }}
                       />
                       <input
                         type="text"
@@ -492,151 +520,168 @@ const Training = () => {
                         onChange={(e) => setSearchTerm(e.target.value)}
                         className="w-full pl-12 pr-10 py-3 rounded-xl text-sm focus:outline-none transition"
                         style={{
-                          background: '#041124',
-                          border: '1px solid #17385f',
-                          color: '#eaf1ff',
+                          background: C.input,
+                          border: `1px solid ${C.border}`,
+                          color: C.heading,
                         }}
                         onFocus={(e) => {
-                          e.currentTarget.style.borderColor =
-                            'rgba(150,120,255,.6)';
-                          e.currentTarget.style.boxShadow =
-                            '0 0 0 3px rgba(110,53,237,.15)';
+                          e.currentTarget.style.borderColor = C.gold;
+                          e.currentTarget.style.boxShadow = `0 0 0 3px rgba(246,197,93,.15)`;
                         }}
                         onBlur={(e) => {
-                          e.currentTarget.style.borderColor = '#17385f';
-                          e.currentTarget.style.boxShadow = 'none';
+                          e.currentTarget.style.borderColor = C.border;
+                          e.currentTarget.style.boxShadow = "none";
                         }}
                       />
                       {searchTerm && (
                         <button
-                          onClick={() => setSearchTerm('')}
-                          className="absolute right-4 top-1/2 transform -translate-y-1/2 text-[#7d8fa8] hover:text-white transition"
+                          onClick={() => setSearchTerm("")}
+                          className="absolute right-4 top-1/2 transform -translate-y-1/2 transition"
+                          style={{ color: C.muted }}
                         >
                           <X size={16} />
                         </button>
                       )}
                     </div>
 
-                    <p className="text-xs text-[#8fa0ba] mb-4">
+                    <p className="text-xs mb-4" style={{ color: C.secondary }}>
                       Showing {filteredFaqs.length} of {faqs.length} FAQs
                     </p>
 
                     {Object.keys(groupedFaqs).length === 0 ? (
                       <div className="text-center py-12">
                         <div className="text-6xl mb-4">🔍</div>
-                        <h3 className="text-lg font-semibold text-[#eaf1ff]">
+                        <h3
+                          className="text-lg font-semibold"
+                          style={{ color: C.heading }}
+                        >
                           No FAQs Found
                         </h3>
-                        <p className="text-[#8fa0ba] text-sm">
+                        <p className="text-sm" style={{ color: C.secondary }}>
                           Try adjusting your search or filter
                         </p>
                         <button
                           onClick={() => {
-                            setSearchTerm('');
-                            setSelectedCategory('all');
+                            setSearchTerm("");
+                            setSelectedCategory("all");
                           }}
                           className="mt-4 text-sm font-medium transition"
-                          style={{ color: '#c9b5ff' }}
+                          style={{ color: C.gold }}
                         >
                           Clear filters
                         </button>
                       </div>
                     ) : (
-                      Object.entries(groupedFaqs).map(([category, categoryFaqs]) => (
-                        <div key={category} className="mb-6 last:mb-0">
-                          <h3
-                            id={`faq-${category.replace(/\s+/g, '-')}`}
-                            className="text-sm font-semibold text-[#eaf1ff] px-4 py-2 rounded-lg mb-3 flex items-center gap-2"
-                            style={{
-                              background: 'rgba(6,20,42,.7)',
-                              border: '1px solid #17385f',
-                            }}
-                          >
-                            <FolderOpen size={16} className="text-[#c9b5ff]" />
-                            {category} ({categoryFaqs.length})
-                          </h3>
+                      Object.entries(groupedFaqs).map(
+                        ([category, categoryFaqs]) => (
+                          <div key={category} className="mb-6 last:mb-0">
+                            <h3
+                              id={`faq-${category.replace(/\s+/g, "-")}`}
+                              className="text-sm font-semibold px-4 py-2 rounded-lg mb-3 flex items-center gap-2"
+                              style={{
+                                color: C.heading,
+                                background: C.cardSecondary,
+                                border: `1px solid ${C.border}`,
+                              }}
+                            >
+                              <FolderOpen
+                                size={16}
+                                style={{ color: C.gold }}
+                              />
+                              {category} ({categoryFaqs.length})
+                            </h3>
 
-                          <div className="space-y-2">
-                            {categoryFaqs.map((faq) => {
-                              const isOpen = expandedFaq === faq.id;
-                              return (
-                                <div
-                                  key={faq.id}
-                                  className="rounded-xl overflow-hidden transition-all duration-200"
-                                  style={{
-                                    background: isOpen
-                                      ? 'linear-gradient(135deg, rgba(110,53,237,.12), rgba(52,131,255,.08))'
-                                      : 'rgba(6,20,42,.5)',
-                                    border: isOpen
-                                      ? '1px solid rgba(150,120,255,.5)'
-                                      : '1px solid #17385f',
-                                    boxShadow: isOpen
-                                      ? '0 8px 24px rgba(0,0,0,.35)'
-                                      : 'none',
-                                  }}
-                                >
-                                  <button
-                                    onClick={() => toggleFaq(faq.id)}
-                                    className="w-full px-4 py-3 text-left flex items-start gap-3 transition"
+                            <div className="space-y-2">
+                              {categoryFaqs.map((faq) => {
+                                const isOpen = expandedFaq === faq.id;
+                                return (
+                                  <div
+                                    key={faq.id}
+                                    className="rounded-xl overflow-hidden transition-all duration-200"
+                                    style={{
+                                      background: isOpen
+                                        ? "rgba(246,197,93,.08)"
+                                        : "rgba(0,6,17,.6)",
+                                      border: isOpen
+                                        ? `1px solid ${C.gold}66`
+                                        : `1px solid ${C.border}`,
+                                      boxShadow: isOpen
+                                        ? "0 8px 24px rgba(0,0,0,.35)"
+                                        : "none",
+                                    }}
                                   >
-                                    <span className="text-xl mt-0.5">
-                                      {faq.icon}
-                                    </span>
-                                    <span className="text-sm font-medium text-[#eaf1ff] pr-4 flex-1">
-                                      {faq.question}
-                                    </span>
-                                    <span
-                                      className="transition-transform duration-300 flex-shrink-0 mt-1"
-                                      style={{
-                                        transform: isOpen
-                                          ? 'rotate(180deg)'
-                                          : 'rotate(0)',
-                                        color: isOpen ? '#c9b5ff' : '#7d8fa8',
-                                      }}
+                                    <button
+                                      onClick={() => toggleFaq(faq.id)}
+                                      className="w-full px-4 py-3 text-left flex items-start gap-3 transition"
                                     >
-                                      <ChevronDown size={18} />
-                                    </span>
-                                  </button>
+                                      <span className="text-xl mt-0.5">
+                                        {faq.icon}
+                                      </span>
+                                      <span
+                                        className="text-sm font-medium pr-4 flex-1"
+                                        style={{ color: C.heading }}
+                                      >
+                                        {faq.question}
+                                      </span>
+                                      <span
+                                        className="transition-transform duration-300 flex-shrink-0 mt-1"
+                                        style={{
+                                          transform: isOpen
+                                            ? "rotate(180deg)"
+                                            : "rotate(0)",
+                                          color: isOpen ? C.gold : C.muted,
+                                        }}
+                                      >
+                                        <ChevronDown size={18} />
+                                      </span>
+                                    </button>
 
-                                  {isOpen && (
-                                    <div
-                                      className="px-4 pb-3 pt-0"
-                                      style={{ borderTop: '1px solid #17385f' }}
-                                    >
-                                      <p className="text-sm text-[#aebfd5] leading-relaxed pt-3">
-                                        {faq.answer}
-                                      </p>
-                                    </div>
-                                  )}
-                                </div>
-                              );
-                            })}
+                                    {isOpen && (
+                                      <div
+                                        className="px-4 pb-3 pt-0"
+                                        style={{
+                                          borderTop: `1px solid ${C.border}`,
+                                        }}
+                                      >
+                                        <p
+                                          className="text-sm leading-relaxed pt-3"
+                                          style={{ color: C.secondary }}
+                                        >
+                                          {faq.answer}
+                                        </p>
+                                      </div>
+                                    )}
+                                  </div>
+                                );
+                              })}
+                            </div>
                           </div>
-                        </div>
-                      ))
+                        )
+                      )
                     )}
                   </div>
                 </div>
               </div>
 
-              {/* ===== RIGHT COLUMN - Sidebar ===== */}
+              {/* ===== RIGHT COLUMN ===== */}
               <div className="lg:col-span-1 space-y-4 sticky top-4">
                 {/* Categories */}
                 <div
                   className="rounded-2xl overflow-hidden"
                   style={{
-                    background: '#06162b',
-                    border: '1px solid #17385f',
-                    boxShadow: '0 4px 20px rgba(0,0,0,.35)',
+                    background: C.card,
+                    border: `1px solid ${C.border}`,
+                    boxShadow: "0 4px 20px rgba(0,0,0,.35)",
                   }}
                 >
                   <div
                     className="px-4 py-3"
-                    style={{
-                      background: 'linear-gradient(100deg, #6e35ed, #3483ff)',
-                    }}
+                    style={{ background: C.goldGradient }}
                   >
-                    <h3 className="text-sm font-bold text-white flex items-center gap-2">
+                    <h3
+                      className="text-sm font-bold flex items-center gap-2"
+                      style={{ color: C.mainBg }}
+                    >
                       <FolderOpen size={16} />
                       Categories
                     </h3>
@@ -644,16 +689,19 @@ const Training = () => {
 
                   <div className="p-4">
                     <button
-                      onClick={() => setSelectedCategory('all')}
+                      onClick={() => setSelectedCategory("all")}
                       className="w-full text-left px-3 py-2 rounded-lg text-sm font-medium transition mb-1"
                       style={
-                        selectedCategory === 'all'
+                        selectedCategory === "all"
                           ? {
-                              background: 'rgba(110,53,237,.2)',
-                              color: '#eaf1ff',
-                              border: '1px solid rgba(150,120,255,.4)',
+                              background: "rgba(246,197,93,.15)",
+                              color: C.heading,
+                              border: `1px solid ${C.gold}66`,
                             }
-                          : { color: '#aebfd5' }
+                          : {
+                              color: C.secondary,
+                              border: "1px solid transparent",
+                            }
                       }
                     >
                       <div className="flex items-center justify-between">
@@ -661,9 +709,9 @@ const Training = () => {
                         <span
                           className="text-xs px-2 py-0.5 rounded-full"
                           style={{
-                            background: 'rgba(6,20,42,.7)',
-                            border: '1px solid #17385f',
-                            color: '#8fa0ba',
+                            background: C.input,
+                            border: `1px solid ${C.border}`,
+                            color: C.secondary,
                           }}
                         >
                           {faqs.length}
@@ -671,39 +719,44 @@ const Training = () => {
                       </div>
                     </button>
 
-                    {categories.filter((c) => c !== 'all').map((category) => (
-                      <button
-                        key={category}
-                        onClick={() => {
-                          setSelectedCategory(category);
-                          scrollToCategory(category);
-                        }}
-                        className="w-full text-left px-3 py-2 rounded-lg text-sm font-medium transition mb-1"
-                        style={
-                          selectedCategory === category
-                            ? {
-                                background: 'rgba(110,53,237,.2)',
-                                color: '#eaf1ff',
-                                border: '1px solid rgba(150,120,255,.4)',
-                              }
-                            : { color: '#aebfd5' }
-                        }
-                      >
-                        <div className="flex items-center justify-between">
-                          <span>{category}</span>
-                          <span
-                            className="text-xs px-2 py-0.5 rounded-full"
-                            style={{
-                              background: 'rgba(6,20,42,.7)',
-                              border: '1px solid #17385f',
-                              color: '#8fa0ba',
-                            }}
-                          >
-                            {categoryCounts[category] || 0}
-                          </span>
-                        </div>
-                      </button>
-                    ))}
+                    {categories
+                      .filter((c) => c !== "all")
+                      .map((category) => (
+                        <button
+                          key={category}
+                          onClick={() => {
+                            setSelectedCategory(category);
+                            scrollToCategory(category);
+                          }}
+                          className="w-full text-left px-3 py-2 rounded-lg text-sm font-medium transition mb-1"
+                          style={
+                            selectedCategory === category
+                              ? {
+                                  background: "rgba(246,197,93,.15)",
+                                  color: C.heading,
+                                  border: `1px solid ${C.gold}66`,
+                                }
+                              : {
+                                  color: C.secondary,
+                                  border: "1px solid transparent",
+                                }
+                          }
+                        >
+                          <div className="flex items-center justify-between">
+                            <span>{category}</span>
+                            <span
+                              className="text-xs px-2 py-0.5 rounded-full"
+                              style={{
+                                background: C.input,
+                                border: `1px solid ${C.border}`,
+                                color: C.secondary,
+                              }}
+                            >
+                              {categoryCounts[category] || 0}
+                            </span>
+                          </div>
+                        </button>
+                      ))}
                   </div>
                 </div>
 
@@ -711,27 +764,32 @@ const Training = () => {
                 <div
                   className="rounded-2xl p-4"
                   style={{
-                    background:
-                      'linear-gradient(135deg, rgba(110,53,237,.15), rgba(52,131,255,.1))',
-                    border: '1px solid rgba(150,120,255,.4)',
+                    background: "rgba(246,197,93,.08)",
+                    border: `1px solid ${C.gold}55`,
                   }}
                 >
                   <div className="flex items-center gap-2 mb-2">
-                    <Headphones size={18} className="text-[#c9b5ff]" />
-                    <h3 className="text-sm font-bold text-[#eaf1ff]">
+                    <Headphones size={18} style={{ color: C.gold }} />
+                    <h3
+                      className="text-sm font-bold"
+                      style={{ color: C.heading }}
+                    >
                       Need Help?
                     </h3>
                   </div>
-                  <p className="text-xs text-[#8fa0ba] mb-3">
+                  <p className="text-xs mb-3" style={{ color: C.secondary }}>
                     Still have questions? Our support team is here to help.
                   </p>
                   <div className="space-y-2">
                     <a
                       href="/support"
-                      className="w-full flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl text-sm font-semibold text-white transition hover:-translate-y-0.5"
+                      className="w-full flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl text-sm font-bold transition hover:-translate-y-[1px]"
                       style={{
-                        background: 'linear-gradient(100deg, #6e35ed, #3483ff)',
-                        boxShadow: '0 6px 18px rgba(110,53,237,.35)',
+                        background: C.goldGradient,
+                        color: C.mainBg,
+                        border: `1px solid ${C.goldHover}`,
+                        boxShadow:
+                          "inset 0 1px 1px rgba(255,255,255,.25), 0 6px 18px rgba(246,197,93,.35)",
                       }}
                     >
                       <MessageCircle size={16} />
@@ -742,9 +800,9 @@ const Training = () => {
                       href="/dashboard"
                       className="w-full flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl text-sm font-medium transition"
                       style={{
-                        background: 'rgba(6,20,42,.7)',
-                        border: '1px solid #17385f',
-                        color: '#aebfd5',
+                        background: C.input,
+                        border: `1px solid ${C.border}`,
+                        color: C.secondary,
                       }}
                     >
                       <Rocket size={16} />
@@ -764,9 +822,10 @@ const Training = () => {
           onClick={scrollToTop}
           className="fixed bottom-8 right-8 p-3 rounded-full transition z-50"
           style={{
-            background: 'linear-gradient(100deg, #6e35ed, #3483ff)',
-            color: '#ffffff',
-            boxShadow: '0 8px 24px rgba(110,53,237,.45)',
+            background: C.goldGradient,
+            color: C.mainBg,
+            border: `1px solid ${C.goldHover}`,
+            boxShadow: "0 8px 24px rgba(246,197,93,.45)",
           }}
         >
           <ChevronUp size={20} />
@@ -777,11 +836,11 @@ const Training = () => {
         .custom-scroll::-webkit-scrollbar { width: 6px; }
         .custom-scroll::-webkit-scrollbar-track { background: transparent; }
         .custom-scroll::-webkit-scrollbar-thumb {
-          background: rgba(110,53,237,.4);
+          background: rgba(246,197,93,.4);
           border-radius: 20px;
         }
         .custom-scroll::-webkit-scrollbar-thumb:hover {
-          background: rgba(110,53,237,.7);
+          background: rgba(246,197,93,.7);
         }
         .custom-scroll { scroll-behavior: smooth; }
         @keyframes ping {

@@ -1,0 +1,334 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&family=Playfair+Display:wght@600;700&display=swap" rel="stylesheet">
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  @page {
+    size: A4;
+    margin: 0;                     /* PDF physical margins = 0 */
+  }
+
+  html, body {
+    margin: 0;
+    padding: 0;
+    background: #fff;
+    color: #0b1a22;
+    font-family: 'Inter', Arial, sans-serif;
+    font-size: 11pt;
+    line-height: 1.6;
+    -webkit-print-color-adjust: exact;
+    print-color-adjust: exact;
+  }
+
+  /* ============================================================
+     PAGE 1 — COVER, FULL BLEED (plum theme)
+     ============================================================ */
+  .cover {
+    background: linear-gradient(135deg, #1e1120 0%, #2a1730 60%, #221426 100%);
+    color: #fff;
+    padding: 40pt 32pt;
+    margin: 0;
+    border-radius: 0;
+    width: 210mm;
+    min-height: 297mm;
+    display: flex;
+    flex-direction: column;
+    page-break-after: always;
+    break-after: page;
+  }
+  .cover-eyebrow {
+    font-size: 10pt; text-transform: uppercase; letter-spacing: 2pt;
+    color: #f472b6; font-weight: 700; margin-bottom: 12pt;
+  }
+  .cover h1 {
+    font-family: 'Playfair Display', Georgia, serif;
+    font-size: 40pt; line-height: 1.08; font-weight: 700;
+    margin-bottom: 14pt; color: #fff;
+  }
+  .cover .gold { color: #f472b6; }
+  .cover-lead {
+    font-size: 12pt; color: #f5dce5; max-width: 420pt; line-height: 1.55;
+    margin-bottom: 20pt;
+  }
+  .cover-img {
+    width: 100%; max-height: 300pt; object-fit: cover;
+    border-radius: 6pt; margin: 20pt 0;
+    border: 1pt solid rgba(244,114,182,.45);
+    box-shadow: 0 8pt 20pt rgba(0,0,0,.35);
+  }
+  .cover-meta {
+    display: flex; flex-wrap: wrap; gap: 22pt;
+    margin-top: auto;
+    padding-top: 16pt; border-top: 1pt solid rgba(244,114,182,.35);
+  }
+  .cover-meta div { font-size: 10pt; color: #d8c4cf; }
+  .cover-meta strong {
+    display: block; color: #f472b6; font-size: 8.5pt;
+    text-transform: uppercase; letter-spacing: 1.4pt; margin-bottom: 4pt;
+  }
+
+  /* ============================================================
+     ONE SECTION = ONE PAGE
+     22mm top · 18mm sides · 20mm bottom
+     ============================================================ */
+  .section-page {
+    width: 210mm;
+    min-height: 297mm;
+    padding: 22mm 18mm 20mm 18mm;
+    margin: 0;
+    background: #ffffff;
+    page-break-after: always;
+    break-after: page;
+    display: flex;
+    flex-direction: column;
+    position: relative;
+  }
+  .section-page:last-of-type {
+    page-break-after: auto;
+    break-after: auto;
+  }
+
+  /* ============================================================
+     SECTION HEADER
+     ============================================================ */
+  .subhead {
+    font-size: 9.5pt; text-transform: uppercase; letter-spacing: 1.6pt;
+    color: #b8862e; font-weight: 700; margin-bottom: 5pt;
+  }
+  .section-title {
+    font-family: 'Playfair Display', Georgia, serif;
+    font-size: 22pt; font-weight: 700; color: #0b1a22;
+    border-bottom: 2pt solid #d99c3e; padding-bottom: 8pt;
+    margin-bottom: 18pt;
+  }
+
+  /* ============================================================
+     SETUP STEPS
+     ============================================================ */
+  .step {
+    display: flex; gap: 14pt; margin-bottom: 18pt;
+    page-break-inside: avoid;
+    break-inside: avoid;
+  }
+  .step-num {
+    width: 32pt; height: 32pt; border-radius: 50%;
+    background: linear-gradient(#ffda72, #d99c3e);
+    color: #091412; font-weight: 800;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 12pt; flex-shrink: 0;
+    border: 1pt solid #f4d27e;
+  }
+  .step-body { flex: 1; }
+  .step-title {
+    font-family: 'Playfair Display', Georgia, serif;
+    font-size: 14pt; font-weight: 700;
+    margin-bottom: 5pt; color: #0b1a22;
+  }
+  .step-body p { font-size: 10.5pt; line-height: 1.65; color: #2a2a2a; }
+
+  /* ============================================================
+     GAME RULES BOX
+     ============================================================ */
+  .rules-box {
+    background: #fbf7ea;
+    border: 1pt solid #d9c78a;
+    border-left: 3pt solid #d99c3e;
+    border-radius: 4pt; padding: 16pt 18pt;
+    margin-bottom: 18pt;
+  }
+  .rules-box ul { padding-left: 18pt; }
+  .rules-box li {
+    font-size: 10.5pt; line-height: 1.7; margin-bottom: 8pt; color: #2a2a2a;
+  }
+  .rules-box li:last-child { margin-bottom: 0; }
+
+  /* ============================================================
+     TIMELINE
+     ============================================================ */
+  .timeline-intro {
+    font-size: 10.5pt; color: #4a5a66;
+    margin-bottom: 14pt; font-style: italic;
+  }
+  .timeline-item {
+    display: flex; gap: 14pt;
+    padding: 10pt 0; border-bottom: 1pt solid #e8e0c8;
+    page-break-inside: avoid;
+    break-inside: avoid;
+  }
+  .timeline-item:last-child { border-bottom: none; }
+  .timeline-time {
+    font-family: 'Playfair Display', Georgia, serif;
+    font-size: 12pt; font-weight: 700;
+    color: #d99c3e; min-width: 72pt;
+  }
+  .timeline-body {
+    flex: 1; font-size: 10.5pt; line-height: 1.6; color: #2a2a2a;
+  }
+  .timeline-location {
+    font-size: 9pt; color: #7a6a44;
+    text-transform: uppercase; letter-spacing: .8pt;
+    margin-bottom: 3pt;
+  }
+
+  /* ============================================================
+     SCENE IMAGE
+     ============================================================ */
+  .scene-block {
+    margin: 22pt 0 0 0;
+    page-break-inside: avoid;
+    break-inside: avoid;
+  }
+  .scene-block img {
+    width: 100%; max-height: 240pt; object-fit: cover;
+    border-radius: 5pt; border: 1pt solid #d99c3e; display: block;
+  }
+  .scene-caption {
+    margin-top: 6pt; font-size: 9pt; text-align: center;
+    color: #6b5a2e; font-style: italic;
+  }
+
+  /* ============================================================
+     CLOSING PARAGRAPH
+     ============================================================ */
+  .closing-text {
+    font-size: 11pt; line-height: 1.75; color: #1a2a33;
+  }
+</style>
+</head>
+<body>
+
+  <!-- ========================================================
+       PAGE 1 — COVER (full bleed, plum)
+       ======================================================== -->
+  <div class="cover">
+    <div class="cover-eyebrow">Player Instructions</div>
+    <h1><span class="gold">{{title}}</span></h1>
+    <p class="cover-lead">
+      Everything you need to set up and play this mystery game.
+      Read this page before beginning the investigation.
+    </p>
+
+    {{#if coverImage}}
+      <img class="cover-img" src="{{coverImage}}" alt="{{title}}">
+    {{/if}}
+
+    <div class="cover-meta">
+      <div><strong>Players</strong>{{playerCount}}</div>
+      <div><strong>Duration</strong>{{duration}} min</div>
+      <div><strong>Difficulty</strong>{{difficulty}}</div>
+      <div><strong>Audience</strong>{{targetAudience}}</div>
+    </div>
+  </div>
+
+  <!-- ========================================================
+       PAGE 2 — SETUP (fresh page)
+       ======================================================== -->
+  <div class="section-page">
+    <div class="subhead">Before You Begin</div>
+    <div class="section-title">Setup</div>
+
+    <div class="step">
+      <div class="step-num">1</div>
+      <div class="step-body">
+        <div class="step-title">Gather Your Players</div>
+        <p>This mystery is designed for {{playerCount}} players. One person should act as the Game Master and read from the Game Master Guide.</p>
+      </div>
+    </div>
+
+    <div class="step">
+      <div class="step-num">2</div>
+      <div class="step-body">
+        <div class="step-title">Distribute Character Cards</div>
+        <p>Give each player their suspect card. Study your character's background, motive and alibi carefully — you may need to defend yourself.</p>
+      </div>
+    </div>
+
+    <div class="step">
+      <div class="step-num">3</div>
+      <div class="step-body">
+        <div class="step-title">Read the Story Aloud</div>
+        <p>Have the Game Master read the Mystery Story introduction. This sets the scene and introduces the crime.</p>
+      </div>
+    </div>
+
+    <div class="step">
+      <div class="step-num">4</div>
+      <div class="step-body">
+        <div class="step-title">Begin the Investigation</div>
+        <p>Players take turns examining clues, questioning suspects, and working through puzzles. Every clue matters.</p>
+      </div>
+    </div>
+
+    {{#if sceneImages.[0]}}
+    <div class="scene-block">
+      <img src="{{sceneImages.[0].url}}" alt="{{sceneImages.[0].location}}">
+      <div class="scene-caption">{{sceneImages.[0].location}}</div>
+    </div>
+    {{/if}}
+  </div>
+
+  <!-- ========================================================
+       PAGE 3 — GAME RULES (fresh page)
+       ======================================================== -->
+  <div class="section-page">
+    <div class="subhead">The Rules of the Game</div>
+    <div class="section-title">Game Rules</div>
+
+    <div class="rules-box">
+      <ul>
+        <li><strong>Stay in character.</strong> You are your suspect — defend yourself, but stay truthful to what your character would know.</li>
+        <li><strong>Share clues openly.</strong> Discussion and cooperation are the fastest path to the truth.</li>
+        <li><strong>No peeking at the Solution Guide.</strong> Only the Game Master may read it, and only after the investigation concludes.</li>
+        <li><strong>Ask the Game Master for hints</strong> if you get stuck on a puzzle — but each hint costs you.</li>
+        <li><strong>Time matters.</strong> Aim to solve the case within {{duration}} minutes.</li>
+      </ul>
+    </div>
+  </div>
+
+  <!-- ========================================================
+       PAGE 4 — TIMELINE (fresh page, only if timeline exists)
+       ======================================================== -->
+  {{#if playerTimeline.length}}
+  <div class="section-page">
+    <div class="subhead">For Reference</div>
+    <div class="section-title">Investigation Timeline</div>
+
+    <p class="timeline-intro">
+      The following events are known to all players. Use them to cross-reference alibis.
+    </p>
+
+    {{#each playerTimeline}}
+    <div class="timeline-item">
+      <div class="timeline-time">{{time}}</div>
+      <div class="timeline-body">
+        {{#if location}}
+          <div class="timeline-location">{{location}}</div>
+        {{/if}}
+        {{description}}
+      </div>
+    </div>
+    {{/each}}
+  </div>
+  {{/if}}
+
+  <!-- ========================================================
+       PAGE 5 — HOW TO WIN (fresh page)
+       ======================================================== -->
+  <div class="section-page">
+    <div class="subhead">Victory Conditions</div>
+    <div class="section-title">How to Win</div>
+
+    <p class="closing-text">
+      Accuse the correct suspect, state their motive, and explain how they
+      committed the crime. Cross-reference the clues, the timeline, and
+      each suspect's alibi. The Game Master will confirm whether you
+      identified the culprit.
+    </p>
+  </div>
+
+</body>
+</html>

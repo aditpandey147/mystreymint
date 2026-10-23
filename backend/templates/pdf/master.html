@@ -1,0 +1,702 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&family=Playfair+Display:wght@600;700&display=swap" rel="stylesheet">
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  @page {
+    size: A4;
+    margin: 0;                     /* PDF physical margins = 0 */
+  }
+
+  html, body {
+    margin: 0;
+    padding: 0;
+    background: #fff;
+    color: #0b1a22;
+    font-family: 'Inter', Arial, sans-serif;
+    font-size: 11pt;
+    line-height: 1.6;
+    -webkit-print-color-adjust: exact;
+    print-color-adjust: exact;
+  }
+
+  /* ============================================================
+     PAGE 1 — COVER, FULL BLEED (royal purple theme)
+     ============================================================ */
+  .cover {
+    background: linear-gradient(135deg, #140f1e 0%, #1e1233 60%, #180f26 100%);
+    color: #fff;
+    padding: 60pt 40pt;
+    margin: 0;
+    border-radius: 0;
+    width: 210mm;
+    min-height: 297mm;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    page-break-after: always;
+    break-after: page;
+  }
+  .cover-eyebrow {
+    font-size: 11pt; text-transform: uppercase; letter-spacing: 3pt;
+    color: #a78bfa; font-weight: 700; margin-bottom: 16pt;
+  }
+  .cover h1 {
+    font-family: 'Playfair Display', Georgia, serif;
+    font-size: 52pt; line-height: 1.05; font-weight: 700;
+    margin-bottom: 20pt; color: #fff;
+  }
+  .cover .gold { color: #a78bfa; }
+  .cover-subtitle {
+    font-size: 15pt; color: #e0d8f0; max-width: 480pt;
+    line-height: 1.5; margin-bottom: 30pt;
+  }
+  .cover-meta {
+    display: flex; flex-wrap: wrap; gap: 28pt;
+    padding-top: 20pt;
+    border-top: 1pt solid rgba(167,139,250,.35);
+    margin-top: auto;
+  }
+  .cover-meta div { font-size: 11pt; color: #c8bce0; }
+  .cover-meta strong {
+    display: block; color: #a78bfa; font-size: 9pt;
+    text-transform: uppercase; letter-spacing: 1.6pt;
+    margin-bottom: 5pt;
+  }
+  .cover-img {
+    width: 100%; max-height: 300pt; object-fit: cover;
+    border-radius: 4pt; margin: 26pt 0;
+    border: 1pt solid rgba(167,139,250,.4);
+  }
+
+  /* ============================================================
+     ONE SECTION = ONE PAGE
+     22mm top · 18mm sides · 20mm bottom
+     ============================================================ */
+  .section-page {
+    width: 210mm;
+    min-height: 297mm;
+    padding: 22mm 18mm 20mm 18mm;
+    margin: 0;
+    background: #ffffff;
+    page-break-after: always;
+    break-after: page;
+    display: flex;
+    flex-direction: column;
+    position: relative;
+  }
+  .section-page:last-of-type {
+    page-break-after: auto;
+    break-after: auto;
+  }
+
+  /* ============================================================
+     FULL-BLEED DIVIDERS (one per part)
+     ============================================================ */
+  .divider {
+    width: 210mm;
+    min-height: 297mm;
+    padding: 22mm 18mm;
+    margin: 0;
+    background: linear-gradient(135deg, #140f1e, #1e1233);
+    color: #fff;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    page-break-after: always;
+    break-after: page;
+    border-radius: 0;
+  }
+  .divider.gm {
+    background: linear-gradient(135deg, #2a0808, #4a1010);
+  }
+  .divider-num {
+    font-size: 11pt; text-transform: uppercase;
+    letter-spacing: 3pt; color: #a78bfa;
+    font-weight: 700; margin-bottom: 12pt;
+  }
+  .divider.gm .divider-num { color: #ff8fa8; }
+  .divider-title {
+    font-family: 'Playfair Display', Georgia, serif;
+    font-size: 44pt; line-height: 1.08;
+    font-weight: 700; margin-bottom: 14pt;
+    color: #fff;
+  }
+  .divider-lead {
+    font-size: 13pt; color: #c8bce0; max-width: 420pt;
+    line-height: 1.5;
+  }
+  .divider.gm .divider-lead { color: #ffb2c4; }
+
+  /* ============================================================
+     SECTION HEADER
+     ============================================================ */
+  .subhead {
+    font-size: 9.5pt; text-transform: uppercase;
+    letter-spacing: 1.5pt; color: #b8862e;
+    font-weight: 700; margin-bottom: 6pt;
+  }
+  .section-title {
+    font-family: 'Playfair Display', Georgia, serif;
+    font-size: 22pt; font-weight: 700;
+    border-bottom: 2pt solid #d99c3e;
+    padding-bottom: 8pt; margin-bottom: 18pt;
+  }
+
+  .section p {
+    font-size: 11pt; line-height: 1.7;
+    margin-bottom: 12pt; color: #1a2a33;
+  }
+  .section p:last-child { margin-bottom: 0; }
+
+  /* ============================================================
+     SUSPECT CARD (used inside suspects divider page group)
+     ============================================================ */
+  .suspect {
+    border: 1.5pt solid #d99c3e;
+    border-radius: 6pt; background: #fffdf6;
+    padding: 14pt; margin-bottom: 14pt;
+    page-break-inside: avoid;
+    break-inside: avoid;
+  }
+  .suspect-header {
+    display: flex; gap: 14pt;
+    align-items: flex-start; margin-bottom: 10pt;
+  }
+  .suspect-portrait {
+    width: 90pt; height: 110pt; border-radius: 4pt;
+    background: #140f1e center/cover no-repeat;
+    border: 1pt solid #d99c3e; flex-shrink: 0;
+    display: flex; align-items: center; justify-content: center;
+    color: #a78bfa; font-family: 'Playfair Display', Georgia, serif;
+    font-size: 28pt; font-weight: 700;
+  }
+  .suspect-role {
+    font-size: 8.5pt; text-transform: uppercase;
+    letter-spacing: 1.2pt; color: #b8862e;
+    font-weight: 700; margin-bottom: 3pt;
+  }
+  .suspect-name {
+    font-family: 'Playfair Display', Georgia, serif;
+    font-size: 17pt; font-weight: 700;
+    color: #0b1a22; line-height: 1.15; margin-bottom: 4pt;
+  }
+  .suspect-meta { font-size: 10pt; color: #6b5a2e; }
+  .suspect-fields { font-size: 10pt; line-height: 1.6; }
+  .suspect-fields p { margin-bottom: 6pt; color: #2a2a2a; }
+  .suspect-fields strong { color: #8a5f1a; }
+  .suspect-fields p:last-child { margin-bottom: 0; }
+
+  /* ============================================================
+     CLUE CARD
+     ============================================================ */
+  .clue {
+    border-left: 3pt solid #d99c3e;
+    background: #fbf7ea;
+    padding: 12pt 16pt; margin-bottom: 12pt;
+    page-break-inside: avoid;
+    break-inside: avoid;
+    border-radius: 0 6pt 6pt 0;
+  }
+  .clue-title {
+    font-weight: 700; font-size: 11.5pt;
+    margin-bottom: 5pt; color: #0b1a22;
+  }
+  .clue-body {
+    font-size: 10.5pt; line-height: 1.6;
+    color: #2a2a2a;
+  }
+
+  /* ============================================================
+     DOCUMENT (evidence)
+     ============================================================ */
+  .document {
+    border: 1pt dashed #a89a6a;
+    background: #fcfaf4;
+    padding: 16pt 18pt; margin-bottom: 14pt;
+    font-family: 'Courier New', monospace;
+    font-size: 10pt; line-height: 1.7;
+    page-break-inside: avoid;
+    break-inside: avoid;
+    border-radius: 4pt;
+  }
+  .document-title {
+    font-family: 'Inter', Arial, sans-serif;
+    font-weight: 700; text-transform: uppercase;
+    letter-spacing: 1.6pt; margin-bottom: 12pt;
+    color: #6b5a2e; font-size: 9.5pt;
+    border-bottom: 1pt solid #d9c78a;
+    padding-bottom: 6pt;
+  }
+  .document-body { white-space: pre-wrap; color: #2a2a2a; }
+
+  /* ============================================================
+     PUZZLE CARD
+     ============================================================ */
+  .puzzle {
+    border: 1.5pt solid #0b6b5f;
+    border-radius: 6pt; background: #f3fbf8;
+    padding: 14pt 16pt; margin-bottom: 14pt;
+    page-break-inside: avoid;
+    break-inside: avoid;
+  }
+  .puzzle-title {
+    font-family: 'Playfair Display', Georgia, serif;
+    font-size: 15pt; font-weight: 700;
+    margin-bottom: 4pt;
+  }
+  .puzzle-meta {
+    font-size: 9pt; color: #0b6b5f;
+    text-transform: uppercase; letter-spacing: 1pt;
+    margin-bottom: 10pt;
+  }
+  .puzzle-question {
+    font-size: 10.5pt; margin-bottom: 10pt;
+    line-height: 1.6;
+  }
+  .puzzle-hints { font-size: 9.5pt; color: #4a6b64; }
+
+  /* ============================================================
+     TIMELINE
+     ============================================================ */
+  .timeline-item {
+    display: flex; gap: 14pt;
+    padding: 10pt 0; border-bottom: 1pt solid #e8e0c8;
+    page-break-inside: avoid;
+    break-inside: avoid;
+  }
+  .timeline-item:last-child { border-bottom: none; }
+  .timeline-time {
+    font-family: 'Playfair Display', Georgia, serif;
+    font-size: 12pt; font-weight: 700;
+    color: #d99c3e; min-width: 72pt;
+  }
+  .timeline-body {
+    flex: 1; font-size: 10.5pt; line-height: 1.6;
+  }
+  .timeline-location {
+    font-size: 9pt; color: #7a6a44;
+    text-transform: uppercase; letter-spacing: .8pt;
+    margin-bottom: 3pt;
+  }
+
+  /* ============================================================
+     SOLUTION HIGHLIGHT (culprit name)
+     ============================================================ */
+  .solution-highlight {
+    background: linear-gradient(135deg, #fff6d6, #ffefb0);
+    border: 1.5pt solid #d99c3e;
+    border-radius: 6pt; padding: 18pt 20pt;
+    margin-bottom: 18pt;
+    page-break-inside: avoid;
+    break-inside: avoid;
+  }
+  .solution-highlight .label {
+    font-size: 9pt; text-transform: uppercase;
+    letter-spacing: 1.6pt; color: #8a5f1a;
+    font-weight: 700; margin-bottom: 6pt;
+  }
+  .solution-highlight .value {
+    font-family: 'Playfair Display', Georgia, serif;
+    font-size: 22pt; font-weight: 700;
+    color: #0b1a22; line-height: 1.15;
+  }
+
+  /* ============================================================
+     ANSWER KEY BOX
+     ============================================================ */
+  .answer-box {
+    margin-top: 10pt; padding: 12pt 14pt;
+    border: 1pt solid #7dc9a0;
+    background: #eefaf4; border-radius: 4pt;
+    margin-bottom: 12pt;
+    page-break-inside: avoid;
+    break-inside: avoid;
+  }
+  .answer-box-title {
+    font-family: 'Playfair Display', Georgia, serif;
+    font-size: 13pt; font-weight: 700;
+    margin-bottom: 6pt;
+  }
+  .answer-box p {
+    font-size: 10.5pt; line-height: 1.6;
+    color: #1a2a33; margin-bottom: 5pt;
+  }
+  .answer-box p:last-child { margin-bottom: 0; }
+
+  /* ============================================================
+     TAGS
+     ============================================================ */
+  .tag {
+    display: inline-block; padding: 2pt 8pt;
+    font-size: 8pt; border-radius: 20pt;
+    background: #f0ead0; border: 1pt solid #d9c78a;
+    color: #6b5a2e; font-weight: 700;
+    text-transform: uppercase; letter-spacing: .5pt;
+    margin-left: 4pt;
+  }
+  .tag.gold { background: #fff2cc; border-color: #d99c3e; color: #8a5f1a; }
+</style>
+</head>
+<body>
+
+  <!-- ================================================== -->
+  <!-- PAGE 1 — COVER (full bleed, royal purple)        -->
+  <!-- ================================================== -->
+  <div class="cover">
+    <div class="cover-eyebrow">MysteryMint AI · Complete Mystery Kit</div>
+    <h1><span class="gold">{{title}}</span></h1>
+    <p class="cover-subtitle">
+      A {{genre}} set in {{setting}} — for {{playerCount}} players,
+      approximately {{duration}} minutes.
+    </p>
+
+    {{#if coverImage}}
+      <img class="cover-img" src="{{coverImage}}" alt="Cover">
+    {{/if}}
+
+    <div class="cover-meta">
+      <div><strong>Genre</strong>{{genre}}</div>
+      <div><strong>Setting</strong>{{setting}}</div>
+      <div><strong>Difficulty</strong>{{difficulty}}</div>
+      <div><strong>Audience</strong>{{targetAudience}}</div>
+      <div><strong>Players</strong>{{playerCount}}</div>
+      <div><strong>Duration</strong>{{duration}} min</div>
+    </div>
+  </div>
+
+  <!-- ================================================== -->
+  <!-- PART ONE — STORY DIVIDER (full bleed)            -->
+  <!-- ================================================== -->
+  <div class="divider">
+    <div class="divider-num">Part One</div>
+    <div class="divider-title">The Story</div>
+    <p class="divider-lead">
+      Read this section aloud to set the scene. The crime has been
+      committed — now the investigation begins.
+    </p>
+  </div>
+
+  <!-- STORY SECTIONS — grouped into pages -->
+  {{#if story.introduction}}
+  <div class="section-page">
+    <div class="subhead">Introduction</div>
+    <div class="section-title">The Beginning</div>
+    <p>{{nl2br story.introduction}}</p>
+
+    {{#if story.background}}
+    <div class="subhead" style="margin-top:20pt;">Background</div>
+    <div class="section-title">The Past</div>
+    <p>{{nl2br story.background}}</p>
+    {{/if}}
+  </div>
+  {{/if}}
+
+  {{#if story.settingDescription}}
+  <div class="section-page">
+    <div class="subhead">The Setting</div>
+    <div class="section-title">Where It Happened</div>
+    <p>{{nl2br story.settingDescription}}</p>
+
+    {{#if story.mainIncident}}
+    <div class="subhead" style="margin-top:20pt;">The Incident</div>
+    <div class="section-title">What Happened</div>
+    <p>{{nl2br story.mainIncident}}</p>
+    {{/if}}
+  </div>
+  {{/if}}
+
+  {{#if story.crimeDiscovery}}
+  <div class="section-page">
+    <div class="subhead">The Discovery</div>
+    <div class="section-title">The Body Was Found</div>
+    <p>{{nl2br story.crimeDiscovery}}</p>
+
+    {{#if story.investigationOpening}}
+    <div class="subhead" style="margin-top:20pt;">The Investigation</div>
+    <div class="section-title">Where We Begin</div>
+    <p>{{nl2br story.investigationOpening}}</p>
+    {{/if}}
+  </div>
+  {{/if}}
+
+  {{#if story.suspensefulDevelopments}}
+  <div class="section-page">
+    <div class="subhead">Developments</div>
+    <div class="section-title">Rising Suspense</div>
+    <ul style="padding-left:18pt;">
+      {{#each story.suspensefulDevelopments}}
+      <li style="margin-bottom:8pt; font-size:11pt; line-height:1.7;">{{this}}</li>
+      {{/each}}
+    </ul>
+  </div>
+  {{/if}}
+
+  <!-- ================================================== -->
+  <!-- PART TWO — SUSPECTS DIVIDER (full bleed)         -->
+  <!-- ================================================== -->
+  {{#if characters.length}}
+  <div class="divider">
+    <div class="divider-num">Part Two</div>
+    <div class="divider-title">The Suspects</div>
+    <p class="divider-lead">
+      Each player receives one of these character cards. Study your
+      suspect's background, motive, and alibi carefully.
+    </p>
+  </div>
+
+  <!-- Each suspect on its own page -->
+  {{#each characters}}
+  <div class="section-page">
+    <div class="suspect">
+      <div class="suspect-header">
+        <div class="suspect-portrait"
+             {{#if portraitUrl}}
+               style="background-image:url('{{portraitUrl}}'); color:transparent;"
+             {{/if}}>
+          {{#unless portraitUrl}}{{name.[0]}}{{/unless}}
+        </div>
+        <div style="flex:1;">
+          <div class="suspect-role">{{role}}</div>
+          <div class="suspect-name">{{name}}</div>
+          <div class="suspect-meta">Age {{age}} · {{occupation}}</div>
+        </div>
+      </div>
+      <div class="suspect-fields">
+        {{#if personality}}<p><strong>Personality:</strong> {{personality}}</p>{{/if}}
+        {{#if background}}<p><strong>Background:</strong> {{background}}</p>{{/if}}
+        {{#if motive}}<p><strong>Possible Motive:</strong> {{motive}}</p>{{/if}}
+        {{#if alibi}}<p><strong>Stated Alibi:</strong> {{alibi}}</p>{{/if}}
+        {{#if publicInformation.appearance}}
+          <p><strong>Appearance:</strong> {{publicInformation.appearance}}</p>
+        {{/if}}
+        {{#if publicInformation.mannerisms}}
+          <p><strong>Mannerisms:</strong> {{publicInformation.mannerisms}}</p>
+        {{/if}}
+      </div>
+    </div>
+  </div>
+  {{/each}}
+  {{/if}}
+
+  <!-- ================================================== -->
+  <!-- PART THREE — CLUES DIVIDER (full bleed)          -->
+  <!-- ================================================== -->
+  {{#if clues.length}}
+  <div class="divider">
+    <div class="divider-num">Part Three</div>
+    <div class="divider-title">Clues</div>
+    <p class="divider-lead">
+      Every clue matters. Cross-reference them with the timeline and
+      the suspect alibis. Some clues are essential — others mislead.
+    </p>
+  </div>
+
+  <!-- Clues grouped — 3-4 per page, break-inside: avoid handles overflow -->
+  <div class="section-page">
+    {{#each clues}}
+    <div class="clue">
+      <div class="clue-title">
+        {{title}}
+        <span class="tag gold">{{type}}</span>
+        <span class="tag">{{importance}}</span>
+      </div>
+      <div class="clue-body">{{nl2br description}}</div>
+      {{#if discoveryLocation}}
+        <p style="font-size:9.5pt; color:#7a6a44; margin-top:5pt; font-style:italic;">
+          Found at: {{discoveryLocation}}
+        </p>
+      {{/if}}
+    </div>
+    {{/each}}
+  </div>
+  {{/if}}
+
+  <!-- ================================================== -->
+  <!-- PART FOUR — EVIDENCE DIVIDER (full bleed)        -->
+  <!-- ================================================== -->
+  {{#if evidence.length}}
+  <div class="divider">
+    <div class="divider-num">Part Four</div>
+    <div class="divider-title">Evidence</div>
+    <p class="divider-lead">
+      Documents recovered during the investigation — letters,
+      reports, statements and records.
+    </p>
+  </div>
+
+  <div class="section-page">
+    {{#each evidence}}
+    <div class="document">
+      <div class="document-title">{{type}} — {{title}}</div>
+      <div class="document-body">{{body}}</div>
+    </div>
+    {{/each}}
+  </div>
+  {{/if}}
+
+  <!-- ================================================== -->
+  <!-- PART FIVE — PUZZLES DIVIDER (full bleed)         -->
+  <!-- ================================================== -->
+  {{#if puzzles.length}}
+  <div class="divider">
+    <div class="divider-num">Part Five</div>
+    <div class="divider-title">Puzzles</div>
+    <p class="divider-lead">
+      Solve each puzzle to unlock hidden truths. Answers are in the
+      Game Master section only.
+    </p>
+  </div>
+
+  <div class="section-page">
+    {{#each puzzles}}
+    <div class="puzzle">
+      <div class="puzzle-title">{{title}}</div>
+      <div class="puzzle-meta">{{type}} · Difficulty: {{difficulty}}</div>
+      <div class="puzzle-question">{{nl2br question}}</div>
+      {{#if hints.length}}
+      <div class="puzzle-hints">
+        <strong>Hints:</strong>
+        <ol style="padding-left:16pt; margin-top:4pt;">
+          {{#each hints}}<li>{{this}}</li>{{/each}}
+        </ol>
+      </div>
+      {{/if}}
+    </div>
+    {{/each}}
+  </div>
+  {{/if}}
+
+  <!-- ================================================== -->
+  <!-- PART SIX — TIMELINE DIVIDER (full bleed)         -->
+  <!-- ================================================== -->
+  {{#if playerTimeline.length}}
+  <div class="divider">
+    <div class="divider-num">Part Six</div>
+    <div class="divider-title">Timeline</div>
+    <p class="divider-lead">
+      The known sequence of events. Compare with each suspect's alibi.
+    </p>
+  </div>
+
+  <div class="section-page">
+    {{#each playerTimeline}}
+    <div class="timeline-item">
+      <div class="timeline-time">{{time}}</div>
+      <div class="timeline-body">
+        {{#if location}}
+          <div class="timeline-location">{{location}}</div>
+        {{/if}}
+        {{description}}
+      </div>
+    </div>
+    {{/each}}
+  </div>
+  {{/if}}
+
+  <!-- ================================================== -->
+  <!-- SOLUTION — GM DIVIDER (full bleed, dark red)     -->
+  <!-- ================================================== -->
+  <div class="divider gm">
+    <div class="divider-num">⚠ Game Master Only</div>
+    <div class="divider-title">The Solution</div>
+    <p class="divider-lead">
+      Do not reveal this section to players. It contains the culprit,
+      motive, method and puzzle answers.
+    </p>
+  </div>
+
+  <!-- Culprit highlight -->
+  <div class="section-page">
+    <div class="solution-highlight">
+      <div class="label">The Culprit</div>
+      <div class="value">{{solution.culprit}}</div>
+    </div>
+
+    {{#if solution.motive}}
+    <div class="subhead" style="margin-top:16pt;">Motive</div>
+    <div class="section-title">Why They Did It</div>
+    <p>{{nl2br solution.motive}}</p>
+    {{/if}}
+  </div>
+
+  <!-- Method + full narrative -->
+  {{#if solution.method}}
+  <div class="section-page">
+    <div class="subhead">Method</div>
+    <div class="section-title">How They Did It</div>
+    <p>{{nl2br solution.method}}</p>
+
+    {{#if solution.fullTimelineNarrative}}
+    <div class="subhead" style="margin-top:20pt;">The Full Picture</div>
+    <div class="section-title">Timeline of the Crime</div>
+    <p>{{nl2br solution.fullTimelineNarrative}}</p>
+    {{/if}}
+  </div>
+  {{/if}}
+
+  <!-- Clue explanations -->
+  {{#if solution.clueExplanations.length}}
+  <div class="section-page">
+    <div class="subhead">Every Clue Explained</div>
+    <div class="section-title">Clue Meanings</div>
+    {{#each solution.clueExplanations}}
+    <div class="clue">
+      <div class="clue-title">{{clueId}}</div>
+      <div class="clue-body">{{nl2br meaning}}</div>
+    </div>
+    {{/each}}
+  </div>
+  {{/if}}
+
+  <!-- Red herrings -->
+  {{#if solution.redHerringExplanations.length}}
+  <div class="section-page">
+    <div class="subhead">Red Herrings</div>
+    <div class="section-title">Why They Misled</div>
+    {{#each solution.redHerringExplanations}}
+    <div class="clue">
+      <div class="clue-title">{{clueId}}</div>
+      <div class="clue-body">{{nl2br whyMisleading}}</div>
+    </div>
+    {{/each}}
+  </div>
+  {{/if}}
+
+  <!-- Puzzle answer key -->
+  {{#if puzzles.length}}
+  <div class="section-page">
+    <div class="subhead">Answer Key</div>
+    <div class="section-title">Puzzle Answers</div>
+    {{#each puzzles}}
+    <div class="answer-box">
+      <div class="answer-box-title">{{title}}</div>
+      <p><strong>Type:</strong> {{type}}</p>
+      <p><strong>Answer:</strong> {{answer}}</p>
+      <p><strong>Explanation:</strong> {{nl2br explanation}}</p>
+    </div>
+    {{/each}}
+  </div>
+  {{/if}}
+
+  <!-- Final deduction -->
+  {{#if solution.finalDeductionWalkthrough}}
+  <div class="section-page">
+    <div class="subhead">The Grand Reveal</div>
+    <div class="section-title">How It Was Solved</div>
+    <p>{{nl2br solution.finalDeductionWalkthrough}}</p>
+
+    {{#if solution.caseConclusion}}
+    <div class="subhead" style="margin-top:20pt;">Case Closed</div>
+    <div class="section-title">Conclusion</div>
+    <p>{{nl2br solution.caseConclusion}}</p>
+    {{/if}}
+  </div>
+  {{/if}}
+
+</body>
+</html>

@@ -2,8 +2,8 @@
 import React, { useState, useEffect, useRef } from "react";
 import { NavLink, useNavigate } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
-import { useFeatures } from "../hooks/useFeatures";   // 👈 NEW
-import logo from "../assets/nav-logo.png";
+import { useFeatures } from "../hooks/useFeatures";
+import logo from "../assets/sidebar-logo.png";
 import api from "../services/api";
 import {
   LayoutDashboard,
@@ -34,10 +34,71 @@ import {
   TrendingUp,
   Palette,
   Building2,
+  Package,
+  BarChart3,
+  SquarePen,
+  BookOpen,
+  UsersRound,
+  Search,
+  Puzzle as PuzzleIcon,
+  DoorOpen,
+  Tag,
+  PartyPopper,
 } from "lucide-react";
 
 // ================================================================
-// WAVE LOGO
+// 🎨 THEME — new :root palette
+// ================================================================
+const THEME = {
+  // Sidebar background: deep navy from :root (--sidebar-bg + --main-bg)
+  sidebarBg: "linear-gradient(160deg, #00101A 0%, #000C16 100%)",
+  sidebarBorder: "#29414C",
+
+  // Nav text
+  navDefault: "#F5F5F3",
+  navHoverBg: "#031520",
+
+  // Active nav: gold gradient from :root
+  navActiveBg: "linear-gradient(135deg, #FFD36D 0%, #F6C55D 50%, #B77B32 100%)",
+  navActiveBorder: "#FFD36D",
+  navActiveText: "#000C16",
+
+  // Section headers
+  sectionText: "#AAB3B9",
+
+  // User area
+  divider: "#29414C",
+
+  // Dropdown panel
+  dropdownBg: "#031520",
+  dropdownBorder: "#29414C",
+
+  // Upgrade card (gold accent)
+  upgradeBg: "linear-gradient(120deg, #0C1926, #031520)",
+  upgradeBorder: "#29414C",
+  goldIcon: "#FFD36D",
+
+  // Gold gradient for buttons and accents
+  goldGradient:
+    "linear-gradient(135deg, #FFD36D 0%, #F6C55D 50%, #B77B32 100%)",
+  goldBorder: "#FFD36D",
+  goldText: "#000C16",
+
+  // Primary gold
+  gold: "#F6C55D",
+  goldHover: "#FFD36D",
+
+  // Turquoise accent
+  turquoise: "#00D4D9",
+
+  // Text
+  heading: "#F5F5F3",
+  secondary: "#AAB3B9",
+  muted: "#707F88",
+};
+
+// ================================================================
+// WAVE LOGO — kept as-is
 // ================================================================
 function WaveLogo() {
   const heights = [17, 27, 38, 27, 17];
@@ -51,8 +112,8 @@ function WaveLogo() {
             width: 5,
             height: h,
             borderRadius: 9,
-            background: "linear-gradient(#39a4ff, #7544ee)",
-            boxShadow: "0 0 10px rgba(49,94,255,.4)",
+            background: "linear-gradient(#00D4D9, #F6C55D)",
+            boxShadow: "0 0 10px rgba(0,212,217,.4)",
           }}
         />
       ))}
@@ -60,9 +121,44 @@ function WaveLogo() {
   );
 }
 
+// ================================================================
+// BRAND MARK — kept as-is
+// ================================================================
+function BrandMark() {
+  return (
+    <div
+      style={{
+        width: 54,
+        height: 65,
+        color: "#B77B32",
+        fontFamily: "Georgia, serif",
+        fontSize: 58,
+        fontStyle: "italic",
+        lineHeight: 1,
+        position: "relative",
+        flexShrink: 0,
+      }}
+    >
+      <span
+        style={{
+          content: " ",
+          position: "absolute",
+          width: 47,
+          height: 13,
+          borderRadius: "50%",
+          background: "#B77B32",
+          top: 1,
+          left: 5,
+          transform: "rotate(-8deg)",
+        }}
+      />
+    </div>
+  );
+}
+
 const Sidebar = () => {
   const { logout, user, isAdmin } = useAuth();
-  const { has } = useFeatures();   // 👈 NEW — feature flags
+  const { has, all } = useFeatures();
   const navigate = useNavigate();
   const [planName, setPlanName] = useState(user?.planName || "Free");
   const [planLoading, setPlanLoading] = useState(false);
@@ -133,10 +229,9 @@ const Sidebar = () => {
   }, [user?.planId]);
 
   // ================================================================
-  // NAV ITEMS — feature-flag based (no plan IDs)
+  // NAV ITEMS — unchanged
   // ================================================================
   const navItems = [
-    // ---- Free ----
     {
       path: "/dashboard",
       label: "Dashboard",
@@ -144,31 +239,23 @@ const Sidebar = () => {
       show: true,
     },
     {
-      path: "/trending-podcasts",
-      label: "Trending Podcasts",
-      icon: Flame,
+      path: "/create-mystery",
+      label: "Create Mystery",
+      icon: SquarePen,
       show: true,
     },
     {
-      path: "/ai-dialogue",
-      label: "AI Dialogue",
-      icon: Sparkles,
+      path: "/my-mysteries",
+      label: "My Mysteries",
+      icon: BookOpen,
       show: true,
     },
     {
       path: "/templates",
-      label: "Templates",
+      label: "Mystery Templates",
       icon: LayoutGrid,
       show: true,
     },
-    {
-      path: "/my-podcasts",
-      label: "My Podcasts",
-      icon: Film,
-      show: true,
-    },
-
-    // ---- Feature-gated ----
     {
       path: "/unlimited",
       icon: InfinityIcon,
@@ -176,43 +263,49 @@ const Sidebar = () => {
       show: has("unlimited"),
     },
     {
-      path: "/podcast-creator-pro",
-      label: "Podcast Creator Pro",
-      icon: Crown,
-      show: has("podcastCreatorPro"),
+      path: "/character-studio",
+      label: "Character Studio",
+      icon: UsersRound,
+      show: has("characterStudio"),
     },
     {
-      path: "/viral-shorts-ai",
-      label: "Viral Shorts AI",
-      icon: Sparkles,
-      show: has("viralShortsAI"),
+      path: "/clue-studio",
+      label: "Clue & Evidence",
+      icon: Search,
+      show: has("clueStudio"),
     },
     {
-      path: "/podcast-growth-studio",
-      label: "Podcast Growth Studio",
-      icon: TrendingUp,
-      show: has("growthStudio"),
+      path: "/puzzle-studio",
+      label: "AI Puzzle Studio",
+      icon: PuzzleIcon,
+      show: has("puzzleStudio"),
     },
     {
-      path: "/branding-suite",
-      label: "Branding Suite",
-      icon: Palette,
-      show: has("brandingSuite"),
+      path: "/escape-room-ai",
+      label: "Escape Room AI",
+      icon: DoorOpen,
+      show: has("escapeRoom"),
     },
     {
-      path: "/agency",
-      label: "Agency",
-      icon: Building2,
-      show: has("agency"),
+      path: "/sales-kit",
+      label: "Sales Kit",
+      icon: Tag,
+      show: has("salesKit"),
     },
     {
-      path: "/reseller",
-      label: "Reseller",
-      icon: Gift,
-      show: has("reseller"),
+      path: "/party-planner",
+      label: "Party Planner",
+      icon: PartyPopper,
+      show: has("partyPlanner"),
     },
-
-    // ---- Always visible ----
+    {
+      path: "/dfy-packs",
+      label: "DFY Mystery Packs",
+      icon: Package,
+      show: has("dfy"),
+    },
+    { path: "/agency", label: "Agency", icon: Building2, show: has("agency") },
+    { path: "/reseller", label: "Reseller", icon: Gift, show: has("reseller") },
     {
       path: "/training",
       icon: GraduationCap,
@@ -227,7 +320,7 @@ const Sidebar = () => {
       show: true,
       target: "_blank",
       external: true,
-      href: "https://www.aidigitalproduct.live/upgrades",
+      href: "https://www.podcastai.live/upgrades",
     },
     {
       path: "/support",
@@ -254,7 +347,7 @@ const Sidebar = () => {
   const closeMobileSidebar = () => setIsMobileOpen(false);
 
   // ================================================================
-  // PLAN BADGE
+  // PLAN BADGE — unchanged
   // ================================================================
   const getPlanColor = (planName) => {
     const planColors = {
@@ -313,39 +406,43 @@ const Sidebar = () => {
   const isExternalLink = (item) => item.external === true;
 
   // ================================================================
-  // SIDEBAR COLORS
+  // THEME ALIASES
   // ================================================================
-  const sidebarBg = "linear-gradient(#031020, #020916)";
-  const sidebarBorder = "#10294a";
-  const navDefaultText = "#b7c9df";
-  const navHoverBg = "#0a1a32";
-  const navActiveBg = "linear-gradient(100deg, #6b38ed, #344fff)";
-  const navActiveShadow = "0 8px 24px rgba(69,54,233,.2)";
-  const dividerColor = "#102b4c";
-  const proCardBg = "#05152b";
-  const proCardBorder = "#173b67";
+  const sidebarBg = THEME.sidebarBg;
+  const sidebarBorder = THEME.sidebarBorder;
+  const navDefaultText = THEME.navDefault;
+  const navHoverBg = THEME.navHoverBg;
+  const navActiveBg = THEME.navActiveBg;
+  const navActiveShadow = "0 8px 24px rgba(246,197,93,.25)";
+  const dividerColor = THEME.divider;
+  const proCardBg = THEME.dropdownBg;
+  const proCardBorder = THEME.dropdownBorder;
 
   return (
     <>
-      {/* ✅ Mobile Hamburger */}
+      <style>{`
+        .mm-sidebar-serif { font-family: 'Playfair Display', Georgia, serif; }
+      `}</style>
+
+      {/* Mobile hamburger */}
       <button
         onClick={toggleMobileSidebar}
         className="fixed top-4 left-4 z-50 md:hidden p-2 rounded-xl"
         style={{
-          background: sidebarBg,
+          background: THEME.sidebarBg,
           border: `1px solid ${sidebarBorder}`,
           boxShadow: "0 8px 24px rgba(0,0,0,.35)",
         }}
         aria-label="Toggle menu"
       >
         {isMobileOpen ? (
-          <X size={22} style={{ color: "#edf4ff" }} />
+          <X size={22} style={{ color: THEME.heading }} />
         ) : (
-          <Menu size={22} style={{ color: "#edf4ff" }} />
+          <Menu size={22} style={{ color: THEME.heading }} />
         )}
       </button>
 
-      {/* ✅ Mobile Overlay */}
+      {/* Mobile overlay */}
       {isMobileOpen && (
         <div
           className="fixed inset-0 z-40 md:hidden animate-fade-in"
@@ -354,7 +451,7 @@ const Sidebar = () => {
         />
       )}
 
-      {/* ✅ Desktop Sidebar */}
+      {/* Desktop sidebar */}
       <aside
         ref={sidebarRef}
         className={`
@@ -367,12 +464,56 @@ const Sidebar = () => {
           zIndex: 10,
         }}
       >
-        {/* ============ LOGO ============ */}
-        <div className="border-b border-[#153c6d] flex justify-center py-3">
-          <img src={logo} alt="Podcast AI" className="object-contain py-2 " />
+        {/* LOGO / BRAND */}
+        <div
+          className="border-b flex items-center"
+          style={{
+            borderColor: THEME.sidebarBorder,
+            padding: "15px 27px",
+            gap: 10,
+            flexShrink: 0,
+          }}
+        >
+          {logo ? (
+            <img
+              src={logo}
+              alt="MysteryMint AI"
+              style={{
+                maxHeight: 80,
+                maxWidth: 250,
+                objectFit: "contain",
+              }}
+            />
+          ) : (
+            <>
+              <BrandMark />
+              <div>
+                <div
+                  className="mm-sidebar-serif"
+                  style={{
+                    fontSize: 22,
+                    whiteSpace: "nowrap",
+                    color: THEME.heading,
+                  }}
+                >
+                  MysteryMint <span style={{ color: THEME.gold }}>AI</span>
+                </div>
+                <div
+                  style={{
+                    fontSize: 12,
+                    marginTop: 6,
+                    whiteSpace: "nowrap",
+                    color: THEME.secondary,
+                  }}
+                >
+                  AI Mystery Game Creator
+                </div>
+              </div>
+            </>
+          )}
         </div>
 
-        {/* ============ NAVIGATION ============ */}
+        {/* NAVIGATION */}
         <nav
           className="flex-1 overflow-y-auto"
           style={{ padding: "18px 16px" }}
@@ -391,14 +532,18 @@ const Sidebar = () => {
                 fontSize: 16,
                 textDecoration: "none",
                 background: isActive ? navActiveBg : "transparent",
-                color: isActive ? "#ffffff" : navDefaultText,
+                color: isActive ? THEME.navActiveText : navDefaultText,
                 boxShadow: isActive ? navActiveShadow : "none",
+                border: isActive
+                  ? `1px solid ${THEME.navActiveBorder}`
+                  : "1px solid transparent",
+                fontWeight: isActive ? 700 : 500,
               })}
             >
               {({ isActive }) => (
                 <>
-                  <Shield size={14} strokeWidth={1.8} />
-                  <span className="font-medium">{adminNavItem.label}</span>
+                  <Shield size={20} strokeWidth={1.8} className="shrink-0" />
+                  <span>{adminNavItem.label}</span>
                 </>
               )}
             </NavLink>
@@ -423,13 +568,14 @@ const Sidebar = () => {
                       padding: "0 13px",
                       gap: 14,
                       borderRadius: 9,
-                      fontSize: 16,
+                      fontSize: 15,
                       color: navDefaultText,
                       textDecoration: "none",
+                      fontWeight: 500,
                     }}
                     onMouseEnter={(e) => {
                       e.currentTarget.style.background = navHoverBg;
-                      e.currentTarget.style.color = "#ffffff";
+                      e.currentTarget.style.color = THEME.gold;
                     }}
                     onMouseLeave={(e) => {
                       e.currentTarget.style.background = "transparent";
@@ -437,7 +583,7 @@ const Sidebar = () => {
                     }}
                   >
                     <Icon size={20} strokeWidth={1.8} className="shrink-0" />
-                    <span className="font-medium">{item.label}</span>
+                    <span>{item.label}</span>
                   </a>
                 );
               }
@@ -457,13 +603,17 @@ const Sidebar = () => {
                     fontSize: 15,
                     textDecoration: "none",
                     background: isActive ? navActiveBg : "transparent",
-                    color: isActive ? "#ffffff" : navDefaultText,
+                    color: isActive ? THEME.navActiveText : navDefaultText,
                     boxShadow: isActive ? navActiveShadow : "none",
+                    border: isActive
+                      ? `1px solid ${THEME.navActiveBorder}`
+                      : "1px solid transparent",
+                    fontWeight: isActive ? 700 : 500,
                   })}
                   onMouseEnter={(e) => {
                     if (!e.currentTarget.getAttribute("aria-current")) {
                       e.currentTarget.style.background = navHoverBg;
-                      e.currentTarget.style.color = "#ffffff";
+                      e.currentTarget.style.color = THEME.gold;
                     }
                   }}
                   onMouseLeave={(e) => {
@@ -476,7 +626,7 @@ const Sidebar = () => {
                   {({ isActive }) => (
                     <>
                       <Icon size={20} strokeWidth={1.8} className="shrink-0" />
-                      <span className="font-medium">{item.label}</span>
+                      <span>{item.label}</span>
                     </>
                   )}
                 </NavLink>
@@ -485,7 +635,7 @@ const Sidebar = () => {
           </div>
         </nav>
 
-        {/* ============ USER (compact, dropdown) ============ */}
+        {/* USER + DROPDOWN */}
         <div
           style={{
             padding: "0 16px 16px",
@@ -517,15 +667,15 @@ const Sidebar = () => {
                   width: 34,
                   height: 34,
                   background:
-                    "linear-gradient(135deg, rgba(108,54,237,.45), rgba(52,119,255,.45))",
-                  border: "1px solid #48617f",
+                    "linear-gradient(135deg, rgba(255,211,109,.35), rgba(183,123,50,.5))",
+                  border: "1px solid #B77B32",
                 }}
               >
                 <span
                   style={{
                     fontSize: 14,
                     fontWeight: 700,
-                    color: "#edf4ff",
+                    color: THEME.heading,
                   }}
                 >
                   {user?.name?.charAt(0)?.toUpperCase() || "U"}
@@ -538,8 +688,8 @@ const Sidebar = () => {
                   right: 0,
                   width: 10,
                   height: 10,
-                  background: "#22c55e",
-                  border: `2px solid #020916`,
+                  background: "#00D4D9",
+                  border: "2px solid #00101A",
                 }}
               />
             </div>
@@ -550,23 +700,20 @@ const Sidebar = () => {
                 style={{
                   fontSize: 12,
                   fontWeight: 600,
-                  color: "#edf4ff",
+                  color: THEME.heading,
                 }}
               >
                 {user?.name || "User"}
               </div>
               <div className="mt-0.5 flex items-center gap-1">
                 {planLoading ? (
-                  <span style={{ fontSize: 9, color: "#64748b" }}>
+                  <span style={{ fontSize: 9, color: THEME.muted }}>
                     Loading...
                   </span>
                 ) : (
                   <span
                     className="inline-flex items-center gap-1 truncate"
-                    style={{
-                      fontSize: 9,
-                      color: "#9ab0cc",
-                    }}
+                    style={{ fontSize: 9, color: THEME.secondary }}
                   >
                     {planName?.replace(/^Complyzo\s+/, "") || "Free"}
                   </span>
@@ -577,7 +724,7 @@ const Sidebar = () => {
             <ChevronDown
               size={14}
               style={{
-                color: "#9ab0cc",
+                color: THEME.secondary,
                 transition: "transform .2s",
                 transform: isDropdownOpen ? "rotate(180deg)" : "rotate(0)",
                 flexShrink: 0,
@@ -592,7 +739,7 @@ const Sidebar = () => {
               className="absolute left-3 right-3 rounded-xl overflow-hidden animate-slide-up z-50"
               style={{
                 bottom: 80,
-                background: "#05152b",
+                background: THEME.dropdownBg,
                 border: `1px solid ${proCardBorder}`,
                 boxShadow: "0 20px 60px rgba(0,0,0,.55)",
               }}
@@ -609,6 +756,14 @@ const Sidebar = () => {
                     padding: "10px 12px",
                     fontSize: 13,
                     color: navDefaultText,
+                  }}
+                  onMouseEnter={(e) => {
+                    e.currentTarget.style.background = navHoverBg;
+                    e.currentTarget.style.color = THEME.gold;
+                  }}
+                  onMouseLeave={(e) => {
+                    e.currentTarget.style.background = "transparent";
+                    e.currentTarget.style.color = navDefaultText;
                   }}
                 >
                   <Settings size={16} />
@@ -627,6 +782,14 @@ const Sidebar = () => {
                     fontSize: 13,
                     color: navDefaultText,
                   }}
+                  onMouseEnter={(e) => {
+                    e.currentTarget.style.background = navHoverBg;
+                    e.currentTarget.style.color = THEME.gold;
+                  }}
+                  onMouseLeave={(e) => {
+                    e.currentTarget.style.background = "transparent";
+                    e.currentTarget.style.color = navDefaultText;
+                  }}
                 >
                   <Crown size={16} />
                   <span>Subscription</span>
@@ -643,6 +806,14 @@ const Sidebar = () => {
                     padding: "10px 12px",
                     fontSize: 13,
                     color: navDefaultText,
+                  }}
+                  onMouseEnter={(e) => {
+                    e.currentTarget.style.background = navHoverBg;
+                    e.currentTarget.style.color = THEME.gold;
+                  }}
+                  onMouseLeave={(e) => {
+                    e.currentTarget.style.background = "transparent";
+                    e.currentTarget.style.color = navDefaultText;
                   }}
                 >
                   <Headset size={16} />
@@ -666,10 +837,18 @@ const Sidebar = () => {
                   style={{
                     padding: "10px 12px",
                     fontSize: 13,
-                    color: "#f87171",
+                    color: "#ff8fa8",
                     background: "transparent",
                     border: 0,
                     cursor: "pointer",
+                  }}
+                  onMouseEnter={(e) => {
+                    e.currentTarget.style.background = "rgba(255,95,126,.12)";
+                    e.currentTarget.style.color = "#ffb2c4";
+                  }}
+                  onMouseLeave={(e) => {
+                    e.currentTarget.style.background = "transparent";
+                    e.currentTarget.style.color = "#ff8fa8";
                   }}
                 >
                   <LogOut size={16} />
@@ -681,11 +860,11 @@ const Sidebar = () => {
         </div>
       </aside>
 
-      {/* ============ MOBILE BOTTOM NAV ============ */}
+      {/* MOBILE BOTTOM NAV */}
       <nav
         className="md:hidden fixed bottom-0 left-0 right-0 z-30"
         style={{
-          background: "rgba(3,16,32,.95)",
+          background: "rgba(0,16,26,.95)",
           borderTop: `1px solid ${sidebarBorder}`,
           backdropFilter: "blur(14px)",
           WebkitBackdropFilter: "blur(14px)",
@@ -709,7 +888,7 @@ const Sidebar = () => {
                     padding: "6px 8px",
                     borderRadius: 12,
                     minWidth: 50,
-                    color: "#64748b",
+                    color: THEME.muted,
                     textDecoration: "none",
                   }}
                 >
@@ -726,10 +905,13 @@ const Sidebar = () => {
                   padding: "6px 8px",
                   borderRadius: 12,
                   minWidth: 50,
-                  color: isActive ? "#ffffff" : "#64748b",
+                  color: isActive ? THEME.navActiveText : THEME.muted,
                   background: isActive ? navActiveBg : "transparent",
                   boxShadow: isActive ? navActiveShadow : "none",
                   textDecoration: "none",
+                  border: isActive
+                    ? `1px solid ${THEME.navActiveBorder}`
+                    : "1px solid transparent",
                 })}
               >
                 <Icon size={20} strokeWidth={1.8} className="shrink-0" />
@@ -757,11 +939,11 @@ const Sidebar = () => {
         aside nav::-webkit-scrollbar { width: 6px; }
         aside nav::-webkit-scrollbar-track { background: transparent; }
         aside nav::-webkit-scrollbar-thumb {
-          background: rgba(72,97,127,.4);
+          background: rgba(246,197,93,.35);
           border-radius: 3px;
         }
         aside nav::-webkit-scrollbar-thumb:hover {
-          background: rgba(72,97,127,.7);
+          background: rgba(255,211,109,.6);
         }
       `}</style>
     </>

@@ -5,7 +5,7 @@ import { Toaster } from "react-hot-toast";
 import { AuthProvider } from "./context/AuthContext";
 import { AIProfitProvider } from "./context/AIProfitContext";
 import PrivateRoute from "./components/features/PrivateRoute";
-import FeatureRoute from "./components/features/FeatureRoute";   // 👈 NEW
+import FeatureRoute from "./components/features/FeatureRoute"; // 👈 NEW
 import HomeNavbar from "./components/HomeNavbar";
 import Footer from "./components/Footer";
 
@@ -18,11 +18,10 @@ import Subscription from "./pages/auth/Subscription";
 
 // Pages
 import Dashboard from "./pages/Dashboard";
-import Templates from "./pages/Templates";
 import CreateProduct from "./pages/CreateProduct";
-import MyPodcasts from "./pages/MyPodcasts";
-import AIDialogue from "./pages/AIDialogue";
-import TrendingPodcasts from "./pages/TrendingPodcasts";
+import MyMysteries from "./pages/MyMysteries";
+import MysteryDetail from "./pages/MysteryDetail";
+import Templates from "./pages/Templates";
 
 // Admin
 import AdminDashboard from "./pages/admin/Dashboard";
@@ -30,13 +29,21 @@ import AdminDashboard from "./pages/admin/Dashboard";
 // Agency
 import Agency from "./pages/agency/Agency";
 
+import VisualLibraryPage from "./components/dfy/VisualLibraryPage";
+import VideoLibraryPage from "./components/dfy/VideoLibraryPage";
+
 // OTOs
-import Unlimited from "./pages/otos/Unlimited";
-import PodcastCreatorPro from "./pages/otos/PodcastCreatorPro";
-import ViralShortsAI from "./pages/otos/ViralShortsAI";
-import PodcastGrowthStudio from "./pages/otos/PodcastGrowthStudio";
-import BrandingSuite from "./pages/otos/BrandingSuite";
+import CharacterStudio from "./pages/otos/CharacterStudio";
 import Reseller from "./pages/otos/Reseller";
+import AIRanker from "./pages/ranker/AIRanker";
+import AIRankerChat from "./pages/ranker/AIRankerChat";
+import ClueEvidenceStudio from "./pages/otos/ClueEvidenceStudio";
+import PuzzleStudio from "./pages/otos/PuzzleStudio";
+import EscapeRoomAI from "./pages/otos/EscapeRoomAI";
+import MysterySalesKit from "./pages/otos/MysterySalesKit";
+import MysteryPartyPlanner from "./pages/otos/MysteryPartyPlanner";
+import UnlimitedTemplates from "./pages/otos/UnlimitedTemplates";
+import DFYMysteryPacks from "./pages/otos/DFYMysteryPacks";
 
 // Support
 import Training from "./pages/support/Training";
@@ -54,24 +61,26 @@ const Layout = ({ children }) => {
 
   const dashboardPages = [
     "/dashboard",
+    "/create-mystery",
+    "/my-mysteries",
     "/templates",
-    "/create-podcast",
-    "/trending-podcasts",
-    "/my-podcasts",
-    "/ai-dialogue",
-    "/podcast-creator-pro",
-    "/admin/dashboard",
+    "/character-studio",
     "/unlimited",
-    "/viral-shorts-ai",
-    "/podcast-growth-studio",
-    "/branding-suite",
+    "/clue-studio",
+    "/puzzle-studio",
+    "/escape-room-ai",
+    "/sales-kit",
+    "/party-planner",
+    "/dfy-packs",
+    "/admin/dashboard",
     "/training",
     "/support",
+    "/ai-ranker",
     "/settings",
     "/subscription",
     "/reseller",
     "/agency",
-    "/upgrade-required",   // 👈 NEW — dashboard-style (has Sidebar)
+    "/upgrade-required", // 👈 NEW — dashboard-style (has Sidebar)
   ];
 
   const isDashboardPage =
@@ -79,7 +88,9 @@ const Layout = ({ children }) => {
     location.pathname.startsWith("/ai-profit-machine/chat/") ||
     location.pathname.startsWith("/ai-ranker/chat/") ||
     location.pathname.startsWith("/products/") ||
-    location.pathname.startsWith("/templates/");
+    location.pathname.startsWith("/templates/") ||
+    location.pathname.startsWith("/mystery/") ||
+    location.pathname.startsWith("/create-mystery");
 
   const authPages = [
     "/login",
@@ -143,10 +154,28 @@ function App() {
             />
 
             <Route
-              path="/ai-dialogue"
+              path="/create-mystery"
               element={
                 <PrivateRoute>
-                  <AIDialogue />
+                  <CreateProduct />
+                </PrivateRoute>
+              }
+            />
+
+            <Route
+              path="/my-mysteries"
+              element={
+                <PrivateRoute>
+                  <MyMysteries />
+                </PrivateRoute>
+              }
+            />
+
+            <Route
+              path="/mystery/:id"
+              element={
+                <PrivateRoute>
+                  <MysteryDetail />
                 </PrivateRoute>
               }
             />
@@ -159,85 +188,87 @@ function App() {
                 </PrivateRoute>
               }
             />
-
-            <Route
-              path="/create-podcast"
-              element={
-                <PrivateRoute>
-                  <CreateProduct />
-                </PrivateRoute>
-              }
-            />
-
-            <Route
-              path="/my-podcasts"
-              element={
-                <PrivateRoute>
-                  <MyPodcasts />
-                </PrivateRoute>
-              }
-            />
-
-            <Route
-              path="/trending-podcasts"
-              element={
-                <PrivateRoute>
-                  <TrendingPodcasts />
-                </PrivateRoute>
-              }
-            />
-
-            {/* ==================== Feature-Gated Routes ==================== */}
             <Route
               path="/unlimited"
               element={
                 <PrivateRoute>
                   <FeatureRoute feature="unlimited">
-                    <Unlimited />
+                    <UnlimitedTemplates />
+                  </FeatureRoute>
+                </PrivateRoute>
+              }
+            />
+            <Route
+              path="/character-studio"
+              element={
+                <PrivateRoute>
+                  <FeatureRoute feature="characterStudio">
+                    <CharacterStudio />
                   </FeatureRoute>
                 </PrivateRoute>
               }
             />
 
             <Route
-              path="/podcast-creator-pro"
+              path="/clue-studio"
               element={
                 <PrivateRoute>
-                  <FeatureRoute feature="podcastCreatorPro">
-                    <PodcastCreatorPro />
+                  <FeatureRoute feature="clueStudio">
+                    <ClueEvidenceStudio />
+                  </FeatureRoute>
+                </PrivateRoute>
+              }
+            />
+            <Route
+              path="/puzzle-studio"
+              element={
+                <PrivateRoute>
+                  <FeatureRoute feature="puzzleStudio">
+                    <PuzzleStudio />
                   </FeatureRoute>
                 </PrivateRoute>
               }
             />
 
             <Route
-              path="/viral-shorts-ai"
+              path="/escape-room-ai"
               element={
                 <PrivateRoute>
-                  <FeatureRoute feature="viralShortsAI">
-                    <ViralShortsAI />
+                  <FeatureRoute feature="escapeRoom">
+                    <EscapeRoomAI />
                   </FeatureRoute>
                 </PrivateRoute>
               }
             />
 
             <Route
-              path="/podcast-growth-studio"
+              path="/sales-kit"
               element={
                 <PrivateRoute>
-                  <FeatureRoute feature="growthStudio">
-                    <PodcastGrowthStudio />
+                  <FeatureRoute feature="salesKit">
+                    <MysterySalesKit />
                   </FeatureRoute>
                 </PrivateRoute>
               }
             />
 
             <Route
-              path="/branding-suite"
+              path="/party-planner"
               element={
                 <PrivateRoute>
-                  <FeatureRoute feature="brandingSuite">
-                    <BrandingSuite />
+                  <FeatureRoute feature="partyPlanner">
+                    <MysteryPartyPlanner />
+                  </FeatureRoute>
+                </PrivateRoute>
+              }
+            />
+
+            <Route
+              path="/dfy-packs"
+              element={
+                <PrivateRoute>
+                  <FeatureRoute feature="dfy">
+                    <DFYMysteryPacks />
                   </FeatureRoute>
                 </PrivateRoute>
               }

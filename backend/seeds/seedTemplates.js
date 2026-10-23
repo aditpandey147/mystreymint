@@ -37,137 +37,138 @@ const Template = require("../models/Template");
 // ================================================================
 // TARGET CATEGORY
 // ================================================================
-const CATEGORY_ID = 6; // 👈 Comedy & Entertainment
+const CATEGORY_ID = 7; // 👈 Comedy & Entertainment
 
 // ================================================================
 // 10 COMEDY & ENTERTAINMENT TEMPLATES
 // ================================================================
 const comedyEntertainmentTemplates = [
   {
-    title: "Level Up Your Life",
+    title: "The Wellness Reset",
     description:
-      "Explore practical strategies for building confidence, discipline, better habits and becoming your strongest self.",
-    categoryId: 6,
-    coverImage: "/public/templates/level-up-your-life.jpg",
+      "Explore practical ways to improve daily energy, recovery, routines and build a healthier lifestyle that lasts.",
+    categoryId: 7,
+    coverImage: "/public/templates/the-wellness-reset.jpg",
     dialog: {
-      host: "What's the first step to completely changing your life?",
-      guest: "Stop waiting for motivation and start building consistent habits.",
+      host: "What's the biggest mistake people make with wellness?",
+      guest:
+        "They chase quick fixes instead of building habits they can actually sustain.",
     },
     isTrending: true,
   },
   {
-    title: "The Learning Lab",
+    title: "Sleep Better",
     description:
-      "Discover smarter ways to learn, remember information and develop powerful lifelong learning skills.",
-    categoryId: 6,
-    coverImage: "/public/templates/the-learning-lab.jpg",
+      "Discover better sleep habits, evening routines and practical ways to improve rest and recovery.",
+    categoryId: 7,
+    coverImage: "/public/templates/sleep-better.jpg",
     dialog: {
-      host: "Why do we forget so much of what we study?",
-      guest: "Because learning once is very different from remembering long term.",
+      host: "Why do so many people struggle to sleep well?",
+      guest:
+        "Because the habits before bedtime often matter more than bedtime itself.",
     },
     isTrending: true,
   },
-
   {
-    title: "Mindset Reset",
+    title: "Nutrition Unfiltered",
     description:
-      "Explore how changing your mindset can help overcome limiting beliefs and create meaningful personal growth.",
-    categoryId: 6,
-    coverImage: "/public/templates/mindset-reset.jpg",
+      "Explore balanced nutrition, everyday food choices and practical approaches to healthier eating.",
+    categoryId: 7,
+    coverImage: "/public/templates/nutrition-unfiltered.jpg",
     dialog: {
-      host: "Can changing your mindset really change your life?",
-      guest: "Absolutely, because your actions often follow the beliefs you repeat.",
+      host: "Does healthy eating really need to be complicated?",
+      guest:
+        "Not at all. Consistency matters far more than chasing the perfect diet.",
     },
     isTrending: true,
   },
-
   {
-    title: "Study Smarter",
+    title: "Mind & Body Balance",
     description:
-      "Learn practical techniques for better concentration, memory, productivity and effective studying.",
-    categoryId: 6,
-    coverImage: "/public/templates/study-smarter.jpg",
+      "Explore mindfulness, stress management, emotional wellness and creating a healthier balance in everyday life.",
+    categoryId: 7,
+    coverImage: "/public/templates/mind-body-balance.jpg",
     dialog: {
-      host: "Why can someone study for hours and still remember almost nothing?",
-      guest: "Because time spent studying matters less than how actively you learn.",
+      host: "How do you know when your mind actually needs a break?",
+      guest:
+        "Usually your body starts telling you long before you decide to listen.",
     },
     isTrending: true,
   },
-
   {
-    title: "Unlock Your Potential",
+    title: "Stronger Every Day",
     description:
-      "Discover how confidence, meaningful goals and consistent action can unlock your personal potential.",
-    categoryId: 6,
-    coverImage: "/public/templates/unlock-your-potential.jpg",
+      "Discover sustainable approaches to strength, mobility, movement, recovery and staying consistently active.",
+    categoryId: 7,
+    coverImage: "/public/templates/stronger-every-day.jpg",
     dialog: {
-      host: "What stops most people from reaching their potential?",
-      guest: "They wait until they feel ready instead of starting before they're ready.",
+      host: "What's more important, training harder or staying consistent?",
+      guest:
+        "Consistency wins because the best routine is the one you can keep doing.",
     },
     isTrending: true,
   },
-
   {
-    title: "Deep Focus",
+    title: "Healthy Aging",
     description:
-      "Explore techniques for improving concentration, eliminating distractions and doing meaningful focused work.",
-    categoryId: 6,
-    coverImage: "/public/templates/deep-focus.jpg",
+      "Explore movement, recovery, healthy routines and lifestyle habits that support wellbeing throughout life.",
+    categoryId: 7,
+    coverImage: "/public/templates/healthy-aging.jpg",
     dialog: {
-      host: "Why is staying focused becoming so difficult?",
-      guest: "Because we've trained our attention to expect constant interruption.",
+      host: "What matters most when we think about healthy aging?",
+      guest:
+        "Building habits today that help you stay active and connected tomorrow.",
     },
     isTrending: true,
   },
-
   {
-    title: "Better Every Day",
+    title: "Stress Less",
     description:
-      "Learn how small daily habits and consistent improvements can create powerful long-term results.",
-    categoryId: 6,
-    coverImage: "/public/templates/better-every-day.jpg",
+      "Explore practical ways to manage everyday stress, create boundaries and make more room for rest and recovery.",
+    categoryId: 7,
+    coverImage: "/public/templates/stress-less.jpg",
     dialog: {
-      host: "Can one small habit really make a big difference?",
-      guest: "Small changes become powerful when you repeat them long enough.",
+      host: "Why does stress follow us even when work is finished?",
+      guest:
+        "Because leaving the situation doesn't always mean your mind has left it.",
     },
     isTrending: true,
   },
-
   {
-    title: "Speak With Confidence",
+    title: "Gut Health Conversations",
     description:
-      "Develop stronger communication, public speaking and confidence skills for everyday life.",
-    categoryId: 6,
-    coverImage: "/public/templates/speak-with-confidence.jpg",
+      "Explore food variety, everyday digestive wellness and the relationship between nutrition and lifestyle.",
+    categoryId: 7,
+    coverImage: "/public/templates/gut-health-conversations.jpg",
     dialog: {
-      host: "Why do confident people sound so convincing?",
-      guest: "Because they focus on communicating clearly instead of trying to sound perfect.",
+      host: "Why has gut health become such a big conversation?",
+      guest:
+        "Because people are realizing how closely food and daily habits can affect how they feel.",
     },
     isTrending: true,
   },
-
   {
-    title: "Life Lessons",
+    title: "Everyday Energy",
     description:
-      "Explore meaningful lessons about mistakes, relationships, personal growth and wisdom gained through experience.",
-    categoryId: 6,
-    coverImage: "/public/templates/life-lessons.jpg",
+      "Discover simple habits around movement, hydration, recovery and routines that support everyday energy.",
+    categoryId: 7,
+    coverImage: "/public/templates/everyday-energy.jpg",
     dialog: {
-      host: "What's one lesson you wish you understood earlier?",
-      guest: "That not every setback is a failure. Some of them redirect your life.",
+      host: "Why do people feel exhausted even after a full night's sleep?",
+      guest: "Because energy depends on much more than sleep alone.",
     },
     isTrending: true,
   },
-
   {
-    title: "Master Your Mind",
+    title: "Wellness Without Limits",
     description:
-      "Explore mental resilience, discipline, emotional control and strategies for mastering your mindset.",
-    categoryId: 6,
-    coverImage: "/public/templates/master-your-mind.jpg",
+      "Explore a balanced approach to movement, sleep, recovery and sustainable habits for long-term wellbeing.",
+    categoryId: 7,
+    coverImage: "/public/templates/wellness-without-limits.jpg",
     dialog: {
-      host: "What's the real secret to mental discipline?",
-      guest: "Learning to act according to your goals even when your emotions disagree.",
+      host: "What's the secret to making wellness sustainable?",
+      guest:
+        "Build a lifestyle you enjoy enough that healthy choices stop feeling temporary.",
     },
     isTrending: true,
   },

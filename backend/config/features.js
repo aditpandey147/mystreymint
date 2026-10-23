@@ -1,11 +1,14 @@
 // backend/config/features.js
+
 const PLAN_ACCESS = {
   unlimited:         [3, 4],
-  podcastCreatorPro: [3, 4],
-  viralShortsAI:     [3, 4],
-  growthStudio:      [2, 3, 4],
-  brandingSuite:     [2, 3, 4],
-  agency:            [8, 12],
+  podcastCreatorPro: [5],
+  viralShortsAI:     [6],
+  growthStudio:      [7],
+  brandingSuite:     [8],
+  dfy:               [9, 10],
+  ranker:            [11],
+  agency:            [12],
   reseller:          [13],
 };
 
@@ -17,7 +20,7 @@ function computeFeatures(user) {
 
   if (!user) return out;
 
-  if (user.role === 'admin') {
+  if (user.role === "admin") {
     Object.keys(out).forEach((k) => {
       out[k] = true;
     });
@@ -39,7 +42,6 @@ function hasFeature(user, featureKey) {
   return computeFeatures(user)[featureKey] === true;
 }
 
-// 👇 MUST be exactly this:
 module.exports = {
   PLAN_ACCESS,
   computeFeatures,

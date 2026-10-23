@@ -1,428 +1,199 @@
 // frontend/src/pages/Dashboard.jsx
-import React, { useState, useEffect, useRef } from "react";
+import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import bannerBg from "../assets/images/banner-bg.png";
-import { Plus, LayoutGrid, Sparkles, Images } from "lucide-react";
 import Sidebar from "../components/Sidebar";
 import Navbar from "../components/Navbar";
 import api from "../services/api";
 import { useAuth } from "../context/AuthContext";
+import heroBg from "../assets/images/banner-bg.png";
+import {
+  FolderOpen,
+  FileText,
+  Download,
+  Users,
+  Wand2,
+  Puzzle,
+  Clock,
+  UsersRound,
+  MoreVertical,
+  ArrowRight,
+  Plus,
+} from "lucide-react";
 
 const SERVER_URL = import.meta.env.VITE_SERVER_URL || "http://localhost:5000";
 
+// ================================================================
+// 🎨 THEME — new :root palette
+// ================================================================
+const C = {
+  mainBg: "#000C16",
+  sidebar: "#00101A",
+
+  card: "#031520",
+  cardSecondary: "#0C1926",
+
+  input: "#000611",
+  textarea: "#011119",
+
+  gold: "#F6C55D",
+  goldHover: "#FFD36D",
+  darkGold: "#B77B32",
+
+  turquoise: "#00D4D9",
+
+  heading: "#F5F5F3",
+  secondary: "#AAB3B9",
+  muted: "#707F88",
+
+  border: "#29414C",
+
+  goldGradient:
+    "linear-gradient(135deg, #FFD36D 0%, #F6C55D 50%, #B77B32 100%)",
+
+  // Aliases to keep existing references working
+  cyan: "#00D4D9",
+  cyanHover: "#3EE4E8",
+};
+
 const getImageUrl = (path) => {
   if (!path) return "";
-  if (path.startsWith("http")) return path;
-  return `${SERVER_URL}${path}`;
+  if (path.startsWith("http://") || path.startsWith("https://")) return path;
+
+  const clean = path.startsWith("/") ? path : `/${path}`;
+
+  // Frontend static assets (Vite public folder)
+  if (clean.startsWith("/mystery-templates/")) {
+    return clean;
+  }
+
+  // Backend uploads
+  return `${SERVER_URL}${clean}`;
 };
 
 // ================================================================
 // STATIC DATA
 // ================================================================
-const quickActions = [
-  { title: "Create New Podcast", sub: "Start from scratch with AI", icon: Plus },
-  { title: "Browse Templates", sub: "Explore 50+ podcast templates", icon: LayoutGrid },
-  { title: "Create AI Shorts", sub: "Turn podcasts into viral shorts", icon: Sparkles },
-  { title: "Brand Kit", sub: "Customize your brand style", icon: Images },
+const STATS = [
+  {
+    value: "12",
+    label: "Total Mysteries",
+    trend: "↑ 20%",
+    trendColor: C.turquoise,
+    icon: FolderOpen,
+    iconColor: C.gold,
+    iconBg: "linear-gradient(140deg, #3a2a11, #5a3e18)",
+  },
+  {
+    value: "3",
+    label: "Drafts",
+    trend: "→ 0%",
+    trendColor: C.heading,
+    icon: FileText,
+    iconColor: C.turquoise,
+    iconBg: "linear-gradient(140deg, #0a3a3c, #0d4f52)",
+  },
+  {
+    value: "8",
+    label: "Exports",
+    trend: "↑ 60%",
+    trendColor: C.turquoise,
+    icon: Download,
+    iconColor: C.goldHover,
+    iconBg: "linear-gradient(140deg, #3a2a11, #5a3e18)",
+  },
+  {
+    value: "5",
+    label: "Templates Used",
+    trend: "↑ 25%",
+    trendColor: C.turquoise,
+    icon: Users,
+    iconColor: C.turquoise,
+    iconBg: "linear-gradient(140deg, #0a3a3c, #0d4f52)",
+  },
 ];
 
-const socials = [
-  { name: "YouTube", count: 22, icon: "▶", color: "text-red-500" },
-  { name: "TikTok", count: 16, icon: "♪", color: "text-white" },
-  { name: "Instagram", count: 8, icon: "◎", color: "text-pink-500" },
-  { name: "Facebook", count: 2, icon: "f", color: "text-blue-500" },
+const RECENT_MYSTERIES = [
+  {
+    title: "The Blackwood Manor Mystery",
+    pill: "Detective Mystery",
+    pillClass: "",
+    players: "5–8 players",
+    duration: "60 min",
+  },
+  {
+    title: "Deadly Cruise at Midnight",
+    pill: "Murder Mystery",
+    pillClass: "pink",
+    players: "6–10 players",
+    duration: "90 min",
+  },
+  {
+    title: "The Lost Treasure of Raven Cove",
+    pill: "Treasure Hunt",
+    pillClass: "green",
+    players: "2–4 players",
+    duration: "45 min",
+  },
+];
+
+const QUICK_ACTIONS = [
+  {
+    title: "Create New Mystery",
+    desc: "Generate a complete case\nwith AI",
+    icon: Wand2,
+    color: "gold",
+  },
+  {
+    title: "Browse Templates",
+    desc: "Use ready-made themes",
+    icon: FileText,
+    color: "cyan",
+  },
+  {
+    title: "Design Characters",
+    desc: "Create suspects with AI",
+    icon: Users,
+    color: "gold",
+  },
+  {
+    title: "Build Puzzles",
+    desc: "Generate logic puzzles\nand riddles",
+    icon: Puzzle,
+    color: "cyan",
+  },
+];
+
+const FEATURED_TEMPLATES = [
+  { name: "Victorian Murder Mystery", category: "Detective Mystery" },
+  { name: "Haunted Manor", category: "Paranormal Mystery" },
+  { name: "Luxury Cruise", category: "Murder Mystery" },
+  { name: "Ancient Treasure", category: "Treasure Hunt" },
+  { name: "1920s Speakeasy", category: "Historical Mystery" },
+  { name: "Missing Expedition", category: "Adventure Mystery" },
 ];
 
 // ================================================================
-// CHART DATA
+// ACTION COLOR MAP — gold / turquoise only
 // ================================================================
-const PLATFORM_DATA = [
-  { name: "YouTube", value: 38, color: "#ff3838" },
-  { name: "Spotify", value: 26, color: "#1DB954" },
-  { name: "Apple", value: 18, color: "#9933CC" },
-  { name: "Amazon", value: 11, color: "#25D1DA" },
-  { name: "Google", value: 7, color: "#4285F4" },
-];
-
-// Line chart series — daily plays for the last 7 days
-const LINE_SERIES = {
-  labels: ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"],
-  series: [
-    { name: "YouTube", color: "#ff3838", data: [42, 55, 48, 68, 82, 95, 110] },
-    { name: "Spotify", color: "#1DB954", data: [28, 35, 40, 52, 60, 72, 88] },
-    { name: "TikTok", color: "#25f4ee", data: [18, 24, 30, 42, 55, 68, 84] },
-  ],
+const ACTION_STYLES = {
+  gold: {
+    border: C.darkGold,
+    bg: "linear-gradient(110deg, #2a1f0c, #1a1208)",
+    iconBg: "linear-gradient(140deg, #3a2a11, #5a3e18)",
+    iconColor: C.gold,
+    arrowColor: C.gold,
+  },
+  cyan: {
+    border: "#0a7d7f",
+    bg: "linear-gradient(110deg, #0a2a2c, #061a1b)",
+    iconBg: "linear-gradient(140deg, #0a3a3c, #0d4f52)",
+    iconColor: C.turquoise,
+    arrowColor: C.turquoise,
+  },
 };
 
 // ================================================================
-// ANIMATED LINE CHART
-// ================================================================
-function AnimatedLineChart({ title, height = 220 }) {
-  const [progress, setProgress] = useState(0);
-  const [hovered, setHovered] = useState(null);
-  const rafRef = useRef(null);
-
-  useEffect(() => {
-    const duration = 1400;
-    const start = performance.now();
-    const animate = (now) => {
-      const t = Math.min((now - start) / duration, 1);
-      const eased = t === 1 ? 1 : 1 - Math.pow(2, -10 * t);
-      setProgress(eased);
-      if (t < 1) rafRef.current = requestAnimationFrame(animate);
-    };
-    rafRef.current = requestAnimationFrame(animate);
-    return () => {
-      if (rafRef.current) cancelAnimationFrame(rafRef.current);
-    };
-  }, []);
-
-  const width = 500;
-  const padL = 44;
-  const padR = 18;
-  const padT = 20;
-  const padB = 32;
-  const innerW = width - padL - padR;
-  const innerH = height - padT - padB;
-
-  const allValues = LINE_SERIES.series.flatMap((s) => s.data);
-  const maxY = Math.ceil(Math.max(...allValues) / 20) * 20;
-  const labels = LINE_SERIES.labels;
-
-  const xFor = (i) => padL + (i / (labels.length - 1)) * innerW;
-  const yFor = (v) => padT + innerH - (v / maxY) * innerH;
-
-  return (
-    <div
-      className="rounded-[12px] p-4 transition-all duration-300 hover:-translate-y-[2px]"
-      style={{
-        background: "linear-gradient(180deg, rgba(4,26,53,.55), rgba(3,17,38,.75))",
-        border: "1px solid rgba(80,150,255,.25)",
-        boxShadow: "0 8px 24px rgba(0,0,0,.35), 0 1px 0 rgba(255,255,255,.05) inset",
-      }}
-    >
-      {/* Header */}
-      <div className="flex items-center justify-between mb-3">
-        <h3 className="text-[13.5px] font-semibold text-[#eaf1ff]">{title}</h3>
-        <div className="flex items-center gap-3">
-          {LINE_SERIES.series.map((s) => (
-            <div key={s.name} className="flex items-center gap-1.5">
-              <span
-                className="w-[8px] h-[8px] rounded-full"
-                style={{ background: s.color, boxShadow: `0 0 6px ${s.color}` }}
-              />
-              <span className="text-[10.5px] text-[#aebfd5]">{s.name}</span>
-            </div>
-          ))}
-        </div>
-      </div>
-
-      {/* Chart */}
-      <div className="relative w-full" style={{ height }}>
-        <svg
-          viewBox={`0 0 ${width} ${height}`}
-          preserveAspectRatio="none"
-          className="w-full h-full"
-        >
-          {/* Grid */}
-          {[0, 0.25, 0.5, 0.75, 1].map((t, i) => {
-            const y = padT + innerH * t;
-            return (
-              <line
-                key={i}
-                x1={padL}
-                x2={width - padR}
-                y1={y}
-                y2={y}
-                stroke="rgba(80,150,255,.1)"
-                strokeDasharray="3 4"
-              />
-            );
-          })}
-
-          {/* Y axis labels */}
-          {[0, 0.25, 0.5, 0.75, 1].map((t, i) => {
-            const y = padT + innerH * t;
-            const value = Math.round(maxY * (1 - t));
-            return (
-              <text
-                key={i}
-                x={padL - 8}
-                y={y + 3}
-                textAnchor="end"
-                fontSize="9.5"
-                fill="#7d8fa8"
-              >
-                {value}
-              </text>
-            );
-          })}
-
-          {/* X axis labels */}
-          {labels.map((label, i) => (
-            <text
-              key={i}
-              x={xFor(i)}
-              y={height - 10}
-              textAnchor="middle"
-              fontSize="10"
-              fill="#7d8fa8"
-            >
-              {label}
-            </text>
-          ))}
-
-          {/* Series */}
-          {LINE_SERIES.series.map((s, sIdx) => {
-            // Build the path with progress
-            const totalLen = labels.length - 1;
-            const visibleLen = totalLen * progress;
-
-            const points = [];
-            for (let i = 0; i <= visibleLen; i++) {
-              const x = xFor(i);
-              const y = yFor(s.data[i]);
-              points.push([x, y]);
-            }
-
-            // Partial last segment for smooth draw-in
-            if (visibleLen < totalLen && Math.floor(visibleLen) < totalLen) {
-              const i0 = Math.floor(visibleLen);
-              const frac = visibleLen - i0;
-              const x0 = xFor(i0);
-              const y0 = yFor(s.data[i0]);
-              const x1 = xFor(i0 + 1);
-              const y1 = yFor(s.data[i0 + 1]);
-              points.push([x0 + (x1 - x0) * frac, y0 + (y1 - y0) * frac]);
-            }
-
-            const pathD = points
-              .map(([x, y], i) => `${i === 0 ? "M" : "L"} ${x} ${y}`)
-              .join(" ");
-
-            // Fill area under line
-            const areaD =
-              pathD +
-              ` L ${points[points.length - 1][0]} ${padT + innerH}` +
-              ` L ${points[0][0]} ${padT + innerH} Z`;
-
-            return (
-              <g key={s.name}>
-                {/* Soft area fill */}
-                <path
-                  d={areaD}
-                  fill={s.color}
-                  opacity={0.08}
-                  style={{ transition: "opacity .3s" }}
-                />
-                {/* Line */}
-                <path
-                  d={pathD}
-                  fill="none"
-                  stroke={s.color}
-                  strokeWidth={hovered === sIdx ? 3 : 2.2}
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  style={{
-                    filter: `drop-shadow(0 0 6px ${s.color}80)`,
-                    transition: "stroke-width .2s",
-                  }}
-                />
-                {/* Points */}
-                {labels.map((_, i) => {
-                  if (i > visibleLen) return null;
-                  const x = xFor(i);
-                  const y = yFor(s.data[i]);
-                  return (
-                    <circle
-                      key={i}
-                      cx={x}
-                      cy={y}
-                      r={hovered === sIdx ? 4.5 : 3}
-                      fill="#04101f"
-                      stroke={s.color}
-                      strokeWidth={2}
-                      style={{ transition: "r .2s" }}
-                    />
-                  );
-                })}
-              </g>
-            );
-          })}
-        </svg>
-      </div>
-
-      {/* Footer stats */}
-      <div className="flex items-center justify-between mt-2 pt-2" style={{ borderTop: "1px solid rgba(80,150,255,.1)" }}>
-        <span className="text-[10px] text-[#7d8fa8]">Last 7 days</span>
-        <span className="text-[10.5px] font-semibold text-[#4ef0ae]">
-          ↗ +34% this week
-        </span>
-      </div>
-    </div>
-  );
-}
-
-// ================================================================
-// ANIMATED DONUT
-// ================================================================
-function AnimatedDonut({ data, size = 200, thickness = 24, title }) {
-  const [progress, setProgress] = useState(0);
-  const [hovered, setHovered] = useState(null);
-  const [animatedValues, setAnimatedValues] = useState(data.map(() => 0));
-  const rafRef = useRef(null);
-
-  useEffect(() => {
-    const duration = 1400;
-    const start = performance.now();
-    const animate = (now) => {
-      const t = Math.min((now - start) / duration, 1);
-      const eased = t === 1 ? 1 : 1 - Math.pow(2, -10 * t);
-      setProgress(eased);
-      setAnimatedValues(data.map((d) => d.value * eased));
-      if (t < 1) rafRef.current = requestAnimationFrame(animate);
-    };
-    rafRef.current = requestAnimationFrame(animate);
-    return () => {
-      if (rafRef.current) cancelAnimationFrame(rafRef.current);
-    };
-  }, [data]);
-
-  const total = data.reduce((a, b) => a + b.value, 0) || 1;
-  const radius = size / 2 - thickness / 2;
-  const cx = size / 2;
-  const cy = size / 2;
-  const circumference = 2 * Math.PI * radius;
-
-  let cumulative = 0;
-  const arcs = data.map((d, i) => {
-    const fraction = d.value / total;
-    const arcLength = circumference * fraction * progress;
-    const dash = `${arcLength} ${circumference - arcLength}`;
-    const offset = -cumulative * circumference * progress;
-    cumulative += fraction;
-    return { ...d, dash, offset, index: i };
-  });
-
-  return (
-    <div
-      className="rounded-[12px] p-4 transition-all duration-300 hover:-translate-y-[2px]"
-      style={{
-        background: "linear-gradient(180deg, rgba(4,26,53,.55), rgba(3,17,38,.75))",
-        border: "1px solid rgba(80,150,255,.25)",
-        boxShadow: "0 8px 24px rgba(0,0,0,.35), 0 1px 0 rgba(255,255,255,.05) inset",
-      }}
-    >
-      <div className="flex items-center justify-between mb-3">
-        <h3 className="text-[13.5px] font-semibold text-[#eaf1ff]">{title}</h3>
-        <span
-          className="text-[9.5px] font-semibold tracking-[0.5px] px-2 py-[3px] rounded-full"
-          style={{
-            background: "rgba(110,53,237,.2)",
-            border: "1px solid rgba(150,120,255,.4)",
-            color: "#c9b5ff",
-          }}
-        >
-          LIVE
-        </span>
-      </div>
-
-      <div className="flex items-center gap-5 flex-wrap sm:flex-nowrap">
-        {/* Donut */}
-        <div className="relative shrink-0" style={{ width: size, height: size }}>
-          <svg width={size} height={size} className="transform -rotate-90">
-            <circle
-              cx={cx}
-              cy={cy}
-              r={radius}
-              fill="none"
-              stroke="rgba(80,150,255,.08)"
-              strokeWidth={thickness}
-            />
-
-            {arcs.map((arc) => (
-              <circle
-                key={arc.index}
-                cx={cx}
-                cy={cy}
-                r={radius}
-                fill="none"
-                stroke={arc.color}
-                strokeWidth={hovered === arc.index ? thickness + 4 : thickness}
-                strokeLinecap="round"
-                strokeDasharray={arc.dash}
-                strokeDashoffset={arc.offset}
-                style={{
-                  filter:
-                    hovered === arc.index
-                      ? `drop-shadow(0 0 12px ${arc.color})`
-                      : `drop-shadow(0 0 4px ${arc.color}40)`,
-                  transition: "stroke-width .2s ease, filter .2s ease",
-                  cursor: "pointer",
-                }}
-                onMouseEnter={() => setHovered(arc.index)}
-                onMouseLeave={() => setHovered(null)}
-              />
-            ))}
-          </svg>
-
-          <div className="absolute inset-0 grid place-items-center pointer-events-none">
-            {hovered !== null ? (
-              <div className="text-center">
-                <div className="text-[11px] font-semibold" style={{ color: data[hovered].color }}>
-                  {data[hovered].name}
-                </div>
-                <div className="text-[24px] font-bold leading-tight" style={{ color: "#eaf1ff" }}>
-                  {Math.round(animatedValues[hovered])}%
-                </div>
-              </div>
-            ) : (
-              <div className="text-center">
-                <div className="text-[10px] uppercase tracking-[0.5px] text-[#7d8fa8]">Total</div>
-                <div className="text-[24px] font-bold text-[#eaf1ff] leading-tight">100%</div>
-                <div className="text-[9px] text-[#7d8fa8] mt-0.5">
-                  {data.length} platforms
-                </div>
-              </div>
-            )}
-          </div>
-        </div>
-
-        {/* Legend */}
-        <div className="flex-1 min-w-0 space-y-1.5">
-          {data.map((d, i) => (
-            <div
-              key={d.name}
-              onMouseEnter={() => setHovered(i)}
-              onMouseLeave={() => setHovered(null)}
-              className="flex items-center gap-2.5 px-2 py-1 rounded-md cursor-pointer transition-colors"
-              style={{
-                background: hovered === i ? "rgba(110,53,237,.12)" : "transparent",
-              }}
-            >
-              <span
-                className="w-[8px] h-[8px] rounded-full shrink-0"
-                style={{ background: d.color, boxShadow: `0 0 8px ${d.color}` }}
-              />
-              <span className="text-[11.5px] text-[#c9d5e8] flex-1 truncate">
-                {d.name}
-              </span>
-              <span
-                className="text-[11.5px] font-semibold tabular-nums"
-                style={{ color: d.color }}
-              >
-                {Math.round(animatedValues[i])}%
-              </span>
-            </div>
-          ))}
-        </div>
-      </div>
-    </div>
-  );
-}
-
-// ================================================================
-// TRENDING CATEGORIES (unchanged)
+// TRENDING CATEGORIES
 // ================================================================
 function TrendingCategories() {
   const navigate = useNavigate();
@@ -449,80 +220,97 @@ function TrendingCategories() {
     };
   }, []);
 
-  if (loading) {
-    return (
-      <section>
-        <div className="flex justify-between items-center mb-[15px] h-[24px]">
-          <h2 className="text-[18px] font-bold text-[#edf4ff]">Trending Categories</h2>
-          <span className="text-[13px] text-[#91a9c8] cursor-pointer">View all →</span>
-        </div>
-        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-[12px]">
-          {Array.from({ length: 5 }).map((_, i) => (
-            <div key={i} className="h-[160px] rounded-[9px] bg-[#0a1b36] animate-pulse" />
-          ))}
-        </div>
-      </section>
-    );
-  }
-
-  if (categories.length === 0) {
-    return (
-      <section>
-        <div className="flex justify-between items-center mb-[15px] h-[24px]">
-          <h2 className="text-[18px] font-bold text-[#edf4ff]">Trending Categories</h2>
-          <span className="text-[13px] text-[#91a9c8] cursor-pointer">View all →</span>
-        </div>
-        <div className="border border-[#17385f] rounded-[10px] bg-gradient-to-b from-[#06162b] to-[#041124] p-8 text-center">
-          <p className="text-[13px] text-[#8198b6]">No categories yet.</p>
-        </div>
-      </section>
-    );
-  }
-
   return (
     <section>
-      <div className="flex justify-between items-center mb-[15px] h-[24px]">
-        <h2 className="text-[18px] font-bold text-[#edf4ff]">Trending Categories</h2>
-        <span className="text-[13px] text-[#91a9c8] cursor-pointer hover:text-[#edf4ff] transition-colors">
+      <div className="flex justify-between items-center mb-2 h-6">
+        <h2
+          className="text-[19px] sm:text-[21px] font-bold"
+          style={{ color: C.heading }}
+        >
+          Trending Categories
+        </h2>
+        <span
+          className="text-[14px] sm:text-[15px] cursor-pointer transition-colors"
+          style={{ color: C.gold }}
+          onMouseEnter={(e) => (e.currentTarget.style.color = C.goldHover)}
+          onMouseLeave={(e) => (e.currentTarget.style.color = C.gold)}
+        >
           View all →
         </span>
       </div>
 
-      <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-[12px]">
-        {categories.map((cat) => (
-          <button
-            key={cat.id}
-            onClick={() => navigate(`/category/${cat.slug}`)}
-            className="group border border-[#173d6d] rounded-[9px] overflow-hidden bg-[#061427] flex flex-col text-left transition-all duration-200 hover:border-[#6b38ed] hover:-translate-y-[2px] hover:shadow-lg"
-          >
-            <div className="relative h-[170px]  shrink-0 bg-[#0a1b36] overflow-hidden">
-              {cat.image ? (
-                <img
-                  src={getImageUrl(cat.image)}
-                  alt={cat.name}
-                  loading="lazy"
-                  className="w-full h-full object-cover bg-center transition-transform duration-300 group-hover:scale-105"
-                  onError={(e) => {
-                    e.target.style.display = "none";
-                  }}
-                />
-              ) : (
-                <div className="w-full h-full grid place-items-center text-[28px] opacity-60">📁</div>
-              )}
-            </div>
-            <div className="p-[11px] flex flex-col flex-1">
-              <div className="text-[13px] font-semibold text-[#edf4ff] group-hover:text-[#a080ff] transition-colors leading-[1.35]">
-                {cat.name}
+      {loading ? (
+        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3">
+          {Array.from({ length: 4 }).map((_, i) => (
+            <div
+              key={i}
+              className="rounded-[9px] animate-pulse"
+              style={{ background: C.input, paddingBottom: "60%" }}
+            />
+          ))}
+        </div>
+      ) : categories.length === 0 ? (
+        <div
+          className="rounded-[10px] p-8 text-center"
+          style={{ border: `1px solid ${C.border}`, background: C.card }}
+        >
+          <p className="text-[15px]" style={{ color: C.secondary }}>
+            No categories yet.
+          </p>
+        </div>
+      ) : (
+        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3">
+          {categories.map((cat) => (
+            <button
+              key={cat.id}
+              onClick={() =>
+                navigate("/templates", {
+                  state: { categoryId: cat.id, categorySlug: cat.slug },
+                })
+              }
+              className="group rounded-[9px] overflow-hidden flex flex-col text-left transition-all duration-200 hover:-translate-y-[2px] hover:shadow-lg"
+              style={{ border: `1px solid ${C.border}`, background: C.card }}
+            >
+              <div
+                className="relative shrink-0 overflow-hidden"
+                style={{ background: C.input, paddingBottom: "60%" }}
+              >
+                {cat.image ? (
+                  <img
+                    src={getImageUrl(cat.image)}
+                    alt={cat.name}
+                    loading="lazy"
+                    className="absolute inset-0 w-full h-full object-cover transition-transform duration-300 group-hover:scale-105"
+                    onError={(e) => {
+                      e.target.style.display = "none";
+                    }}
+                  />
+                ) : (
+                  <div className="absolute inset-0 grid place-items-center text-[32px] opacity-60">
+                    📁
+                  </div>
+                )}
               </div>
-              {cat.description && (
-                <p className="text-[11px] text-[#8198b6] mt-[6px] leading-[1.4] line-clamp-2">
-                  {cat.description}
-                </p>
-              )}
-            </div>
-          </button>
-        ))}
-      </div>
+              <div className="p-3 flex flex-col flex-1">
+                <div
+                  className="text-[15px] font-semibold leading-[1.35] transition-colors"
+                  style={{ color: C.heading }}
+                >
+                  {cat.name}
+                </div>
+                {cat.description && (
+                  <p
+                    className="text-[13px] mt-1.5 leading-[1.4] line-clamp-2"
+                    style={{ color: C.secondary }}
+                  >
+                    {cat.description}
+                  </p>
+                )}
+              </div>
+            </button>
+          ))}
+        </div>
+      )}
     </section>
   );
 }
@@ -535,215 +323,590 @@ export default function Dashboard() {
   const navigate = useNavigate();
 
   return (
-    <div className="flex min-h-screen bg-[#020713]">
+    <div
+      className="flex min-h-screen"
+      style={{ background: C.mainBg, color: C.heading }}
+    >
       <Sidebar />
 
-      <div className="flex-1 ml-0 md:ml-[18rem] flex flex-col min-h-screen bg-[#020713]">
+      <div
+        className="flex-1 ml-0 md:ml-[18rem] flex flex-col min-h-screen "
+      >
         <Navbar />
 
-        <main className="flex-1 p-3 md:p-6 overflow-y-auto">
-          {/* HERO BANNER */}
-          <section
-            className="relative border border-[#153c6d] rounded-[10px] overflow-hidden"
-            style={{
-              background:
-                "linear-gradient(105deg, #020b1b 0%, #03112b 52%, #040b20 100%)",
-            }}
-          >
-            <div
-              className="absolute inset-y-0 right-0 w-[62%] md:w-[55%]"
+        <main
+          className="flex-1 overflow-y-auto"
+          style={{ padding: "20px 12px 20px 20px" }}
+        >
+          <div className="max-w-[1650px] mx-auto">
+            {/* HERO */}
+            <section
+              className="rounded-[12px] overflow-hidden relative mb-[19px]"
               style={{
-                backgroundImage: `url(${bannerBg})`,
-                backgroundSize: "cover",
-                backgroundPosition: "center right",
-                backgroundRepeat: "no-repeat",
+                background: "#000000",
+                paddingTop: "40px",
+                paddingBottom: "40px",
+                minHeight: "360px",
               }}
-            />
-            <div
-              className="absolute inset-0 pointer-events-none"
-              style={{
-                background:
-                  "linear-gradient(90deg, #020b1a 0%, #020b1a 30%, rgba(3,17,43,.95) 45%, rgba(3,17,43,.6) 65%, rgba(3,17,43,.2) 82%, transparent 100%)",
-              }}
-            />
-            <div className="relative z-10 py-10 md:py-12 pl-7 pr-7 max-w-[720px]">
-              <div className="text-[13px] tracking-[1.8px] text-[#9c65ff] font-medium">
-                WELCOME BACK, {(user?.name || "ADIT").toUpperCase()}
-              </div>
-              <h1 className="text-[32px] md:text-[40px] leading-[1.1] tracking-[-1.4px] font-semibold mt-3 text-[#eef4ff]">
-                Create Amazing Podcasts
-                <br />
-                <span
-                  className="bg-clip-text text-transparent"
+            >
+              <div
+                className="absolute inset-0"
+                style={{
+                  backgroundImage: `url(${heroBg})`,
+                  backgroundSize: "cover",
+                  backgroundPosition: "center right",
+                  backgroundRepeat: "no-repeat",
+                  zIndex: 0,
+                }}
+              />
+
+              <div
+                className="absolute inset-0 pointer-events-none"
+                style={{
+                  background:
+                    "linear-gradient(90deg, rgba(0,0,0,.92), rgba(0,0,0,.72) 42%, rgba(0,0,0,.35) 80%, rgba(0,0,0,.15) 100%)",
+                  zIndex: 1,
+                }}
+              />
+
+              <div
+                className="absolute inset-x-0 bottom-0 pointer-events-none"
+                style={{
+                  height: "40%",
+                  background:
+                    "linear-gradient(180deg, transparent, rgba(0,0,0,.45))",
+                  zIndex: 1,
+                }}
+              />
+
+              <div
+                className="relative z-10"
+                style={{ paddingLeft: 29, paddingRight: 29 }}
+              >
+                <div
+                  className="inline-flex items-center gap-2 mb-4"
                   style={{
-                    backgroundImage:
-                      "linear-gradient(90deg, #b65bff, #7855ff, #338dff)",
-                    WebkitBackgroundClip: "text",
+                    padding: "6px 14px",
+                    borderRadius: 999,
+                    background: "rgba(246,197,93,.12)",
+                    border: `1px solid ${C.gold}55`,
+                    color: C.gold,
+                    fontSize: 12,
+                    fontWeight: 600,
+                    letterSpacing: "1.5px",
+                    textTransform: "uppercase",
                   }}
                 >
-                  with the Power of AI.
-                </span>
-              </h1>
-              <p className="text-[14px] leading-[1.6] text-[#aebfd5] mt-4 max-w-[640px]">
-                Turn your ideas into professional podcast videos in minutes.
-                Choose a template, add your topic, and let AI do the magic — no
-                equipment, no editing required.
-              </p>
-              <div className="flex flex-wrap gap-3 mt-7">
-                <button
-                  onClick={() => navigate("/create-podcast")}
-                  className="h-[46px] px-6 rounded-[10px] text-white text-[13.5px] font-semibold transition-all duration-200 hover:brightness-110"
+                  <span
+                    style={{
+                      width: 6,
+                      height: 6,
+                      borderRadius: "50%",
+                      background: C.gold,
+                      boxShadow: `0 0 8px ${C.gold}`,
+                    }}
+                  />
+                  AI Mystery Game Creator
+                </div>
+
+                <h1
+                  className="mm-serif"
                   style={{
-                    background: "linear-gradient(100deg, #6c36ed, #3477ff)",
-                    boxShadow: "0 8px 24px rgba(108,54,237,.35)",
+                    fontFamily: "'Playfair Display', Georgia, serif",
+                    fontSize: "clamp(34px, 5.5vw, 54px)",
+                    lineHeight: 1.08,
+                    letterSpacing: "-0.5px",
+                    fontWeight: 500,
+                    margin: "0 0 14px",
+                    color: "#ffffff",
                   }}
                 >
-                  ＋ Create New Podcast
-                </button>
-                <button
-                  onClick={() => navigate("/templates")}
-                  className="h-[46px] px-6 rounded-[10px] text-[13.5px] transition-colors duration-200 hover:bg-[#0a2952]"
+                  Turn One Simple Idea Into a
+                  <br />
+                  Complete{" "}
+                  <em style={{ fontStyle: "normal", color: C.gold }}>
+                    Mystery Game
+                  </em>
+                  <br />
+                  <em style={{ fontStyle: "normal", color: C.gold }}>
+                    With AI
+                  </em>
+                </h1>
+
+                <p
                   style={{
-                    border: "1px solid #1d568e",
-                    background: "#061b37",
-                    color: "#dbe7f7",
+                    fontSize: "clamp(15px, 1.8vw, 19px)",
+                    lineHeight: "30px",
+                    margin: "0 0 24px",
+                    color: C.heading,
+                    maxWidth: 620,
                   }}
                 >
-                  Browse Templates
-                </button>
+                  Stories, suspects, clues, puzzles and beautiful game kits
+                  <br className="hidden sm:block" />— ready to play or sell.
+                </p>
+
+                <div className="flex flex-wrap items-center gap-3">
+                  <button
+                    onClick={() => navigate("/create-product")}
+                    className="flex items-center transition-all hover:-translate-y-[1px]"
+                    style={{
+                      height: 50,
+                      paddingLeft: 24,
+                      paddingRight: 24,
+                      fontSize: 16,
+                      gap: 14,
+                      background: C.goldGradient,
+                      color: "#000C16",
+                      border: `1px solid ${C.goldHover}`,
+                      borderRadius: 11,
+                      fontWeight: 700,
+                      boxShadow:
+                        "inset 0 1px 1px rgba(255,255,255,.25), 0 8px 22px rgba(246,197,93,.35)",
+                      cursor: "pointer",
+                    }}
+                    onMouseEnter={(e) =>
+                      (e.currentTarget.style.filter = "brightness(1.08)")
+                    }
+                    onMouseLeave={(e) =>
+                      (e.currentTarget.style.filter = "brightness(1)")
+                    }
+                  >
+                    <Plus size={19} />
+                    Create New Mystery
+                    <ArrowRight size={19} />
+                  </button>
+
+                  <button
+                    onClick={() => navigate("/templates")}
+                    className="flex items-center transition-all hover:-translate-y-[1px]"
+                    style={{
+                      height: 50,
+                      paddingLeft: 22,
+                      paddingRight: 22,
+                      fontSize: 15,
+                      gap: 10,
+                      background: "rgba(255,255,255,.06)",
+                      color: C.heading,
+                      border: "1px solid rgba(255,255,255,.18)",
+                      borderRadius: 11,
+                      fontWeight: 600,
+                      backdropFilter: "blur(6px)",
+                      WebkitBackdropFilter: "blur(6px)",
+                      cursor: "pointer",
+                    }}
+                  >
+                    Browse Templates
+                  </button>
+                </div>
               </div>
-            </div>
-          </section>
+            </section>
 
-          {/* MAIN LAYOUT */}
-          <div className="grid grid-cols-1 lg:grid-cols-[minmax(0,1fr)_385px] gap-[18px] mt-[21px]">
-            {/* LEFT COLUMN */}
-            <div className="min-w-0">
-              <TrendingCategories />
-
-              {/* 👇 NEW — one line chart + one donut chart */}
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-6">
-                <AnimatedLineChart title="Podcast Plays — Last 7 Days" height={230} />
-                <AnimatedDonut
-                  data={PLATFORM_DATA}
-                  title="Trending Podcasts — Platform Split"
-                  size={180}
-                />
-              </div>
-            </div>
-
-            {/* RIGHT COLUMN */}
-            <aside className="min-w-0 flex flex-col gap-4">
-              <div>
-                <div className="hidden lg:block mb-[15px] h-[24px]" aria-hidden="true" />
-                <div className="border border-[#17385f] rounded-[10px] bg-gradient-to-b from-[#06162b] to-[#041124] p-[13px]">
-                  <h3 className="text-[16px] font-bold text-[#edf4ff] mb-[13px]">
-                    Quick Actions
-                  </h3>
-                  {quickActions.map((a, idx) => {
-                    const Icon = a.icon;
-                    return (
+            {/* STATS */}
+            <section className="grid grid-cols-2 lg:grid-cols-4 gap-3 mb-[18px]">
+              {STATS.map((s, i) => {
+                const Icon = s.icon;
+                return (
+                  <div
+                    key={i}
+                    className="rounded-[12px] flex items-center"
+                    style={{
+                      border: `1px solid ${C.border}`,
+                      background: C.card,
+                      padding: 12,
+                      gap: 14,
+                    }}
+                  >
+                    <div
+                      className="grid place-items-center shrink-0"
+                      style={{
+                        width: 56,
+                        height: 56,
+                        borderRadius: 14,
+                        color: s.iconColor,
+                        background: s.iconBg,
+                      }}
+                    >
+                      <Icon size={26} strokeWidth={1.8} />
+                    </div>
+                    <div className="min-w-0 flex-1">
                       <div
-                        key={idx}
-                        className="h-[62px] rounded-[9px] bg-[#0a1b36] mb-[8px] last:mb-0 flex items-center gap-[10px] px-[10px] cursor-pointer hover:bg-[#0c2043] transition-colors"
-                        onClick={() =>
-                          a.title === "Create New Podcast" && navigate("/create-product")
-                        }
+                        className="font-bold leading-none"
+                        style={{
+                          fontSize: "clamp(24px, 3vw, 34px)",
+                          color: C.heading,
+                        }}
                       >
-                        <div
-                          className="w-[37px] h-[37px] rounded-full grid place-items-center shrink-0"
+                        {s.value}
+                      </div>
+                      <div
+                        className="mt-1"
+                        style={{
+                          fontSize: "clamp(12px, 1.3vw, 15px)",
+                          color: C.secondary,
+                        }}
+                      >
+                        {s.label}
+                      </div>
+                    </div>
+                    <div className="hidden lg:block text-right shrink-0 ml-auto">
+                      <strong style={{ fontSize: 17, color: s.trendColor }}>
+                        {s.trend}
+                      </strong>
+                      <small
+                        className="block"
+                        style={{
+                          fontSize: 12,
+                          marginTop: 8,
+                          color: C.secondary,
+                        }}
+                      >
+                        vs last month
+                      </small>
+                    </div>
+                  </div>
+                );
+              })}
+            </section>
+
+            {/* PANELS */}
+            <section className="grid grid-cols-1 lg:grid-cols-[1.425fr_1fr] gap-4 mb-[18px]">
+              {/* Recent Mysteries */}
+              <div
+                className="rounded-[12px] min-w-0"
+                style={{
+                  background: C.card,
+                  border: `1px solid ${C.border}`,
+                  padding: "13px 15px 9px",
+                }}
+              >
+                <div className="flex justify-between items-center mb-2">
+                  <h2
+                    className="font-bold m-0"
+                    style={{ fontSize: 21, color: C.heading }}
+                  >
+                    Recent Mysteries
+                  </h2>
+                  <button
+                    type="button"
+                    onClick={() => navigate("/my-mysteries")}
+                    className="font-semibold transition"
+                    style={{
+                      color: C.gold,
+                      fontSize: 14,
+                      background: "transparent",
+                      border: 0,
+                      cursor: "pointer",
+                    }}
+                  >
+                    View All <ArrowRight size={12} className="inline" />
+                  </button>
+                </div>
+
+                {RECENT_MYSTERIES.map((m, idx) => (
+                  <div
+                    key={idx}
+                    className="flex items-center"
+                    style={{
+                      gap: 16,
+                      borderTop: `1px solid ${C.border}`,
+                      paddingTop: 12,
+                      paddingBottom: 12,
+                    }}
+                  >
+                    <div
+                      className="shrink-0"
+                      style={{
+                        width: 100,
+                        height: 66,
+                        border: `1px solid ${C.border}`,
+                        borderRadius: 9,
+                        background: C.input,
+                      }}
+                    />
+                    <div className="flex-1 min-w-0">
+                      <div
+                        className="font-bold truncate"
+                        style={{
+                          fontSize: 16,
+                          marginBottom: 8,
+                          color: C.heading,
+                        }}
+                      >
+                        {m.title}
+                      </div>
+                      <div
+                        className="flex items-center flex-wrap"
+                        style={{ gap: 12, fontSize: 13 }}
+                      >
+                        <span
+                          className="rounded-full"
                           style={{
-                            background: "#181e63",
-                            border: "1px solid #2a40ae",
-                            color: "#a080ff",
+                            padding: "5px 10px",
+                            background:
+                              m.pillClass === "pink"
+                                ? "#2a0f18"
+                                : m.pillClass === "green"
+                                  ? "#052a24"
+                                  : C.input,
+                            border:
+                              m.pillClass === "pink"
+                                ? "1px solid #6b2233"
+                                : m.pillClass === "green"
+                                  ? `1px solid ${C.turquoise}55`
+                                  : `1px solid ${C.border}`,
+                            color:
+                              m.pillClass === "pink"
+                                ? "#ff9eb8"
+                                : m.pillClass === "green"
+                                  ? C.turquoise
+                                  : C.heading,
+                            fontWeight: 500,
                           }}
                         >
-                          <Icon size={16} strokeWidth={1.8} />
+                          {m.pill}
+                        </span>
+                        <span
+                          className="flex items-center"
+                          style={{ color: C.secondary, gap: 5 }}
+                        >
+                          <UsersRound size={12} /> {m.players}
+                        </span>
+                        <span
+                          className="flex items-center"
+                          style={{ color: C.secondary, gap: 5 }}
+                        >
+                          <Clock size={12} /> {m.duration}
+                        </span>
+                      </div>
+                    </div>
+                    <button
+                      className="shrink-0 transition-colors"
+                      style={{
+                        padding: "8px 9px",
+                        color: C.secondary,
+                        background: "transparent",
+                        border: 0,
+                        cursor: "pointer",
+                      }}
+                      onMouseEnter={(e) =>
+                        (e.currentTarget.style.color = C.heading)
+                      }
+                      onMouseLeave={(e) =>
+                        (e.currentTarget.style.color = C.secondary)
+                      }
+                    >
+                      <MoreVertical size={16} />
+                    </button>
+                    <button
+                      className="shrink-0 transition-all"
+                      style={{
+                        border: `1px solid ${C.border}`,
+                        background: C.input,
+                        color: C.gold,
+                        borderRadius: 8,
+                        padding: "10px 22px",
+                        fontWeight: 600,
+                        fontSize: 15,
+                        cursor: "pointer",
+                      }}
+                      onMouseEnter={(e) => {
+                        e.currentTarget.style.borderColor = C.gold;
+                        e.currentTarget.style.background = C.cardSecondary;
+                      }}
+                      onMouseLeave={(e) => {
+                        e.currentTarget.style.borderColor = C.border;
+                        e.currentTarget.style.background = C.input;
+                      }}
+                    >
+                      Edit
+                    </button>
+                  </div>
+                ))}
+              </div>
+
+              {/* Quick Actions */}
+              <div
+                className="rounded-[12px] min-w-0"
+                style={{
+                  background: C.card,
+                  border: `1px solid ${C.border}`,
+                  padding: "13px 15px 15px",
+                }}
+              >
+                <div className="flex justify-between items-center mb-2">
+                  <h2
+                    className="font-bold m-0"
+                    style={{ fontSize: 21, color: C.heading }}
+                  >
+                    Quick Actions
+                  </h2>
+                </div>
+
+                <div className="grid grid-cols-2 gap-3">
+                  {QUICK_ACTIONS.map((a, idx) => {
+                    const Icon = a.icon;
+                    const S = ACTION_STYLES[a.color];
+                    return (
+                      <button
+                        key={idx}
+                        className="rounded-[11px] text-left relative transition-all hover:-translate-y-[1px] hover:brightness-110"
+                        style={{
+                          border: `1px solid ${S.border}`,
+                          background: S.bg,
+                          minHeight: 105,
+                          display: "flex",
+                          gap: 14,
+                          padding: "12px 10px",
+                          color: C.heading,
+                          cursor: "pointer",
+                        }}
+                        onClick={() => {
+                          if (a.title === "Create New Mystery") {
+                            navigate("/create-product");
+                          } else if (a.title === "Browse Templates") {
+                            navigate("/templates");
+                          }
+                        }}
+                      >
+                        <div
+                          className="grid place-items-center shrink-0"
+                          style={{
+                            width: 48,
+                            height: 48,
+                            borderRadius: 13,
+                            background: S.iconBg,
+                            color: S.iconColor,
+                          }}
+                        >
+                          <Icon size={24} strokeWidth={1.8} />
                         </div>
                         <div className="min-w-0">
-                          <div className="text-[12px] font-medium text-[#edf4ff] truncate">
+                          <div
+                            className="font-bold"
+                            style={{
+                              fontSize: 14,
+                              marginTop: 10,
+                              whiteSpace: "nowrap",
+                              color: C.heading,
+                            }}
+                          >
                             {a.title}
                           </div>
-                          <div className="text-[10px] text-[#8096b6] mt-[5px] truncate">
-                            {a.sub}
+                          <div
+                            style={{
+                              fontSize: 13,
+                              lineHeight: "20px",
+                              marginTop: 4,
+                              color: C.secondary,
+                              whiteSpace: "pre-line",
+                            }}
+                          >
+                            {a.desc}
                           </div>
                         </div>
-                      </div>
+                        <ArrowRight
+                          size={14}
+                          style={{
+                            position: "absolute",
+                            bottom: 10,
+                            right: 12,
+                            color: S.arrowColor,
+                          }}
+                        />
+                      </button>
                     );
                   })}
                 </div>
               </div>
+            </section>
 
-              <div className="border border-[#17385f] rounded-[10px] bg-gradient-to-b from-[#06162b] to-[#041124] p-[16px]">
-                <div className="text-[13px] text-[#edf4ff]">AI Shorts Performance</div>
-                <div className="flex items-center gap-[25px] h-[125px] mt-3">
-                  <div className="relative w-[105px] h-[105px] rounded-full grid place-items-center shrink-0">
-                    <div
-                      className="absolute inset-0 rounded-full"
-                      style={{
-                        background: "conic-gradient(#7d3cff 0 28%, #2868ff 28%)",
-                      }}
-                    />
-                    <div
-                      className="absolute rounded-full"
-                      style={{ inset: 9, background: "#041124" }}
-                    />
-                    <span className="relative z-[1] text-center text-[12px] text-[#edf4ff]">
-                      <b className="block text-[22px]">48</b>
-                      Shorts
-                    </span>
-                  </div>
-                  <div className="grid gap-[9px] min-w-0">
-                    {socials.map((s, i) => (
-                      <div
-                        key={i}
-                        className="grid gap-[10px] text-[12px] text-[#edf4ff]"
-                        style={{ gridTemplateColumns: "20px 65px 25px" }}
-                      >
-                        <b className={s.color}>{s.icon}</b>
-                        <span>{s.name}</span>
-                        <span className="text-right text-[#c9d5e8]">{s.count}</span>
-                      </div>
-                    ))}
-                  </div>
-                </div>
-              </div>
-            </aside>
-          </div>
-
-          {/* BOTTOM CTA */}
-          <section
-            className="h-[83px] mt-[16px] border border-[#5334b4] rounded-[10px] overflow-hidden flex items-center px-[24px] gap-[17px]"
-            style={{
-              background:
-                "radial-gradient(ellipse at 65% 100%, rgba(62,57,255,.7), transparent 35%), linear-gradient(90deg, #071329, #08112b 55%, #07152d)",
-            }}
-          >
-            <div
-              className="w-[40px] h-[40px] rounded-full grid place-items-center text-[22px] shrink-0"
-              style={{ background: "#27165e", color: "#b977ff" }}
-            >
-              ✦
-            </div>
-            <div className="min-w-0">
-              <div className="text-[17px] font-semibold text-[#edf4ff]">
-                Create More. Reach Further.
-              </div>
-              <div className="text-[12px] text-[#94a3b8] mt-1">
-                Upgrade to Pro and unlock unlimited podcasts, AI shorts, premium
-                templates and more.
-              </div>
-            </div>
-            <button
-              onClick={() => navigate("/upgrades")}
-              className="ml-auto h-[40px] px-[22px] rounded-[12px] text-white text-[13px] font-medium shrink-0"
+            {/* FEATURED TEMPLATES */}
+            <section
+              className="rounded-[12px]"
               style={{
-                background: "linear-gradient(100deg, #7735ee, #2f78ff)",
+                background: C.card,
+                border: `1px solid ${C.border}`,
+                padding: "13px 15px 15px",
               }}
             >
-              Upgrade to Pro →
-            </button>
-          </section>
+              <div className="flex justify-between items-center mb-3">
+                <h2
+                  className="font-bold m-0"
+                  style={{ fontSize: 21, color: C.heading }}
+                >
+                  Featured Templates
+                </h2>
+                <button
+                  type="button"
+                  onClick={() => navigate("/templates")}
+                  className="font-semibold transition whitespace-nowrap"
+                  style={{
+                    color: C.gold,
+                    fontSize: 14,
+                    background: "transparent",
+                    border: 0,
+                    cursor: "pointer",
+                  }}
+                  onMouseEnter={(e) =>
+                    (e.currentTarget.style.color = C.goldHover)
+                  }
+                  onMouseLeave={(e) =>
+                    (e.currentTarget.style.color = C.gold)
+                  }
+                >
+                  Browse All Templates{" "}
+                  <ArrowRight size={12} className="inline" />
+                </button>
+              </div>
+
+              <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3">
+                {FEATURED_TEMPLATES.map((t, idx) => (
+                  <div
+                    key={idx}
+                    className="rounded-[10px] overflow-hidden cursor-pointer transition-all hover:-translate-y-[2px]"
+                    style={{
+                      border: `1px solid ${C.border}`,
+                      background: C.cardSecondary,
+                    }}
+                    onMouseEnter={(e) =>
+                      (e.currentTarget.style.borderColor = C.gold)
+                    }
+                    onMouseLeave={(e) =>
+                      (e.currentTarget.style.borderColor = C.border)
+                    }
+                  >
+                    <div
+                      className="relative"
+                      style={{
+                        background: C.card,
+                        borderBottom: `1px solid ${C.border}`,
+                        paddingBottom: "68%",
+                      }}
+                    />
+                    <div style={{ padding: "8px 13px" }}>
+                      <div
+                        className="font-bold truncate"
+                        style={{ fontSize: 14, color: C.heading }}
+                      >
+                        {t.name}
+                      </div>
+                      <div
+                        className="truncate"
+                        style={{
+                          fontSize: 13,
+                          color: C.secondary,
+                          marginTop: 7,
+                        }}
+                      >
+                        {t.category}
+                      </div>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </section>
+          </div>
         </main>
       </div>
     </div>

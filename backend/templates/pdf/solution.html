@@ -1,0 +1,353 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&family=Playfair+Display:wght@600;700&display=swap" rel="stylesheet">
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  @page {
+    size: A4;
+    margin: 0;                     /* PDF physical margins = 0 */
+  }
+
+  html, body {
+    margin: 0;
+    padding: 0;
+    background: #fff;
+    color: #0b1a22;
+    font-family: 'Inter', Arial, sans-serif;
+    font-size: 11pt;
+    line-height: 1.6;
+    -webkit-print-color-adjust: exact;
+    print-color-adjust: exact;
+  }
+
+  /* ============================================================
+     PAGE 1 — COVER, FULL BLEED (dark red GM theme)
+     ============================================================ */
+  .cover {
+    background: linear-gradient(135deg, #2a0808 0%, #4a1010 60%, #1a0404 100%);
+    color: #fff;
+    padding: 40pt 32pt;
+    margin: 0;
+    border-radius: 0;
+    width: 210mm;
+    min-height: 297mm;
+    display: flex;
+    flex-direction: column;
+    page-break-after: always;
+    break-after: page;
+  }
+  .cover-eyebrow {
+    font-size: 10pt; text-transform: uppercase; letter-spacing: 2pt;
+    color: #ff8fa8; font-weight: 700; margin-bottom: 12pt;
+  }
+  .cover h1 {
+    font-family: 'Playfair Display', Georgia, serif;
+    font-size: 40pt; line-height: 1.08; font-weight: 700;
+    margin-bottom: 14pt; color: #fff;
+  }
+  .cover .gold { color: #ffd36a; }
+  .cover-lead {
+    font-size: 12pt; color: #f0dada; max-width: 420pt; line-height: 1.55;
+    margin-bottom: 20pt;
+  }
+  .cover-img {
+    width: 100%; max-height: 300pt; object-fit: cover;
+    border-radius: 6pt; margin: 20pt 0;
+    border: 1pt solid rgba(255,143,168,.5);
+    box-shadow: 0 8pt 20pt rgba(0,0,0,.4);
+  }
+  .cover-warning {
+    margin-top: auto;
+    padding: 14pt 18pt;
+    border: 1.5pt solid #ff8fa8;
+    background: rgba(255,143,168,.12);
+    border-radius: 6pt;
+    font-size: 11pt; color: #ffb2c4;
+    font-weight: 600;
+    line-height: 1.55;
+  }
+  .cover-meta {
+    display: flex; flex-wrap: wrap; gap: 22pt;
+    margin-top: 20pt;
+    padding-top: 16pt;
+    border-top: 1pt solid rgba(255,143,168,.35);
+  }
+  .cover-meta div { font-size: 10pt; color: #e0c4c4; }
+  .cover-meta strong {
+    display: block; color: #ff8fa8; font-size: 8.5pt;
+    text-transform: uppercase; letter-spacing: 1.4pt; margin-bottom: 4pt;
+  }
+
+  /* ============================================================
+     ONE SECTION = ONE PAGE
+     22mm top · 18mm sides · 20mm bottom
+     ============================================================ */
+  .section-page {
+    width: 210mm;
+    min-height: 297mm;
+    padding: 22mm 18mm 20mm 18mm;
+    margin: 0;
+    background: #ffffff;
+    page-break-after: always;
+    break-after: page;
+    display: flex;
+    flex-direction: column;
+    position: relative;
+  }
+  .section-page:last-of-type {
+    page-break-after: auto;
+    break-after: auto;
+  }
+
+  /* ============================================================
+     SECTION HEADER
+     ============================================================ */
+  .subhead {
+    font-size: 9.5pt; text-transform: uppercase;
+    letter-spacing: 1.5pt; color: #b8862e;
+    font-weight: 700; margin-bottom: 6pt;
+  }
+  .section-title {
+    font-family: 'Playfair Display', Georgia, serif;
+    font-size: 22pt; font-weight: 700;
+    border-bottom: 2pt solid #d99c3e;
+    padding-bottom: 8pt; margin-bottom: 18pt;
+    color: #0b1a22;
+  }
+  .section-page p {
+    font-size: 11pt; line-height: 1.7;
+    margin-bottom: 12pt; color: #1a2a33;
+  }
+  .section-page p:last-child { margin-bottom: 0; }
+
+  /* ============================================================
+     CULPRIT HIGHLIGHT
+     ============================================================ */
+  .solution-highlight {
+    background: linear-gradient(135deg, #fff6d6, #ffefb0);
+    border: 1.5pt solid #d99c3e;
+    border-radius: 8pt;
+    padding: 20pt 22pt;
+    margin-bottom: 22pt;
+    page-break-inside: avoid;
+    break-inside: avoid;
+  }
+  .solution-highlight .label {
+    font-size: 9pt; text-transform: uppercase;
+    letter-spacing: 1.6pt; color: #8a5f1a;
+    font-weight: 700; margin-bottom: 8pt;
+  }
+  .solution-highlight .value {
+    font-family: 'Playfair Display', Georgia, serif;
+    font-size: 26pt; font-weight: 700;
+    color: #0b1a22; line-height: 1.15;
+  }
+
+  /* ============================================================
+     CLUE / RED HERRING CARDS
+     ============================================================ */
+  .clue {
+    border-left: 3pt solid #d99c3e;
+    background: #fbf7ea;
+    padding: 12pt 16pt; margin-bottom: 12pt;
+    page-break-inside: avoid;
+    break-inside: avoid;
+    border-radius: 0 6pt 6pt 0;
+  }
+  .clue-title {
+    font-weight: 700; font-size: 11pt;
+    margin-bottom: 5pt; color: #0b1a22;
+  }
+  .clue-body {
+    font-size: 10.5pt; line-height: 1.6; color: #2a2a2a;
+  }
+
+  /* ============================================================
+     PUZZLE ANSWER BOX
+     ============================================================ */
+  .answer-box {
+    padding: 14pt 16pt;
+    border: 1pt solid #7dc9a0;
+    background: #eefaf4;
+    border-radius: 6pt;
+    page-break-inside: avoid;
+    break-inside: avoid;
+    margin-bottom: 12pt;
+  }
+  .answer-box-title {
+    font-family: 'Playfair Display', Georgia, serif;
+    font-size: 14pt; font-weight: 700;
+    color: #0b1a22; margin-bottom: 8pt;
+  }
+  .answer-box p {
+    font-size: 10.5pt; line-height: 1.6;
+    color: #1a2a33; margin-bottom: 6pt;
+  }
+  .answer-box p:last-child { margin-bottom: 0; }
+  .answer-box strong { color: #0b6b5f; }
+
+  /* ============================================================
+     SCENE REFERENCE
+     ============================================================ */
+  .scene-block {
+    margin: 0 0 20pt 0;
+    page-break-inside: avoid;
+    break-inside: avoid;
+  }
+  .scene-block img {
+    width: 100%; max-height: 240pt; object-fit: cover;
+    border-radius: 5pt; border: 1pt solid #d99c3e; display: block;
+  }
+  .scene-caption {
+    margin-top: 6pt; font-size: 9pt; text-align: center;
+    color: #6b5a2e; font-style: italic;
+  }
+</style>
+</head>
+<body>
+
+  <!-- ========================================================
+       PAGE 1 — COVER (full bleed, dark red GM warning)
+       ======================================================== -->
+  <div class="cover">
+    <div class="cover-eyebrow">⚠ Game Master Eyes Only</div>
+    <h1><span class="gold">{{title}}</span></h1>
+    <p class="cover-lead">
+      The complete solution — culprit, motive, method, clue
+      explanations and puzzle answer key.
+    </p>
+
+    {{#if coverImage}}
+      <img class="cover-img" src="{{coverImage}}" alt="{{title}}">
+    {{/if}}
+
+    <div class="cover-warning">
+      Do not show this document to players. It reveals the entire mystery.
+    </div>
+
+    <div class="cover-meta">
+      <div><strong>Genre</strong>{{genre}}</div>
+      <div><strong>Setting</strong>{{setting}}</div>
+      <div><strong>Difficulty</strong>{{difficulty}}</div>
+      <div><strong>Audience</strong>{{targetAudience}}</div>
+    </div>
+  </div>
+
+  <!-- ========================================================
+       PAGE 2 — THE CULPRIT + MOTIVE
+       ======================================================== -->
+  <div class="section-page">
+    <div class="solution-highlight">
+      <div class="label">The Culprit</div>
+      <div class="value">{{solution.culprit}}</div>
+    </div>
+
+    {{#if solution.motive}}
+    <div class="subhead">Revealed</div>
+    <div class="section-title">The Motive</div>
+    <p>{{nl2br solution.motive}}</p>
+    {{/if}}
+  </div>
+
+  <!-- ========================================================
+       PAGE 3 — THE METHOD
+       ======================================================== -->
+  {{#if solution.method}}
+  <div class="section-page">
+    <div class="subhead">Revealed</div>
+    <div class="section-title">The Method</div>
+    <p>{{nl2br solution.method}}</p>
+
+    {{#if sceneImages.[0]}}
+    <div class="scene-block" style="margin-top:20pt;">
+      <img src="{{sceneImages.[0].url}}" alt="{{sceneImages.[0].location}}">
+      <div class="scene-caption">{{sceneImages.[0].location}}</div>
+    </div>
+    {{/if}}
+  </div>
+  {{/if}}
+
+  <!-- ========================================================
+       PAGE 4 — TIMELINE OF THE CRIME
+       ======================================================== -->
+  {{#if solution.fullTimelineNarrative}}
+  <div class="section-page">
+    <div class="subhead">The Full Picture</div>
+    <div class="section-title">Timeline of the Crime</div>
+    <p>{{nl2br solution.fullTimelineNarrative}}</p>
+  </div>
+  {{/if}}
+
+  <!-- ========================================================
+       PAGE 5 — CLUE EXPLANATIONS
+       ======================================================== -->
+  {{#if solution.clueExplanations.length}}
+  <div class="section-page">
+    <div class="subhead">Every Clue Explained</div>
+    <div class="section-title">Clue Meanings</div>
+    {{#each solution.clueExplanations}}
+    <div class="clue">
+      <div class="clue-title">{{clueId}}</div>
+      <div class="clue-body">{{nl2br meaning}}</div>
+    </div>
+    {{/each}}
+  </div>
+  {{/if}}
+
+  <!-- ========================================================
+       PAGE 6 — RED HERRINGS
+       ======================================================== -->
+  {{#if solution.redHerringExplanations.length}}
+  <div class="section-page">
+    <div class="subhead">Beware the Traps</div>
+    <div class="section-title">Why They Were Misleading</div>
+    {{#each solution.redHerringExplanations}}
+    <div class="clue">
+      <div class="clue-title">{{clueId}}</div>
+      <div class="clue-body">{{nl2br whyMisleading}}</div>
+    </div>
+    {{/each}}
+  </div>
+  {{/if}}
+
+  <!-- ========================================================
+       PAGE 7 — PUZZLE ANSWER KEY
+       ======================================================== -->
+  {{#if puzzles.length}}
+  <div class="section-page">
+    <div class="subhead">Answer Key</div>
+    <div class="section-title">Puzzle Solutions</div>
+    {{#each puzzles}}
+    <div class="answer-box">
+      <div class="answer-box-title">{{title}}</div>
+      <p><strong>Type:</strong> {{type}}</p>
+      <p><strong>Answer:</strong> {{answer}}</p>
+      <p><strong>Explanation:</strong> {{nl2br explanation}}</p>
+    </div>
+    {{/each}}
+  </div>
+  {{/if}}
+
+  <!-- ========================================================
+       PAGE 8 — THE GRAND REVEAL + CONCLUSION
+       ======================================================== -->
+  {{#if solution.finalDeductionWalkthrough}}
+  <div class="section-page">
+    <div class="subhead">The Grand Reveal</div>
+    <div class="section-title">How the Detective Solved It</div>
+    <p>{{nl2br solution.finalDeductionWalkthrough}}</p>
+
+    {{#if solution.caseConclusion}}
+    <div class="subhead" style="margin-top:20pt;">Case Closed</div>
+    <div class="section-title">Conclusion</div>
+    <p>{{nl2br solution.caseConclusion}}</p>
+    {{/if}}
+  </div>
+  {{/if}}
+
+</body>
+</html>

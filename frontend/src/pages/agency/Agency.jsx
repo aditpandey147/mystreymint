@@ -21,6 +21,27 @@ import Navbar from "../../components/Navbar";
 import api from "../../services/api";
 import toast from "react-hot-toast";
 
+// ================================================================
+// 🎨 THEME — matches the rest of the app
+// ================================================================
+const C = {
+  mainBg: "#000C16",
+  card: "#031520",
+  cardSecondary: "#0C1926",
+  input: "#000611",
+  gold: "#F6C55D",
+  goldHover: "#FFD36D",
+  darkGold: "#B77B32",
+  cyan: "#00D4D9",
+  heading: "#F5F5F3",
+  secondary: "#AAB3B9",
+  muted: "#707F88",
+  border: "#29414C",
+  rose: "#ff8fa8",
+  goldGradient:
+    "linear-gradient(135deg, #FFD36D 0%, #F6C55D 50%, #B77B32 100%)",
+};
+
 export default function Agency() {
   const navigate = useNavigate();
   const [loading, setLoading] = useState(true);
@@ -110,7 +131,7 @@ export default function Agency() {
   // Not an agency owner
   if (!loading && !isAgency) {
     return (
-      <div className="flex h-screen" style={{ background: "#020914" }}>
+      <div className="flex h-screen" style={{ background: C.mainBg }}>
         <Sidebar />
         <div className="flex-1 ml-0 md:ml-[18rem] flex flex-col min-h-screen">
           <Navbar />
@@ -118,34 +139,42 @@ export default function Agency() {
             <div
               className="text-center max-w-md p-8 rounded-2xl"
               style={{
-                background:
-                  "linear-gradient(180deg, rgba(4,26,53,.55), rgba(3,17,38,.7))",
-                border: "1px solid rgba(80,150,255,.25)",
+                background: C.card,
+                border: `1px solid ${C.gold}55`,
+                boxShadow: "0 20px 60px rgba(0,0,0,.4)",
               }}
             >
               <div
                 className="w-16 h-16 rounded-2xl grid place-items-center mx-auto mb-5"
                 style={{
-                  background:
-                    "linear-gradient(135deg, rgba(110,53,237,.25), rgba(52,131,255,.2))",
-                  border: "1px solid rgba(150,120,255,.4)",
+                  background: "rgba(246,197,93,.12)",
+                  border: `1px solid ${C.gold}55`,
                 }}
               >
-                <Building2 size={28} className="text-[#c9b5ff]" />
+                <Building2 size={28} style={{ color: C.gold }} />
               </div>
-              <h2 className="text-2xl font-bold mb-2 text-[#eaf1ff]">
+              <h2
+                className="font-['Playfair_Display',Georgia,serif] text-2xl font-bold mb-2"
+                style={{ color: C.heading }}
+              >
                 Agency Plan Required
               </h2>
-              <p className="text-sm text-[#8fa0ba] mb-6 leading-relaxed">
+              <p
+                className="text-sm mb-6 leading-relaxed"
+                style={{ color: C.secondary }}
+              >
                 Agency (Plan 8) lets you add team members — everyone shares your
                 subscription. Upgrade to unlock.
               </p>
               <button
                 onClick={() => navigate("/upgrades")}
-                className="inline-flex items-center gap-2 text-white px-6 py-3 rounded-xl font-semibold transition-all hover:brightness-110"
+                className="inline-flex items-center gap-2 px-6 py-3 rounded-xl font-bold transition-all hover:-translate-y-[1px]"
                 style={{
-                  background: "linear-gradient(100deg, #6e35ed, #3483ff)",
-                  boxShadow: "0 8px 24px rgba(110,53,237,.35)",
+                  background: C.goldGradient,
+                  color: C.mainBg,
+                  border: `1px solid ${C.goldHover}`,
+                  boxShadow:
+                    "inset 0 1px 1px rgba(255,255,255,.25), 0 8px 22px rgba(246,197,93,.35)",
                 }}
               >
                 <Crown size={16} />
@@ -159,29 +188,38 @@ export default function Agency() {
   }
 
   return (
-    <div className="flex min-h-screen" style={{ background: "#020914" }}>
+    <div className="flex min-h-screen" style={{ background: C.mainBg }}>
       <Sidebar />
-      <div className="flex-1 ml-0 md:ml-[18rem] flex flex-col min-h-screen bg-[#020814]">
+      <div
+        className="flex-1 ml-0 md:ml-[18rem] flex flex-col min-h-screen"
+        style={{ background: C.mainBg }}
+      >
         <Navbar />
 
         <main className="flex-1 p-3 md:p-6 overflow-y-auto">
           {/* Header */}
           <div className="flex items-center justify-between mb-6 flex-wrap gap-3">
             <div>
-              <h1 className="text-2xl font-bold text-[#eaf1ff] flex items-center gap-2.5">
-                <Building2 size={24} className="text-[#c9b5ff]" />
+              <h1
+                className="font-['Playfair_Display',Georgia,serif] text-2xl font-bold flex items-center gap-2.5"
+                style={{ color: C.heading }}
+              >
+                <Building2 size={24} style={{ color: C.gold }} />
                 {agencyName || "Your Agency"}
               </h1>
-              <p className="text-sm text-[#8fa0ba] mt-1">
+              <p className="text-sm mt-1" style={{ color: C.secondary }}>
                 Manage members and share your subscription with your team.
               </p>
             </div>
             <button
               onClick={() => setShowAddForm(true)}
-              className="flex items-center gap-2 text-white px-5 py-2.5 rounded-xl text-sm font-semibold transition-all hover:brightness-110"
+              className="flex items-center gap-2 px-5 py-2.5 rounded-xl text-sm font-bold transition-all hover:-translate-y-[1px]"
               style={{
-                background: "linear-gradient(100deg, #6e35ed, #3483ff)",
-                boxShadow: "0 8px 24px rgba(110,53,237,.35)",
+                background: C.goldGradient,
+                color: C.mainBg,
+                border: `1px solid ${C.goldHover}`,
+                boxShadow:
+                  "inset 0 1px 1px rgba(255,255,255,.25), 0 8px 22px rgba(246,197,93,.35)",
               }}
             >
               <UserPlus size={15} />
@@ -191,7 +229,7 @@ export default function Agency() {
 
           {/* Stats */}
           <div className="grid grid-cols-2 md:grid-cols-4 gap-3 mb-6">
-            <StatCard label="Total Members" value={members.length} color="#6ddcff" icon={Users} />
+            <StatCard label="Total Members" value={members.length} color={C.cyan} icon={Users} />
             <StatCard
               label="Active"
               value={members.filter((m) => m.isActive !== false).length}
@@ -201,10 +239,10 @@ export default function Agency() {
             <StatCard
               label="Disabled"
               value={members.filter((m) => m.isActive === false).length}
-              color="#ff8fa8"
+              color={C.rose}
               icon={UserX}
             />
-            <StatCard label="Shared Plan" value="Agency" color="#c9b5ff" icon={Crown} />
+            <StatCard label="Shared Plan" value="Agency" color={C.gold} icon={Crown} />
           </div>
 
           {/* Add member form */}
@@ -212,9 +250,8 @@ export default function Agency() {
             <div
               className="rounded-2xl p-5 mb-6"
               style={{
-                background:
-                  "radial-gradient(circle at 100% 0%, rgba(110,53,237,.15), transparent 60%), linear-gradient(180deg, rgba(4,26,53,.65), rgba(3,17,38,.8))",
-                border: "1px solid rgba(150,120,255,.4)",
+                background: C.card,
+                border: `1px solid ${C.gold}55`,
                 boxShadow: "0 12px 40px rgba(0,0,0,.4)",
               }}
             >
@@ -223,18 +260,23 @@ export default function Agency() {
                   <div
                     className="w-8 h-8 rounded-[9px] grid place-items-center"
                     style={{
-                      background:
-                        "linear-gradient(135deg, rgba(110,53,237,.35), rgba(52,131,255,.35))",
-                      border: "1px solid rgba(150,120,255,.5)",
+                      background: "rgba(246,197,93,.15)",
+                      border: `1px solid ${C.gold}55`,
                     }}
                   >
-                    <UserPlus size={14} className="text-[#c9b5ff]" />
+                    <UserPlus size={14} style={{ color: C.gold }} />
                   </div>
                   <div>
-                    <div className="text-[14px] font-semibold text-[#eaf1ff]">
+                    <div
+                      className="text-[14px] font-semibold"
+                      style={{ color: C.heading }}
+                    >
                       Add New Member
                     </div>
-                    <div className="text-[11px] text-[#8fa0ba] mt-0.5">
+                    <div
+                      className="text-[11px] mt-0.5"
+                      style={{ color: C.secondary }}
+                    >
                       They'll share your subscription automatically.
                     </div>
                   </div>
@@ -244,7 +286,14 @@ export default function Agency() {
                     setShowAddForm(false);
                     setAddForm({ name: "", email: "", password: "" });
                   }}
-                  className="w-8 h-8 rounded-full grid place-items-center text-[#aebfd5] transition hover:bg-[rgba(80,150,255,.1)]"
+                  className="w-8 h-8 rounded-full grid place-items-center transition"
+                  style={{ color: C.secondary }}
+                  onMouseEnter={(e) =>
+                    (e.currentTarget.style.background = "rgba(246,197,93,.1)")
+                  }
+                  onMouseLeave={(e) =>
+                    (e.currentTarget.style.background = "transparent")
+                  }
                 >
                   <X size={18} />
                 </button>
@@ -253,70 +302,88 @@ export default function Agency() {
               <form onSubmit={handleAddMember}>
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-3 mb-4">
                   <div>
-                    <label className="block text-[11px] font-semibold text-[#8fa0ba] mb-1.5 uppercase tracking-wider">
+                    <label
+                      className="block text-[11px] font-semibold mb-1.5 uppercase tracking-wider"
+                      style={{ color: C.secondary }}
+                    >
                       Name
                     </label>
                     <div
                       className="flex items-center gap-2 px-3.5 rounded-[10px]"
                       style={{
                         height: 44,
-                        background: "rgba(6,34,74,.55)",
-                        border: "1px solid rgba(23,96,160,.6)",
+                        background: C.input,
+                        border: `1px solid ${C.border}`,
                       }}
                     >
-                      <Users size={14} className="text-[#7d8fa8]" />
+                      <Users size={14} style={{ color: C.muted }} />
                       <input
                         type="text"
                         value={addForm.name}
-                        onChange={(e) => setAddForm({ ...addForm, name: e.target.value })}
+                        onChange={(e) =>
+                          setAddForm({ ...addForm, name: e.target.value })
+                        }
                         placeholder="John Doe"
-                        className="flex-1 bg-transparent outline-none text-[13px] text-white placeholder:text-[#6b7c93]"
+                        className="flex-1 bg-transparent outline-none text-[13px]"
+                        style={{ color: C.heading }}
                       />
                     </div>
                   </div>
 
                   <div>
-                    <label className="block text-[11px] font-semibold text-[#8fa0ba] mb-1.5 uppercase tracking-wider">
+                    <label
+                      className="block text-[11px] font-semibold mb-1.5 uppercase tracking-wider"
+                      style={{ color: C.secondary }}
+                    >
                       Email
                     </label>
                     <div
                       className="flex items-center gap-2 px-3.5 rounded-[10px]"
                       style={{
                         height: 44,
-                        background: "rgba(6,34,74,.55)",
-                        border: "1px solid rgba(23,96,160,.6)",
+                        background: C.input,
+                        border: `1px solid ${C.border}`,
                       }}
                     >
-                      <Mail size={14} className="text-[#7d8fa8]" />
+                      <Mail size={14} style={{ color: C.muted }} />
                       <input
                         type="email"
                         value={addForm.email}
-                        onChange={(e) => setAddForm({ ...addForm, email: e.target.value })}
+                        onChange={(e) =>
+                          setAddForm({ ...addForm, email: e.target.value })
+                        }
                         placeholder="john@example.com"
-                        className="flex-1 bg-transparent outline-none text-[13px] text-white placeholder:text-[#6b7c93]"
+                        className="flex-1 bg-transparent outline-none text-[13px]"
+                        style={{ color: C.heading }}
                       />
                     </div>
                   </div>
 
                   <div>
-                    <label className="block text-[11px] font-semibold text-[#8fa0ba] mb-1.5 uppercase tracking-wider">
+                    <label
+                      className="block text-[11px] font-semibold mb-1.5 uppercase tracking-wider"
+                      style={{ color: C.secondary }}
+                    >
                       Password
                     </label>
                     <div
                       className="flex items-center gap-2 px-3.5 rounded-[10px]"
                       style={{
                         height: 44,
-                        background: "rgba(6,34,74,.55)",
-                        border: "1px solid rgba(23,96,160,.6)",
+                        background: C.input,
+                        border: `1px solid ${C.border}`,
                       }}
                     >
-                      <Key size={14} className="text-[#7d8fa8]" />
+                      <Key size={14} style={{ color: C.muted }} />
                       <input
                         type="password"
                         value={addForm.password}
-                        onChange={(e) => setAddForm({ ...addForm, password: e.target.value })}
+                        onChange={(e) =>
+                          setAddForm({ ...addForm, password: e.target.value })
+                        }
                         placeholder="Min 6 chars"
-                        className="flex-1 bg-transparent outline-none text-[13px] text-white placeholder:text-[#6b7c93]"
+                        className="flex-1 bg-transparent outline-none text-[13px]"
+                        style={{ color: C.heading }}
                       />
                     </div>
                   </div>
@@ -331,9 +398,9 @@ export default function Agency() {
                     }}
                     className="h-[42px] px-5 rounded-[10px] text-[13px] font-medium transition"
                     style={{
-                      background: "rgba(6,20,42,.7)",
-                      border: "1px solid #17385f",
-                      color: "#aebfd5",
+                      background: C.input,
+                      border: `1px solid ${C.border}`,
+                      color: C.secondary,
                     }}
                   >
                     Cancel
@@ -341,10 +408,13 @@ export default function Agency() {
                   <button
                     type="submit"
                     disabled={adding}
-                    className="h-[42px] px-6 rounded-[10px] text-[13px] font-semibold text-white flex items-center gap-2 transition hover:brightness-110 disabled:opacity-60"
+                    className="h-[42px] px-6 rounded-[10px] text-[13px] font-bold flex items-center gap-2 transition hover:-translate-y-[1px] disabled:opacity-60 disabled:translate-y-0"
                     style={{
-                      background: "linear-gradient(100deg, #6e35ed, #3483ff)",
-                      boxShadow: "0 4px 14px rgba(110,53,237,.35)",
+                      background: C.goldGradient,
+                      color: C.mainBg,
+                      border: `1px solid ${C.goldHover}`,
+                      boxShadow:
+                        "inset 0 1px 1px rgba(255,255,255,.25), 0 4px 14px rgba(246,197,93,.35)",
                     }}
                   >
                     {adding ? (
@@ -367,14 +437,14 @@ export default function Agency() {
           {/* Members list */}
           <div
             className="rounded-2xl overflow-hidden"
-            style={{ background: "#041124", border: "1px solid #17385f" }}
+            style={{ background: C.card, border: `1px solid ${C.border}` }}
           >
             <div
               className="grid grid-cols-12 gap-3 px-5 py-3 text-[10.5px] font-semibold tracking-[0.5px] uppercase"
               style={{
-                background: "#06162b",
-                borderBottom: "1px solid #17385f",
-                color: "#8fa0ba",
+                background: C.cardSecondary,
+                borderBottom: `1px solid ${C.border}`,
+                color: C.secondary,
               }}
             >
               <div className="col-span-4">Member</div>
@@ -386,29 +456,47 @@ export default function Agency() {
 
             {loading ? (
               <div className="p-8 text-center">
-                <Loader2 size={28} className="animate-spin text-[#c9b5ff] mx-auto mb-3" />
-                <p className="text-[13px] text-[#8fa0ba]">Loading members…</p>
+                <Loader2
+                  size={28}
+                  className="animate-spin mx-auto mb-3"
+                  style={{ color: C.gold }}
+                />
+                <p className="text-[13px]" style={{ color: C.secondary }}>
+                  Loading members…
+                </p>
               </div>
             ) : members.length === 0 ? (
               <div className="py-16 text-center">
                 <div
                   className="w-14 h-14 rounded-full grid place-items-center mx-auto mb-3"
                   style={{
-                    background:
-                      "linear-gradient(135deg, rgba(110,53,237,.2), rgba(52,131,255,.2))",
-                    border: "1px solid rgba(150,120,255,.35)",
+                    background: "rgba(246,197,93,.1)",
+                    border: `1px solid ${C.gold}55`,
                   }}
                 >
-                  <Users size={22} className="text-[#c9b5ff]" />
+                  <Users size={22} style={{ color: C.gold }} />
                 </div>
-                <p className="text-[14px] font-medium text-[#eaf1ff]">No members yet</p>
-                <p className="text-[12px] text-[#8fa0ba] mt-1 max-w-[340px] mx-auto">
-                  Add your first team member — they'll get instant access to your plan.
+                <p
+                  className="text-[14px] font-medium"
+                  style={{ color: C.heading }}
+                >
+                  No members yet
+                </p>
+                <p
+                  className="text-[12px] mt-1 max-w-[340px] mx-auto"
+                  style={{ color: C.secondary }}
+                >
+                  Add your first team member — they'll get instant access to
+                  your plan.
                 </p>
                 <button
                   onClick={() => setShowAddForm(true)}
-                  className="mt-4 h-[38px] px-5 rounded-[10px] text-[12.5px] font-semibold text-white inline-flex items-center gap-2 transition hover:brightness-110"
-                  style={{ background: "linear-gradient(100deg, #6e35ed, #3483ff)" }}
+                  className="mt-4 h-[38px] px-5 rounded-[10px] text-[12.5px] font-bold inline-flex items-center gap-2 transition hover:-translate-y-[1px]"
+                  style={{
+                    background: C.goldGradient,
+                    color: C.mainBg,
+                    border: `1px solid ${C.goldHover}`,
+                  }}
                 >
                   <UserPlus size={14} />
                   Add First Member
@@ -419,25 +507,34 @@ export default function Agency() {
                 <div
                   key={m._id}
                   className="grid grid-cols-12 gap-3 px-5 py-3.5 items-center"
-                  style={{ borderBottom: "1px solid rgba(80,150,255,.1)" }}
+                  style={{
+                    borderBottom: `1px solid rgba(41,65,76,.6)`,
+                  }}
                 >
                   <div className="col-span-4 flex items-center gap-3 min-w-0">
                     <div
                       className="w-9 h-9 rounded-full grid place-items-center shrink-0 text-[13px] font-bold"
                       style={{
-                        background:
-                          "linear-gradient(135deg, rgba(110,53,237,.3), rgba(52,131,255,.3))",
-                        border: "1px solid rgba(150,120,255,.4)",
-                        color: "#c9b5ff",
+                        background: "rgba(246,197,93,.15)",
+                        border: `1px solid ${C.gold}55`,
+                        color: C.gold,
                       }}
                     >
                       {m.name?.charAt(0)?.toUpperCase() || "?"}
                     </div>
                     <div className="min-w-0">
-                      <div className="text-[13px] font-semibold text-[#eaf1ff] truncate">
+                      <div
+                        className="text-[13px] font-semibold truncate"
+                        style={{ color: C.heading }}
+                      >
                         {m.name}
                       </div>
-                      <div className="text-[11px] text-[#8fa0ba] truncate">{m.email}</div>
+                      <div
+                        className="text-[11px] truncate"
+                        style={{ color: C.secondary }}
+                      >
+                        {m.email}
+                      </div>
                     </div>
                   </div>
 
@@ -445,9 +542,9 @@ export default function Agency() {
                     <span
                       className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[10.5px] font-semibold"
                       style={{
-                        background: "rgba(150,120,255,.15)",
-                        border: "1px solid rgba(150,120,255,.35)",
-                        color: "#c9b5ff",
+                        background: "rgba(246,197,93,.12)",
+                        border: `1px solid ${C.gold}45`,
+                        color: C.gold,
                       }}
                     >
                       <Users size={10} />
@@ -469,7 +566,7 @@ export default function Agency() {
                           : {
                               background: "rgba(255,95,126,.15)",
                               border: "1px solid rgba(255,95,126,.35)",
-                              color: "#ff8fa8",
+                              color: C.rose,
                             }
                       }
                     >
@@ -477,21 +574,36 @@ export default function Agency() {
                     </button>
                   </div>
 
-                  <div className="col-span-2 text-center text-[11px] text-[#8fa0ba]">
+                  <div
+                    className="col-span-2 text-center text-[11px]"
+                    style={{ color: C.secondary }}
+                  >
                     {new Date(m.createdAt).toLocaleDateString()}
                   </div>
 
                   <div className="col-span-1 flex justify-center">
                     <button
                       onClick={() => setDeleteTarget(m)}
-                      className="w-7 h-7 rounded-[7px] grid place-items-center transition hover:brightness-125"
+                      className="w-7 h-7 rounded-[7px] grid place-items-center transition"
                       style={{
                         background: "rgba(255,95,126,.1)",
                         border: "1px solid rgba(255,95,126,.3)",
                       }}
+                      onMouseEnter={(e) => {
+                        e.currentTarget.style.background =
+                          "rgba(255,95,126,.2)";
+                        e.currentTarget.style.borderColor =
+                          "rgba(255,95,126,.5)";
+                      }}
+                      onMouseLeave={(e) => {
+                        e.currentTarget.style.background =
+                          "rgba(255,95,126,.1)";
+                        e.currentTarget.style.borderColor =
+                          "rgba(255,95,126,.3)";
+                      }}
                       title="Remove member"
                     >
-                      <Trash2 size={12} className="text-[#ff8fa8]" />
+                      <Trash2 size={12} style={{ color: C.rose }} />
                     </button>
                   </div>
                 </div>
@@ -503,16 +615,22 @@ export default function Agency() {
           <div
             className="mt-5 rounded-xl p-4 flex items-start gap-3"
             style={{
-              background: "rgba(6,20,42,.6)",
-              border: "1px solid rgba(80,150,255,.2)",
+              background: C.card,
+              border: `1px solid ${C.border}`,
             }}
           >
-            <Sparkles size={14} className="text-[#c9b5ff] shrink-0 mt-0.5" />
-            <div className="text-[12px] text-[#aebfd5] leading-[1.55]">
-              <b className="text-[#eaf1ff]">How Agency works:</b> Members you add here
-              can log in with their email/password and get full access to everything in
-              your current plan. All usage counts toward your subscription — no separate
-              billing.
+            <Sparkles
+              size={14}
+              style={{ color: C.gold, marginTop: 2, flexShrink: 0 }}
+            />
+            <div
+              className="text-[12px] leading-[1.55]"
+              style={{ color: C.secondary }}
+            >
+              <b style={{ color: C.heading }}>How Agency works:</b> Members you
+              add here can log in with their email/password and get full access
+              to everything in your current plan. All usage counts toward your
+              subscription — no separate billing.
             </div>
           </div>
         </main>
@@ -522,13 +640,14 @@ export default function Agency() {
       {deleteTarget && (
         <div
           className="fixed inset-0 z-50 flex items-center justify-center p-4"
-          style={{ background: "rgba(2,7,19,.75)", backdropFilter: "blur(6px)" }}
+          style={{ background: "rgba(0,12,22,.85)", backdropFilter: "blur(8px)" }}
         >
           <div
             className="rounded-2xl max-w-md w-full p-6"
             style={{
-              background: "linear-gradient(180deg, #06162b, #041124)",
-              border: "1px solid #17385f",
+              background: C.card,
+              border: `1px solid rgba(255,95,126,.4)`,
+              boxShadow: "0 30px 100px rgba(0,0,0,.8)",
             }}
           >
             <div className="text-center mb-6">
@@ -539,11 +658,19 @@ export default function Agency() {
                   border: "1px solid rgba(255,95,126,.35)",
                 }}
               >
-                <Trash2 size={24} className="text-[#ff8fa8]" />
+                <Trash2 size={24} style={{ color: C.rose }} />
               </div>
-              <h3 className="text-lg font-bold text-[#eaf1ff]">Remove Member?</h3>
-              <p className="text-sm text-[#8fa0ba] mt-2 leading-relaxed">
-                <b className="text-[#eaf1ff]">{deleteTarget.name}</b> (
+              <h3
+                className="font-['Playfair_Display',Georgia,serif] text-lg font-bold"
+                style={{ color: C.heading }}
+              >
+                Remove Member?
+              </h3>
+              <p
+                className="text-sm mt-2 leading-relaxed"
+                style={{ color: C.secondary }}
+              >
+                <b style={{ color: C.heading }}>{deleteTarget.name}</b> (
                 {deleteTarget.email}) will lose access to your agency immediately.
               </p>
             </div>
@@ -552,9 +679,9 @@ export default function Agency() {
                 onClick={() => setDeleteTarget(null)}
                 className="flex-1 py-2.5 rounded-lg text-sm font-medium transition"
                 style={{
-                  background: "rgba(6,20,42,.7)",
-                  border: "1px solid #17385f",
-                  color: "#aebfd5",
+                  background: C.input,
+                  border: `1px solid ${C.border}`,
+                  color: C.secondary,
                 }}
               >
                 Cancel
@@ -562,8 +689,14 @@ export default function Agency() {
               <button
                 onClick={handleDelete}
                 disabled={deleting}
-                className="flex-1 py-2.5 rounded-lg text-sm font-semibold text-white flex items-center justify-center gap-2 transition hover:brightness-110 disabled:opacity-60"
-                style={{ background: "linear-gradient(100deg, #e5395e, #c81c3c)" }}
+                className="flex-1 py-2.5 rounded-lg text-sm font-bold flex items-center justify-center gap-2 transition hover:-translate-y-[1px] disabled:opacity-60 disabled:translate-y-0"
+                style={{
+                  background: `linear-gradient(115deg, ${C.rose}, #ff5f7e)`,
+                  color: "#0b0208",
+                  border: `1px solid ${C.rose}`,
+                  boxShadow:
+                    "inset 0 1px 1px rgba(255,255,255,.25), 0 8px 22px rgba(255,95,126,.3)",
+                }}
               >
                 {deleting ? (
                   <>
@@ -593,10 +726,9 @@ function StatCard({ label, value, color, icon: Icon }) {
     <div
       className="rounded-[12px] p-4"
       style={{
-        background:
-          "linear-gradient(180deg, rgba(4,26,53,.55), rgba(3,17,38,.7))",
-        border: "1px solid rgba(80,150,255,.25)",
-        boxShadow: "0 1px 0 rgba(255,255,255,.05) inset",
+        background: C.card,
+        border: `1px solid ${C.border}`,
+        boxShadow: "0 1px 0 rgba(255,255,255,.03) inset",
       }}
     >
       <div className="flex items-center justify-between mb-2">
@@ -610,7 +742,12 @@ function StatCard({ label, value, color, icon: Icon }) {
       <div className="text-2xl font-bold" style={{ color }}>
         {value}
       </div>
-      <div className="text-[11.5px] text-[#8fa0ba] font-medium mt-0.5">{label}</div>
+      <div
+        className="text-[11.5px] font-medium mt-0.5"
+        style={{ color: C.secondary }}
+      >
+        {label}
+      </div>
     </div>
   );
 }

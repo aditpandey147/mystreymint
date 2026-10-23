@@ -24,11 +24,6 @@ const subscriptionRoutes = require("./routes/auth/subscriptionRoutes");
 const adminRoutes = require("./routes/auth/admin");
 const agencyRoutes = require('./routes/agency/agencyRoutes');
 
-//page routes
-const categoryRoutes = require("./routes/categoryRoutes");
-const templateRoutes = require("./routes/templateRoutes"); 
-  // ✅ NEW
-
 // ================================================================
 // STATIC FILE HEADERS — lets images load cross-origin
 // ================================================================
@@ -102,18 +97,38 @@ app.use("/files", express.static(path.join(__dirname, "temp")));
 app.use("/public", express.static(path.join(__dirname, "public")));
 
 // Uploaded files (categories, templates, products...) — with CORS headers + cache
+// backend/server.js
 app.use(
   "/uploads",
-  setStaticHeaders,
+  (req, res, next) => {
+    res.setHeader("Access-Control-Allow-Origin", "*");
+    res.setHeader("Cross-Origin-Resource-Policy", "cross-origin");
+    res.setHeader("Access-Control-Allow-Methods", "GET, HEAD, OPTIONS");
+    res.setHeader("Cache-Control", "public, max-age=31536000, immutable");
+    if (req.method === "OPTIONS") return res.sendStatus(204);
+    next();
+  },
   express.static(path.join(__dirname, "uploads"), {
-    maxAge: "7d",
-    etag: true,
-    setHeaders: (res) => {
-      // Also set on each response (belt + suspenders)
+    fallthrough: false,
+    setHeaders: (res, filePath) => {
+      if (/\.(png|jpe?g|webp|gif|svg)$/i.test(filePath)) {
+        res.setHeader("Content-Type", `image/${filePath.split(".").pop().toLowerCase()}`);
+      }
       res.setHeader("Access-Control-Allow-Origin", "*");
       res.setHeader("Cross-Origin-Resource-Policy", "cross-origin");
+      res.setHeader("Cross-Origin-Embedder-Policy", "unsafe-none");
     },
   })
+);
+
+app.use(
+  "/uploads/clues",
+  express.static(path.join(__dirname, "uploads/clues"))
+);
+
+app.use(
+  "/uploads/puzzles",
+  express.static(path.join(__dirname, "uploads/puzzles"))
 );
 
 // Public images
@@ -121,6 +136,10 @@ app.use(
   "/images",
   setStaticHeaders,
   express.static(path.join(__dirname, "public/images"))
+);
+app.use(
+  "/uploads/escape",
+  express.static(path.join(__dirname, "uploads/escape"))
 );
 
 // Everything else in public/
@@ -138,10 +157,16 @@ app.use("/api/ai-ranker", aiRankerRoutes);
 app.use("/api/ai-profit", aiProfitRoutes);
 app.use("/api/subscription", subscriptionRoutes);
 app.use("/api/admin", adminRoutes);
-app.use("/api/categories", categoryRoutes);
-app.use("/api/templates", templateRoutes);  
-app.use("/api/ai", require("./routes/aiRoutes"));
-app.use("/api/video", require("./routes/videoRoutes")); // ✅ NEW
+app.use("/api/mysteries", require("./routes/mystery"));
+app.use("/api", require("./routes/export")); 
+app.use("/api/templates", require("./routes/mysteryTemplate"));
+app.use("/api/characters", require("./routes/character"));
+app.use("/api/clue-studio", require("./routes/clueStudio"));
+app.use("/api/puzzle-studio", require("./routes/puzzleStudio"));
+app.use("/api/escape-rooms", require("./routes/escapeRoom"));
+app.use("/api/sales-kit", require("./routes/salesKit"));
+app.use("/api/party-planner", require("./routes/partyPlanner"));
+app.use("/api/dfy-packs", require("./routes/dfyPack"));
 
 
 // ================================================================

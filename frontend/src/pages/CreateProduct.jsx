@@ -1,966 +1,522 @@
 // frontend/src/pages/CreateProduct.jsx
 import React, { useState, useEffect } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
+import createMysteryBg from "../assets/images/createvideo-banner-bg.png";
 import {
-  LayoutGrid,
-  LayoutPanelTop,
-  User,
   Users,
-  Check,
-  Replace,
   ArrowRight,
   Loader2,
-  FileText,
-  Monitor,
-  Smartphone,
-  Wand2,
-  Settings,
-  Music2,
   Sparkles,
-  Mic,
+  Hourglass,
+  Calendar,
+  Zap,
+  ChevronDown,
+  Dices,
+  Drama,
+  Building2,
+  ChartNoAxesColumn,
+  Clock,
+  UsersRound,
+  Gift,
+  PlayCircle,
+  Star,
 } from "lucide-react";
 import Sidebar from "../components/Sidebar";
 import Navbar from "../components/Navbar";
 import api from "../services/api";
 import toast from "react-hot-toast";
-import bannerBg from "../assets/images/createvideo-banner-bg.png";
+
+// ================================================================
+// 🎨 THEME
+// ================================================================
+const C = {
+  mainBg: "#000C16",
+  sidebar: "#00101A",
+  card: "#031520",
+  cardSecondary: "#0C1926",
+  input: "#000611",
+  textarea: "#011119",
+  gold: "#F6C55D",
+  goldHover: "#FFD36D",
+  darkGold: "#B77B32",
+  cyan: "#00D4D9",
+  cyanHover: "#3EE4E8",
+  heading: "#F5F5F3",
+  secondary: "#AAB3B9",
+  muted: "#707F88",
+  border: "#29414C",
+  goldGradient:
+    "linear-gradient(135deg, #FFD36D 0%, #F6C55D 50%, #B77B32 100%)",
+};
 
 const SERVER_URL = import.meta.env.VITE_SERVER_URL || "http://localhost:5000";
 
 const getImageUrl = (path) => {
   if (!path) return "";
-  if (path.startsWith("http")) return path;
-  const cleanPath = path.startsWith("/") ? path : `/${path}`;
-  return `${SERVER_URL}${cleanPath}`;
+  if (path.startsWith("http://") || path.startsWith("https://")) return path;
+  const clean = path.startsWith("/") ? path : `/${path}`;
+  if (clean.startsWith("/mystery-templates/")) return clean;
+  return `${SERVER_URL}${clean}`;
 };
 
-const TONES = [
-  { id: "professional", label: "Professional" },
-  { id: "casual", label: "Casual" },
-  { id: "dramatic", label: "Dramatic" },
+// ================================================================
+// STATIC DATA (fallback dropdown values)
+// ================================================================
+const GENRES = [
+  "Murder Mystery",
+  "Detective Mystery",
+  "Treasure Hunt",
+  "Spy Thriller",
+  "Horror Mystery",
+  "Sci-Fi Mystery",
 ];
 
-const MUSIC_OPTIONS = [
-  { id: "none", label: "No Music" },
-  { id: "subtle", label: "Subtle" },
-  { id: "energetic", label: "Energetic" },
+const SETTINGS = [
+  "Luxury Hotel",
+  "Cruise Ship",
+  "Country Manor",
+  "Modern City",
+  "Other",
+];
+
+const DIFFICULTIES = ["Medium", "Easy", "Hard"];
+const PLAYER_COUNTS = ["4 - 8 Players", "2 - 4 Players", "8 - 12 Players"];
+const DURATIONS = ["60 - 90 Minutes", "30 - 60 Minutes", "90 - 120 Minutes"];
+const AUDIENCES = ["Adults (16+)", "Families", "Kids (8+)"];
+
+const OUTPUTS = [
+  "Mystery Story PDF",
+  "Cover Image",
+  "Suspect Cards",
+  "Clues & Evidence",
+  "Puzzle Sheets",
+  "Solution Guide",
 ];
 
 // ================================================================
-// PAGE
+// SELECT FIELD
 // ================================================================
-export default function CreateProduct() {
-  const navigate = useNavigate();
-  const location = useLocation();
-
-  const {
-    templateId,
-    templateTitle = "Interrogation Room",
-    templateCategory = "True Crime & Mystery",
-    coverImage,
-    dialog,
-  } = location.state || {};
-
-  // ---- Core form ----
-  const [hostLine, setHostLine] = useState(
-    dialog?.host || "Welcome to the show..."
+function SelectField({ label, icon: Icon, value, onChange, options }) {
+  return (
+    <div>
+      <label
+        className="block mb-2"
+        style={{ fontSize: 13, fontWeight: 600, color: C.heading }}
+      >
+        {label}
+      </label>
+      <div className="relative">
+        <Icon
+          size={18}
+          className="absolute left-3.5 top-1/2 -translate-y-1/2 pointer-events-none"
+          style={{ color: C.gold }}
+        />
+        <select
+          value={value}
+          onChange={(e) => onChange(e.target.value)}
+          className="w-full appearance-none outline-none transition-colors"
+          style={{
+            height: 44,
+            border: `1px solid ${C.border}`,
+            background: C.input,
+            borderRadius: 8,
+            color: C.heading,
+            padding: "0 40px 0 48px",
+            fontSize: 13,
+          }}
+          onFocus={(e) => (e.target.style.borderColor = C.gold)}
+          onBlur={(e) => (e.target.style.borderColor = C.border)}
+        >
+          {options.map((o) => (
+            <option
+              key={o}
+              value={o}
+              style={{ background: C.card, color: C.heading }}
+            >
+              {o}
+            </option>
+          ))}
+        </select>
+        <ChevronDown
+          size={16}
+          className="absolute right-3.5 top-1/2 -translate-y-1/2 pointer-events-none"
+          style={{ color: C.gold }}
+        />
+      </div>
+    </div>
   );
-  const [guestLine, setGuestLine] = useState(
-    dialog?.guest || "What really happened that night?"
-  );
-  const [format, setFormat] = useState("16:9");
+}
 
-  // ---- Additional settings ----
-  const [tone, setTone] = useState("professional");
-  const [music, setMusic] = useState("subtle");
+// ================================================================
+// RATE LIMIT MODAL
+// ================================================================
+function RateLimitModal({ info, onClose, onChangeTemplate }) {
+  const [secondsLeft, setSecondsLeft] = useState(info?.waitSeconds || 0);
 
-  // ---- AI enhance loading ----
-  const [enhancingHost, setEnhancingHost] = useState(false);
-  const [enhancingGuest, setEnhancingGuest] = useState(false);
-
-  // ---- Generation ----
-  const [generating, setGenerating] = useState(false);
-  const [statusMsg, setStatusMsg] = useState("");
-  const [showLoader, setShowLoader] = useState(false);
-  const [showSuccess, setShowSuccess] = useState(false);
-
-  // ---- Redirect guard ----
   useEffect(() => {
-    if (!templateId) {
-      toast.error("No template selected. Redirecting...");
-      const t = setTimeout(() => navigate("/templates"), 800);
-      return () => clearTimeout(t);
-    }
-  }, [templateId, navigate]);
+    const prev = document.body.style.overflow;
+    document.body.style.overflow = "hidden";
+    return () => {
+      document.body.style.overflow = prev;
+    };
+  }, []);
 
-  // ================================================================
-  // AI ENHANCE
-  // ================================================================
-  const handleEnhance = async (role) => {
-    const isHost = role === "host";
-    const text = isHost ? hostLine : guestLine;
-    const setText = isHost ? setHostLine : setGuestLine;
-    const setLoading = isHost ? setEnhancingHost : setEnhancingGuest;
-
-    if (!text.trim()) {
-      toast.error(`Please write something in the ${role} box first`);
-      return;
-    }
-
-    try {
-      setLoading(true);
-
-      const res = await api.post("/ai/enhance", {
-        text: text.trim(),
-        role,
+  useEffect(() => {
+    if (!info) return;
+    setSecondsLeft(info.waitSeconds || 0);
+    const t = setInterval(() => {
+      setSecondsLeft((s) => {
+        if (s <= 1) {
+          clearInterval(t);
+          return 0;
+        }
+        return s - 1;
       });
+    }, 1000);
+    return () => clearInterval(t);
+  }, [info]);
 
-      const polished = res.data?.text || "";
-      if (!polished) throw new Error("Empty response");
+  useEffect(() => {
+    const handleKey = (e) => {
+      if (e.key === "Escape") onClose();
+    };
+    document.addEventListener("keydown", handleKey);
+    return () => document.removeEventListener("keydown", handleKey);
+  }, [onClose]);
 
-      setText(polished);
-      toast.success(`${isHost ? "Host" : "Guest"} line enhanced!`);
-    } catch (err) {
-      console.error("Enhance failed:", err);
-      toast.error(
-        err.response?.data?.message || "Failed to enhance. Try again."
-      );
-    } finally {
-      setLoading(false);
-    }
+  if (!info) return null;
+
+  const reasonMeta = {
+    cooldown: {
+      Icon: Hourglass,
+      color: C.gold,
+      accent: "rgba(246,197,93,.5)",
+      glow: "rgba(246,197,93,.15)",
+      title: "Almost Ready, Creator",
+      subtitle: "A quick pause keeps the quality high.",
+    },
+    daily_limit: {
+      Icon: Calendar,
+      color: C.cyan,
+      accent: "rgba(0,212,217,.5)",
+      glow: "rgba(0,212,217,.15)",
+      title: "That's A Wrap For Today",
+      subtitle: "You've had a fantastic creative day.",
+    },
+    window_limit: {
+      Icon: Zap,
+      color: C.goldHover,
+      accent: "rgba(255,211,109,.5)",
+      glow: "rgba(255,211,109,.15)",
+      title: "Fresh Slots Loading",
+      subtitle: "New creative space is on the way.",
+    },
   };
 
-  // ================================================================
-  // GENERATE
-  // ================================================================
-  const handleGenerate = async () => {
-    if (!hostLine.trim() || !guestLine.trim()) {
-      toast.error("Please fill in both host and guest lines");
-      return;
-    }
-    if (!coverImage) {
-      toast.error("Template has no cover image — cannot generate video");
-      return;
-    }
+  const meta = reasonMeta[info.reason] || reasonMeta.cooldown;
+  const { Icon, color, accent, glow, title, subtitle } = meta;
 
-    try {
-      setGenerating(true);
-      setShowLoader(true);
-      setStatusMsg("");
-
-      const imageUrl = getImageUrl(coverImage);
-
-      // Fire the request
-      const res = await api.post("/video/generate", {
-        imageUrl,
-        hostLine: hostLine.trim(),
-        guestLine: guestLine.trim(),
-        tone,
-        music,
-        format,
-        templateId,
-        templateTitle,
-        templateCategory,
-        coverImage,
-      });
-
-      if (!res.data?.success) throw new Error("Generation failed");
-
-      // Keep loader visible for a full 10 seconds
-      setTimeout(() => {
-        setShowLoader(false);
-        setShowSuccess(true);
-        setGenerating(false);
-
-        // Auto redirect after showing success modal
-        setTimeout(() => {
-          navigate("/my-podcasts");
-        }, 2500);
-      }, 10000);
-    } catch (err) {
-      console.error("Generate failed:", err);
-      toast.error(
-        err.response?.data?.message || "Failed to generate. Try again."
-      );
-      setShowLoader(false);
-      setGenerating(false);
-    }
+  const formatTime = (sec) => {
+    if (sec <= 0) return "Ready now";
+    const h = Math.floor(sec / 3600);
+    const m = Math.floor((sec % 3600) / 60);
+    const s = sec % 60;
+    if (h > 0) return `${h}h ${m}m`;
+    if (m > 0) return `${m}m ${String(s).padStart(2, "0")}s`;
+    return `${s}s`;
   };
 
-  const handleChangeTemplate = () => {
-    navigate("/templates");
-  };
+  const total = info.waitSeconds || 1;
+  const progress = Math.max(0, Math.min(1, (total - secondsLeft) / total));
+
+  const ringSize = 120;
+  const stroke = 6;
+  const radius = (ringSize - stroke) / 2;
+  const circumference = 2 * Math.PI * radius;
+  const offset = circumference * (1 - progress);
 
   return (
     <div
-      className="flex min-h-screen"
+      className="fixed inset-0 z-[200] flex items-center justify-center p-4"
       style={{
-        background:
-          "radial-gradient(circle at 68% 20%, rgba(8,42,91,.18), transparent 30%), linear-gradient(180deg, #020a17, #010914)",
-        color: "#edf4ff",
-        overflowX: "hidden",
+        background: "rgba(0,12,22,.94)",
+        backdropFilter: "blur(14px)",
+        WebkitBackdropFilter: "blur(14px)",
+      }}
+      onClick={(e) => {
+        if (e.target === e.currentTarget) onClose();
       }}
     >
-      <Sidebar />
+      <div
+        className="relative w-full max-w-[480px] rounded-[20px] overflow-hidden"
+        style={{
+          background: C.card,
+          border: `1px solid ${accent}`,
+          boxShadow: `0 30px 100px rgba(0,0,0,.8), 0 0 60px ${glow}`,
+        }}
+      >
+        <button
+          onClick={onClose}
+          className="absolute top-4 right-4 z-20 grid place-items-center w-8 h-8 rounded-full transition-colors"
+          style={{ color: C.secondary }}
+          onMouseEnter={(e) => (e.currentTarget.style.background = C.input)}
+          onMouseLeave={(e) => (e.currentTarget.style.background = "transparent")}
+          aria-label="Close"
+        >
+          <svg
+            width="14"
+            height="14"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            strokeWidth="2.5"
+            strokeLinecap="round"
+          >
+            <path d="M18 6L6 18M6 6l12 12" />
+          </svg>
+        </button>
 
-      <div className="flex-1 ml-0 md:ml-[18rem] flex flex-col h-screen">
-        <Navbar />
-
-        <main className="flex-1 px-3 md:px-[18px] py-4 md:py-5 overflow-y-auto">
-          <div>
-            {/* ==========================================
-                TOP BANNER
-                ========================================== */}
+        <div className="relative px-7 pt-8 pb-7 text-center">
+          <div
+            className="relative mx-auto mb-6"
+            style={{ width: ringSize, height: ringSize }}
+          >
+            <svg
+              width={ringSize}
+              height={ringSize}
+              style={{ transform: "rotate(-90deg)", overflow: "visible" }}
+            >
+              <circle
+                cx={ringSize / 2}
+                cy={ringSize / 2}
+                r={radius}
+                fill="none"
+                stroke="rgba(41,65,76,.6)"
+                strokeWidth={stroke}
+              />
+              <circle
+                cx={ringSize / 2}
+                cy={ringSize / 2}
+                r={radius}
+                fill="none"
+                stroke={color}
+                strokeWidth={stroke}
+                strokeLinecap="round"
+                strokeDasharray={circumference}
+                strokeDashoffset={offset}
+                style={{
+                  transition: "stroke-dashoffset 1s linear",
+                  filter: `drop-shadow(0 0 8px ${color})`,
+                }}
+              />
+            </svg>
             <div
-              className="relative overflow-hidden rounded-[10px] border border-[#153c6d] mb-5"
+              className="absolute inset-3 rounded-full grid place-items-center"
               style={{
-                background:
-                  "linear-gradient(105deg, #020b1b 0%, #03112b 52%, #040b20 100%)",
+                background: `radial-gradient(circle, ${glow}, transparent 70%)`,
               }}
             >
-              <div
-                className="absolute inset-y-0 right-0 w-[62%] md:w-[55%]"
-                style={{
-                  backgroundImage: `url(${bannerBg})`,
-                  backgroundSize: "cover",
-                  backgroundPosition: "center right",
-                  backgroundRepeat: "no-repeat",
-                }}
-              />
-
-              <div
-                className="absolute inset-0 pointer-events-none"
-                style={{
-                  background:
-                    "linear-gradient(90deg, #020b1a 0%, #020b1a 30%, rgba(3,17,43,.95) 45%, rgba(3,17,43,.6) 65%, rgba(3,17,43,.2) 82%, transparent 100%)",
-                }}
-              />
-
-              <div className="relative z-10 py-10 md:py-12 pl-7 pr-7 max-w-[720px]">
-                <div className="text-[13px] tracking-[1.8px] text-[#9c65ff] font-medium">
-                  AI VIDEO GENERATION
-                </div>
-
-                <h1 className="text-[32px] md:text-[40px] leading-[1.1] tracking-[-1.4px] font-semibold mt-3 text-[#eef4ff]">
-                  Create Your Podcast
-                  <br />
-                  <span
-                    className="bg-clip-text text-transparent"
-                    style={{
-                      backgroundImage:
-                        "linear-gradient(90deg, #b65bff, #7855ff, #338dff)",
-                      WebkitBackgroundClip: "text",
-                    }}
-                  >
-                    With AI in Minutes.
-                  </span>
-                </h1>
-
-                <p className="text-[14px] leading-[1.6] text-[#aebfd5] mt-4 max-w-[640px]">
-                  {templateTitle
-                    ? `Using template: "${templateTitle}". Write your dialog and let AI generate a professional podcast video.`
-                    : "Write your dialog and let AI generate a professional podcast video in minutes."}
-                </p>
-              </div>
-            </div>
-
-            {/* ==========================================
-                2 COLUMNS
-                ========================================== */}
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-[14px]">
-              {/* ==========================================
-                  LEFT PANEL — PREVIEW
-                  ========================================== */}
-              <section
-                className="rounded-[12px] p-4 md:p-[16px]"
-                style={{
-                  background:
-                    "linear-gradient(180deg, rgba(4,20,40,.85), rgba(2,15,30,.88))",
-                  border: "1px solid #124171",
-                }}
-              >
-                <div className="flex items-center gap-2.5 mb-4">
-                  <div
-                    className="grid place-items-center w-7 h-7 rounded-[8px] shrink-0"
-                    style={{
-                      background: "rgba(110,53,237,.2)",
-                      border: "1px solid rgba(150,120,255,.4)",
-                    }}
-                  >
-                    <LayoutGrid size={13} className="text-[#a080ff]" />
-                  </div>
-                  <div>
-                    <h2 className="text-[13px] font-semibold text-[#edf4ff] leading-none">
-                      Video Preview
-                    </h2>
-                    <p className="text-[10px] text-[#7d90ac] mt-0.5">
-                      Selected template scene
-                    </p>
-                  </div>
-                </div>
-
-                <div
-                  className="rounded-[10px] overflow-hidden"
-                  style={{
-                    background: "linear-gradient(180deg, #03172f, #031326)",
-                    border: "1px solid #18518c",
-                  }}
-                >
-                  {/* Preview scene */}
-                  <div
-                    className="relative h-[220px] md:h-[260px] overflow-hidden"
-                    style={{
-                      background:
-                        "linear-gradient(180deg, #07111b, #071521 47%, #02070c)",
-                    }}
-                  >
-                    {coverImage ? (
-                      <>
-                        <img
-                          src={getImageUrl(coverImage)}
-                          alt={templateTitle}
-                          className="absolute inset-0 w-full h-full object-cover"
-                          onError={(e) => {
-                            e.target.style.display = "none";
-                          }}
-                        />
-                        <div
-                          className="absolute inset-0 pointer-events-none"
-                          style={{
-                            background:
-                              "linear-gradient(180deg, rgba(2,7,12,.35) 0%, transparent 30%, transparent 70%, rgba(2,7,12,.55) 100%)",
-                          }}
-                        />
-                      </>
-                    ) : (
-                      <>
-                        <div
-                          className="absolute inset-0 pointer-events-none"
-                          style={{
-                            background:
-                              "linear-gradient(90deg, rgba(0,0,0,.85), transparent 18%, transparent 80%, rgba(0,0,0,.7)), repeating-linear-gradient(90deg, rgba(66,93,119,.12) 0 2px, transparent 2px 72px)",
-                          }}
-                        />
-                        <div
-                          className="absolute"
-                          style={{
-                            top: 14,
-                            left: "48%",
-                            width: 62,
-                            height: 34,
-                            transform: "translateX(-50%)",
-                            background:
-                              "radial-gradient(ellipse, #ffe9b0 0, #ffd782 13%, #303238 15%, #0b1015 55%, transparent 56%)",
-                            filter:
-                              "drop-shadow(0 0 25px rgba(255,210,117,.6))",
-                          }}
-                        />
-                        <div
-                          className="absolute"
-                          style={{
-                            left: "50%",
-                            top: 56,
-                            transform: "translateX(-50%)",
-                            width: 220,
-                            height: 165,
-                            border: "2px solid #0c2438",
-                            background:
-                              "linear-gradient(90deg, transparent 0 48%, rgba(42,64,93,.38) 49% 51%, transparent 52%), linear-gradient(180deg, #142536, #07111b 70%)",
-                            boxShadow: "inset 0 0 50px #000",
-                          }}
-                        />
-                        <div
-                          className="absolute"
-                          style={{
-                            left: "50%",
-                            top: 76,
-                            transform: "translateX(-50%)",
-                            width: 56,
-                            height: 90,
-                            background: "#02070b",
-                            border: "1px solid #294057",
-                          }}
-                        />
-                        <div
-                          className="absolute"
-                          style={{
-                            bottom: -14,
-                            left: "13%",
-                            width: 110,
-                            height: 145,
-                            borderRadius: "70px 70px 15px 15px",
-                            background:
-                              "linear-gradient(145deg, #172b3c, #03070b 68%)",
-                            boxShadow: "0 -5px 35px rgba(0,0,0,.5)",
-                            transform: "rotate(9deg)",
-                          }}
-                        />
-                        <div
-                          className="absolute"
-                          style={{
-                            bottom: -14,
-                            right: "13%",
-                            width: 110,
-                            height: 145,
-                            borderRadius: "70px 70px 15px 15px",
-                            background:
-                              "linear-gradient(145deg, #172432, #02060a 70%)",
-                            boxShadow: "0 -5px 35px rgba(0,0,0,.5)",
-                            transform: "rotate(-9deg)",
-                          }}
-                        />
-                        <div
-                          className="absolute"
-                          style={{
-                            left: "-4%",
-                            right: "-4%",
-                            bottom: -8,
-                            height: 58,
-                            background:
-                              "linear-gradient(180deg, #1c211f, #090b0b)",
-                            borderTop: "2px solid #282d2c",
-                            boxShadow: "0 -5px 30px rgba(0,0,0,.6)",
-                          }}
-                        />
-                      </>
-                    )}
-
-                    <div
-                      className="absolute right-3 top-3 z-20 flex items-center gap-1.5 px-3 h-[26px] rounded-[14px] text-[11px] font-medium text-white"
-                      style={{
-                        background: "linear-gradient(100deg, #4768ff, #05a4ff)",
-                        boxShadow: "0 0 16px rgba(29,126,255,.35)",
-                      }}
-                    >
-                      <Check size={12} />
-                      Selected
-                    </div>
-                  </div>
-
-                  {/* Info bar */}
-                  <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-2.5 px-3 md:px-[14px] py-3 md:py-0 md:h-[70px]">
-                    <div className="flex items-center gap-2.5">
-                      <div
-                        className="w-[38px] h-[38px] rounded-[9px] grid place-items-center shrink-0 overflow-hidden"
-                        style={{
-                          background:
-                            "linear-gradient(145deg, #713cff, #2c61ff)",
-                          boxShadow: "0 0 14px rgba(67,60,255,.4)",
-                        }}
-                      >
-                        {coverImage ? (
-                          <img
-                            src={getImageUrl(coverImage)}
-                            alt={templateTitle}
-                            className="w-full h-full object-cover"
-                            onError={(e) => {
-                              e.target.style.display = "none";
-                            }}
-                          />
-                        ) : (
-                          <LayoutPanelTop size={18} className="text-white" />
-                        )}
-                      </div>
-                      <div>
-                        <div className="text-[12.5px] font-medium text-[#edf4ff]">
-                          {templateTitle}
-                        </div>
-                        <div className="text-[10.5px] text-[#aebed3] mt-0.5">
-                          {templateCategory}
-                        </div>
-                      </div>
-                    </div>
-
-                    <button
-                      onClick={handleChangeTemplate}
-                      className="h-[36px] px-4 rounded-[9px] text-[11.5px] text-[#dbe7f7] flex items-center gap-1.5 transition-colors hover:bg-[#0a2952]"
-                      style={{
-                        border: "1px solid #1d568e",
-                        background: "#061b37",
-                      }}
-                    >
-                      <Replace size={13} />
-                      Change
-                    </button>
-                  </div>
-                </div>
-
-                {/* Template details */}
-                <div className="mt-4 flex gap-2.5">
-                  <div className="text-[#b455ff] shrink-0 mt-0.5">
-                    <FileText size={15} />
-                  </div>
-                  <div>
-                    <div className="text-[12px] font-medium text-[#edf4ff]">
-                      Template Details
-                    </div>
-                    <p className="text-[10.5px] leading-[1.55] text-[#bdcadc] mt-1.5 max-w-[500px]">
-                      A cinematic interrogation room setup with realistic
-                      lighting and atmosphere, perfect for true crime and
-                      mystery conversations.
-                    </p>
-                  </div>
-                </div>
-              </section>
-
-              {/* ==========================================
-                  RIGHT PANEL — FORM
-                  ========================================== */}
-              <section
-                className="rounded-[12px] p-4 md:p-[18px] flex flex-col"
-                style={{
-                  background:
-                    "linear-gradient(180deg, rgba(4,20,40,.85), rgba(2,15,30,.88))",
-                  border: "1px solid #124171",
-                }}
-              >
-                {/* Header */}
-                <div className="flex items-center gap-2.5 mb-4">
-                  <LayoutPanelTop
-                    size={22}
-                    className="text-[#c35bff] shrink-0"
-                  />
-                  <div>
-                    <h2 className="text-[15px] font-semibold text-[#edf4ff]">
-                      Video Dialogue
-                    </h2>
-                    <p className="text-[10.5px] text-[#b0bfd3] mt-0.5">
-                      Write the script and configure your video.
-                    </p>
-                  </div>
-                </div>
-
-                {/* ================= HOST ================= */}
-                <div className="flex items-center gap-2.5 mb-2">
-                  <Users size={16} className="text-[#5f8eff]" />
-                  <span className="text-[11.5px] font-semibold tracking-[0.5px] text-[#edf4ff]">
-                    HOST
-                  </span>
-                </div>
-
-                <div
-                  className="w-full rounded-[10px] p-2.5"
-                  style={{
-                    background: "linear-gradient(180deg, #082550, #062047)",
-                    border: "1px solid #1760a2",
-                  }}
-                >
-                  <div className="flex items-start gap-2.5">
-                    <div
-                      className="w-[40px] h-[40px] rounded-full shrink-0 flex items-center justify-center"
-                      style={{
-                        background: "linear-gradient(135deg, #d99570, #28384c)",
-                        border: "2px solid #2d5b88",
-                      }}
-                    >
-                      <User size={17} className="text-white" />
-                    </div>
-
-                    <textarea
-                      value={hostLine}
-                      onChange={(e) => setHostLine(e.target.value)}
-                      placeholder="What does the host say?"
-                      rows={3}
-                      className="w-full bg-transparent outline-none resize-none text-[12.5px] text-white leading-[1.5]"
-                      style={{ minHeight: 60 }}
-                    />
-                  </div>
-
-                  <div className="flex justify-end mt-2">
-                    <button
-                      type="button"
-                      onClick={() => handleEnhance("host")}
-                      disabled={enhancingHost}
-                      className="h-[30px] px-3 rounded-[8px] flex items-center gap-1.5 text-[11px] font-medium text-white transition-all duration-200 hover:brightness-110 active:scale-[0.97] disabled:opacity-60 disabled:cursor-not-allowed"
-                      style={{
-                        background:
-                          "linear-gradient(100deg, #6e35ed, #3483ff)",
-                        boxShadow: "0 4px 12px rgba(58,90,255,.28)",
-                      }}
-                      aria-label="AI enhance host line"
-                    >
-                      {enhancingHost ? (
-                        <>
-                          <Loader2 size={12} className="animate-spin" />
-                          Enhancing...
-                        </>
-                      ) : (
-                        <>
-                          <Sparkles size={12} />
-                          AI Enhance
-                        </>
-                      )}
-                    </button>
-                  </div>
-                </div>
-
-                <div
-                  className="my-4"
-                  style={{ height: 1, background: "#0b2949" }}
-                />
-
-                {/* ================= GUEST ================= */}
-                <div className="flex items-center gap-2.5 mb-2">
-                  <Users size={16} className="text-[#8d7dff]" />
-                  <span className="text-[11.5px] font-semibold tracking-[0.5px] text-[#edf4ff]">
-                    GUEST
-                  </span>
-                </div>
-
-                <div
-                  className="w-full rounded-[10px] p-2.5"
-                  style={{
-                    background: "linear-gradient(180deg, #082550, #062047)",
-                    border: "1px solid #1760a2",
-                  }}
-                >
-                  <div className="flex items-start gap-2.5">
-                    <div
-                      className="w-[40px] h-[40px] rounded-full shrink-0 flex items-center justify-center"
-                      style={{
-                        background: "linear-gradient(135deg, #f0b08d, #473c4a)",
-                        border: "2px solid #2d5b88",
-                      }}
-                    >
-                      <User size={17} className="text-white" />
-                    </div>
-
-                    <textarea
-                      value={guestLine}
-                      onChange={(e) => setGuestLine(e.target.value)}
-                      placeholder="What does the guest say?"
-                      rows={3}
-                      className="w-full bg-transparent outline-none resize-none text-[12.5px] text-white leading-[1.5]"
-                      style={{ minHeight: 60 }}
-                    />
-                  </div>
-
-                  <div className="flex justify-end mt-2">
-                    <button
-                      type="button"
-                      onClick={() => handleEnhance("guest")}
-                      disabled={enhancingGuest}
-                      className="h-[30px] px-3 rounded-[8px] flex items-center gap-1.5 text-[11px] font-medium text-white transition-all duration-200 hover:brightness-110 active:scale-[0.97] disabled:opacity-60 disabled:cursor-not-allowed"
-                      style={{
-                        background:
-                          "linear-gradient(100deg, #6e35ed, #3483ff)",
-                        boxShadow: "0 4px 12px rgba(58,90,255,.28)",
-                      }}
-                      aria-label="AI enhance guest line"
-                    >
-                      {enhancingGuest ? (
-                        <>
-                          <Loader2 size={12} className="animate-spin" />
-                          Enhancing...
-                        </>
-                      ) : (
-                        <>
-                          <Sparkles size={12} />
-                          AI Enhance
-                        </>
-                      )}
-                    </button>
-                  </div>
-                </div>
-
-                <div
-                  className="my-4"
-                  style={{ height: 1, background: "#0b2949" }}
-                />
-
-                {/* ================= ADDITIONAL SETTINGS ================= */}
-                <div className="flex items-center gap-2.5 mb-3">
-                  <Settings size={16} className="text-[#6ddcff]" />
-                  <span className="text-[13px] font-medium text-[#edf4ff]">
-                    Additional Settings
-                  </span>
-                </div>
-
-                <div className="space-y-3.5">
-                  {/* Tone */}
-                  <div>
-                    <label className="flex items-center gap-1.5 text-[11px] font-medium text-[#b7c9df] mb-1.5">
-                      <Mic size={12} className="text-[#b59aff]" />
-                      Tone
-                    </label>
-                    <div className="grid grid-cols-3 gap-2">
-                      {TONES.map((t) => {
-                        const isActive = tone === t.id;
-                        return (
-                          <button
-                            key={t.id}
-                            type="button"
-                            onClick={() => setTone(t.id)}
-                            className="h-[34px] rounded-[8px] text-[11px] font-medium transition-all duration-200"
-                            style={
-                              isActive
-                                ? {
-                                    background:
-                                      "linear-gradient(135deg, #241d73, #0750a5)",
-                                    border: "1px solid #6d42ff",
-                                    color: "#eef4ff",
-                                    boxShadow: "0 0 14px rgba(51,83,255,.3)",
-                                  }
-                                : {
-                                    background:
-                                      "linear-gradient(180deg, #082452, #061b38)",
-                                    border: "1px solid #1b4d84",
-                                    color: "#a9b8d0",
-                                  }
-                            }
-                          >
-                            {t.label}
-                          </button>
-                        );
-                      })}
-                    </div>
-                  </div>
-
-                  {/* Background Music */}
-                  <div>
-                    <label className="flex items-center gap-1.5 text-[11px] font-medium text-[#b7c9df] mb-1.5">
-                      <Music2 size={12} className="text-[#ff67bf]" />
-                      Background Music
-                    </label>
-                    <div className="grid grid-cols-3 gap-2">
-                      {MUSIC_OPTIONS.map((m) => {
-                        const isActive = music === m.id;
-                        return (
-                          <button
-                            key={m.id}
-                            type="button"
-                            onClick={() => setMusic(m.id)}
-                            className="h-[34px] rounded-[8px] text-[11px] font-medium transition-all duration-200"
-                            style={
-                              isActive
-                                ? {
-                                    background:
-                                      "linear-gradient(135deg, #241d73, #0750a5)",
-                                    border: "1px solid #6d42ff",
-                                    color: "#eef4ff",
-                                    boxShadow: "0 0 14px rgba(51,83,255,.3)",
-                                  }
-                                : {
-                                    background:
-                                      "linear-gradient(180deg, #082452, #061b38)",
-                                    border: "1px solid #1b4d84",
-                                    color: "#a9b8d0",
-                                  }
-                            }
-                          >
-                            {m.label}
-                          </button>
-                        );
-                      })}
-                    </div>
-                  </div>
-                </div>
-
-                <div
-                  className="my-4"
-                  style={{ height: 1, background: "#0b2949" }}
-                />
-
-                {/* ================= VIDEO FORMAT ================= */}
-                <div className="flex items-center gap-2.5 mb-3">
-                  <LayoutPanelTop size={17} className="text-[#bd57ff]" />
-                  <span className="text-[13px] font-medium text-[#edf4ff]">
-                    Video Format
-                  </span>
-                </div>
-
-                <div className="grid grid-cols-2 gap-3">
-                  {/* Landscape */}
-                  <button
-                    type="button"
-                    onClick={() => setFormat("16:9")}
-                    className="h-[74px] rounded-[10px] flex items-center gap-3 px-4 text-left transition-all duration-200"
-                    style={
-                      format === "16:9"
-                        ? {
-                            background:
-                              "linear-gradient(135deg, #241d73, #0750a5)",
-                            border: "2px solid #6d42ff",
-                            boxShadow: "0 0 20px rgba(51,83,255,.35)",
-                          }
-                        : {
-                            background:
-                              "linear-gradient(180deg, #082452, #061b38)",
-                            border: "1px solid #1b4d84",
-                          }
-                    }
-                  >
-                    <div
-                      className="w-[38px] h-[38px] rounded-full flex items-center justify-center shrink-0"
-                      style={{
-                        background: format === "16:9" ? "#1a2158" : "#0c3170",
-                      }}
-                    >
-                      <Monitor
-                        size={17}
-                        className={
-                          format === "16:9"
-                            ? "text-[#b59aff]"
-                            : "text-[#9d64ff]"
-                        }
-                      />
-                    </div>
-                    <div>
-                      <div className="text-[13px] font-medium text-[#edf4ff]">
-                        16:9
-                      </div>
-                      <div className="text-[10.5px] text-[#b5c4d9] mt-0.5">
-                        Landscape
-                      </div>
-                    </div>
-                  </button>
-
-                  {/* Portrait */}
-                  <button
-                    type="button"
-                    onClick={() => setFormat("9:16")}
-                    className="h-[74px] rounded-[10px] flex items-center gap-3 px-4 text-left transition-all duration-200"
-                    style={
-                      format === "9:16"
-                        ? {
-                            background:
-                              "linear-gradient(135deg, #241d73, #0750a5)",
-                            border: "2px solid #6d42ff",
-                            boxShadow: "0 0 20px rgba(51,83,255,.35)",
-                          }
-                        : {
-                            background:
-                              "linear-gradient(180deg, #082452, #061b38)",
-                            border: "1px solid #1b4d84",
-                          }
-                    }
-                  >
-                    <div
-                      className="w-[38px] h-[38px] rounded-full flex items-center justify-center shrink-0"
-                      style={{
-                        background: format === "9:16" ? "#1a2158" : "#0b2c5b",
-                      }}
-                    >
-                      <Smartphone
-                        size={17}
-                        className={
-                          format === "9:16"
-                            ? "text-[#b59aff]"
-                            : "text-[#9d64ff]"
-                        }
-                      />
-                    </div>
-                    <div>
-                      <div className="text-[13px] font-medium text-[#edf4ff]">
-                        9:16
-                      </div>
-                      <div className="text-[10.5px] text-[#b5c4d9] mt-0.5">
-                        Portrait
-                      </div>
-                    </div>
-                  </button>
-                </div>
-
-                {/* ================= GENERATE BUTTON ================= */}
-                <button
-                  type="button"
-                  onClick={handleGenerate}
-                  disabled={generating}
-                  className="mt-6 md:mt-8 w-full h-[52px] md:h-[56px] rounded-[12px] text-[13.5px] md:text-[14.5px] font-semibold text-white flex items-center justify-center gap-2.5 transition-all hover:brightness-110 hover:-translate-y-[1px] active:translate-y-0 disabled:opacity-70 disabled:cursor-not-allowed disabled:hover:translate-y-0"
-                  style={{
-                    background:
-                      "linear-gradient(100deg, #5831f3, #314fff 48%, #069df0)",
-                    boxShadow:
-                      "0 8px 26px rgba(39,84,255,.35), 0 0 0 1px rgba(255,255,255,.06) inset",
-                  }}
-                >
-                  {generating ? (
-                    <>
-                      <Loader2 size={18} className="animate-spin" />
-                      <span>Generating Video...</span>
-                    </>
-                  ) : (
-                    <>
-                      <Wand2 size={17} />
-                      <span>Generate Video</span>
-                      <ArrowRight size={17} />
-                    </>
-                  )}
-                </button>
-
-                {statusMsg && (
-                  <div className="text-center text-[10.5px] text-[#9fb5d1] mt-2.5">
-                    {statusMsg}
-                  </div>
-                )}
-              </section>
+              <Icon size={36} strokeWidth={1.8} style={{ color }} />
             </div>
           </div>
-        </main>
-      </div>
 
-      {/* ============ 10-SECOND FULLSCREEN LOADER ============ */}
-      {showLoader && (
-        <div
-          className="fixed inset-0 z-[100] flex items-center justify-center"
-          style={{
-            background: "rgba(2,7,19,.92)",
-            backdropFilter: "blur(10px)",
-            WebkitBackdropFilter: "blur(10px)",
-          }}
-        >
-          <div className="text-center px-6 max-w-[420px]">
-            {/* Animated rings */}
+          <h3 className="text-[20px] font-semibold mb-1.5" style={{ color: C.heading }}>
+            {title}
+          </h3>
+          <p className="text-[12.5px] mb-5" style={{ color: C.secondary }}>
+            {subtitle}
+          </p>
+
+          <div
+            className="rounded-[14px] px-5 py-4 mb-5"
+            style={{ background: C.input, border: `1px solid ${C.border}` }}
+          >
             <div
-              className="relative mx-auto mb-6"
-              style={{ width: 100, height: 100 }}
+              className="text-[10px] uppercase tracking-[1.4px] font-semibold mb-1.5"
+              style={{ color: C.secondary }}
             >
+              {secondsLeft > 0 ? "Available in" : "Ready to create"}
+            </div>
+            <div
+              className="text-[26px] font-bold tabular-nums"
+              style={{ color, textShadow: `0 0 20px ${glow}` }}
+            >
+              {formatTime(secondsLeft)}
+            </div>
+          </div>
+
+          <p className="text-[12.5px] leading-[1.65] mb-6" style={{ color: C.secondary }}>
+            {info.message}
+          </p>
+
+          <div className="flex items-center gap-2.5">
+            <button
+              onClick={onChangeTemplate}
+              className="flex-1 h-[44px] rounded-[11px] text-[12.5px] font-medium transition-all"
+              style={{
+                border: `1px solid ${C.border}`,
+                background: C.input,
+                color: C.heading,
+              }}
+              onMouseEnter={(e) => (e.currentTarget.style.background = C.cardSecondary)}
+              onMouseLeave={(e) => (e.currentTarget.style.background = C.input)}
+            >
+              Browse Templates
+            </button>
+            <button
+              onClick={onClose}
+              className="flex-1 h-[44px] rounded-[11px] text-[12.5px] font-semibold transition-all hover:brightness-110"
+              style={{
+                background: C.goldGradient,
+                color: C.mainBg,
+                border: `1px solid ${C.goldHover}`,
+                boxShadow: "inset 0 1px 1px rgba(255,255,255,.2)",
+              }}
+            >
+              Got it
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+// ================================================================
+// GENERATION LOADER
+// ================================================================
+function GenerationLoader({ title, stage }) {
+  const [dots, setDots] = useState("");
+
+  useEffect(() => {
+    const t = setInterval(() => {
+      setDots((d) => (d.length >= 3 ? "" : d + "."));
+    }, 500);
+    return () => clearInterval(t);
+  }, []);
+
+  const isSuccess = stage === "success";
+
+  return (
+    <div
+      className="fixed inset-0 z-[300] flex items-center justify-center px-4"
+      style={{
+        background:
+          "radial-gradient(circle at 50% 40%, rgba(246,197,93,.08), transparent 60%), rgba(0,12,22,.97)",
+        backdropFilter: "blur(16px)",
+        WebkitBackdropFilter: "blur(16px)",
+      }}
+    >
+      <div className="w-full max-w-[480px] text-center">
+        <div
+          className="relative mx-auto mb-8 grid place-items-center"
+          style={{ width: 130, height: 130 }}
+        >
+          {!isSuccess ? (
+            <>
               <div
                 className="absolute inset-0 rounded-full animate-spin"
                 style={{
-                  border: "3px solid rgba(141,67,255,.15)",
-                  borderTopColor: "#8d43ff",
+                  border: "3px solid rgba(246,197,93,.15)",
+                  borderTopColor: C.gold,
                   animationDuration: "1.2s",
                 }}
               />
               <div
-                className="absolute inset-2 rounded-full animate-spin"
+                className="absolute inset-3 rounded-full animate-spin"
                 style={{
-                  border: "3px solid rgba(52,131,255,.15)",
-                  borderTopColor: "#3483ff",
+                  border: "3px solid rgba(183,123,50,.15)",
+                  borderTopColor: C.darkGold,
                   animationDuration: "1.6s",
                   animationDirection: "reverse",
                 }}
               />
               <div
-                className="absolute inset-4 rounded-full grid place-items-center"
+                className="absolute inset-7 rounded-full grid place-items-center"
                 style={{
                   background:
-                    "radial-gradient(circle, rgba(141,67,255,.3), transparent 70%)",
+                    "radial-gradient(circle, rgba(246,197,93,.35), transparent 70%)",
                 }}
               >
-                <Loader2 size={28} className="text-[#a080ff] animate-spin" />
+                <Sparkles
+                  size={38}
+                  className="animate-pulse"
+                  style={{ color: C.goldHover }}
+                />
               </div>
-            </div>
+            </>
+          ) : (
+            <>
+              <div
+                className="absolute inset-0 rounded-full"
+                style={{
+                  background:
+                    "radial-gradient(circle, rgba(0,212,217,.28), transparent 70%)",
+                  animation: "successPulse 1.6s ease-in-out infinite",
+                }}
+              />
+              <div
+                className="absolute inset-2 rounded-full"
+                style={{
+                  background: `linear-gradient(135deg, ${C.goldHover}, ${C.gold})`,
+                  boxShadow: `0 0 40px rgba(246,197,93,.6)`,
+                  animation: "successPop .5s cubic-bezier(.2,.7,.3,1) both",
+                }}
+              />
+              <div className="relative grid place-items-center">
+                <svg
+                  width="52"
+                  height="52"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke={C.mainBg}
+                  strokeWidth="3"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                >
+                  <path
+                    d="M4 12.5 9.5 18 20 7"
+                    style={{
+                      strokeDasharray: 30,
+                      strokeDashoffset: 30,
+                      animation:
+                        "checkDraw .6s cubic-bezier(.2,.7,.3,1) .35s forwards",
+                    }}
+                  />
+                </svg>
+              </div>
+            </>
+          )}
+        </div>
 
-            <h3 className="text-[18px] font-semibold text-[#eef4ff] mb-2">
-              Generating Your Podcast
-            </h3>
-            <p className="text-[13px] text-[#9bb0ca] leading-[1.6]">
-              AI is analyzing your template, crafting a cinematic prompt, and
-              rendering your video. This takes a few moments...
+        {!isSuccess ? (
+          <>
+            <h2
+              className="font-['Playfair_Display',Georgia,serif] font-bold mb-3"
+              style={{ fontSize: "clamp(24px, 3vw, 32px)", color: C.heading }}
+            >
+              Generation in Progress{dots}
+            </h2>
+
+            <p className="mb-7 leading-[1.6]" style={{ fontSize: 14.5, color: C.secondary }}>
+              {title ? (
+                <>
+                  <strong style={{ color: C.gold }}>{title}</strong> is being
+                  crafted. This usually takes 2–4 minutes.
+                </>
+              ) : (
+                "Your mystery is being crafted. This usually takes 2–4 minutes."
+              )}
             </p>
 
-            {/* Progress shimmer bar */}
             <div
-              className="mt-6 h-[3px] rounded-full overflow-hidden"
-              style={{ background: "rgba(58,91,132,.4)" }}
+              className="h-[5px] rounded-full overflow-hidden mb-6"
+              style={{ background: "rgba(41,65,76,.5)" }}
             >
               <div
                 className="h-full rounded-full"
                 style={{
-                  background:
-                    "linear-gradient(90deg, #8d43ff, #3483ff, #8d43ff)",
+                  background: `linear-gradient(90deg, ${C.darkGold}, ${C.gold}, ${C.goldHover}, ${C.gold}, ${C.darkGold})`,
                   backgroundSize: "200% 100%",
                   animation: "shimmerMove 2s linear infinite",
                   width: "100%",
@@ -968,90 +524,904 @@ export default function CreateProduct() {
               />
             </div>
 
-            <style>{`
-              @keyframes shimmerMove {
-                0% { background-position: 0% 50%; }
-                100% { background-position: 200% 50%; }
-              }
-            `}</style>
-          </div>
-        </div>
-      )}
-
-      {/* ============ SUCCESS MODAL ============ */}
-      {showSuccess && (
-        <div
-          className="fixed inset-0 z-[100] flex items-center justify-center"
-          style={{
-            background: "rgba(2,7,19,.92)",
-            backdropFilter: "blur(10px)",
-            WebkitBackdropFilter: "blur(10px)",
-          }}
-        >
-          <div
-            className="rounded-[16px] p-8 max-w-[440px] w-full mx-4 text-center"
-            style={{
-              background:
-                "linear-gradient(180deg, rgba(4,20,40,.98), rgba(2,15,30,.98))",
-              border: "1px solid rgba(12,228,189,.35)",
-              boxShadow:
-                "0 24px 80px rgba(0,0,0,.6), 0 0 40px rgba(12,228,189,.15)",
-            }}
-          >
-            {/* Success icon with glow */}
-            <div
-              className="relative grid place-items-center w-20 h-20 rounded-full mx-auto mb-5"
+            <p className="leading-[1.5]" style={{ fontSize: 12, color: C.secondary }}>
+              Taking you to My Mysteries…
+              <br />
+              You can watch live progress there.
+            </p>
+          </>
+        ) : (
+          <>
+            <h2
+              className="font-['Playfair_Display',Georgia,serif] font-bold mb-3"
               style={{
-                background:
-                  "radial-gradient(circle, rgba(12,228,189,.25), transparent 70%)",
+                fontSize: "clamp(24px, 3vw, 32px)",
+                color: C.heading,
+                animation: "successFadeUp .5s cubic-bezier(.2,.7,.3,1) both",
               }}
             >
+              Generation Started
+            </h2>
+
+            <p
+              className="mb-7 leading-[1.6]"
+              style={{
+                fontSize: 14.5,
+                color: C.secondary,
+                animation: "successFadeUp .5s cubic-bezier(.2,.7,.3,1) .15s both",
+              }}
+            >
+              Your mystery is being generated in the background.
+              <br />
+              Redirecting to My Mysteries…
+            </p>
+
+            <div
+              className="h-[5px] rounded-full overflow-hidden mb-6"
+              style={{ background: "rgba(41,65,76,.5)" }}
+            >
               <div
-                className="grid place-items-center w-16 h-16 rounded-full"
+                className="h-full rounded-full"
                 style={{
-                  background: "linear-gradient(135deg, #0ce4bd, #3483ff)",
-                  boxShadow: "0 0 30px rgba(12,228,189,.5)",
+                  background: `linear-gradient(90deg, ${C.cyan}, ${C.cyanHover})`,
+                  boxShadow: `0 0 12px rgba(0,212,217,.7)`,
+                  width: "100%",
+                  animation: "successBar 1.4s ease-out forwards",
+                }}
+              />
+            </div>
+
+            <p
+              className="leading-[1.5]"
+              style={{
+                fontSize: 12,
+                color: C.secondary,
+                animation: "successFadeUp .5s .3s both",
+              }}
+            >
+              Watch live progress on the next page.
+            </p>
+          </>
+        )}
+
+        <style>{`
+          @keyframes shimmerMove {
+            0% { background-position: 0% 50%; }
+            100% { background-position: 200% 50%; }
+          }
+          @keyframes successPop {
+            0%   { transform: scale(.3); opacity: 0; }
+            60%  { transform: scale(1.08); opacity: 1; }
+            100% { transform: scale(1); opacity: 1; }
+          }
+          @keyframes successPulse {
+            0%, 100% { transform: scale(1); opacity: .8; }
+            50%      { transform: scale(1.1); opacity: 1; }
+          }
+          @keyframes checkDraw {
+            to { stroke-dashoffset: 0; }
+          }
+          @keyframes successFadeUp {
+            from { opacity: 0; transform: translateY(8px); }
+            to   { opacity: 1; transform: translateY(0); }
+          }
+          @keyframes successBar {
+            from { width: 0%; }
+            to   { width: 100%; }
+          }
+        `}</style>
+      </div>
+    </div>
+  );
+}
+
+// ================================================================
+// TEMPLATE PICKER CARD
+// ================================================================
+function TemplateCard({ template, isSelected, onClick }) {
+  const cover = template.thumbnail
+    ? getImageUrl(template.thumbnail)
+    : template.coverImage
+    ? getImageUrl(template.coverImage)
+    : null;
+
+  return (
+    <button
+      type="button"
+      onClick={onClick}
+      className="text-left relative overflow-hidden transition-all hover:-translate-y-[1px]"
+      style={{
+        border: isSelected
+          ? `2px solid ${C.gold}`
+          : `1px solid ${C.border}`,
+        borderRadius: 10,
+        background: C.input,
+        color: C.heading,
+        padding: 0,
+        cursor: "pointer",
+        boxShadow: isSelected
+          ? `0 0 0 2px ${C.gold}33, 0 4px 12px rgba(246,197,93,.15)`
+          : "none",
+      }}
+    >
+      {/* Thumbnail */}
+      <div
+        className="relative"
+        style={{
+          height: 90,
+          background: "#000000",
+          borderBottom: `1px solid ${C.border}`,
+          overflow: "hidden",
+        }}
+      >
+        {cover ? (
+          <img
+            src={cover}
+            alt={template.name}
+            loading="lazy"
+            className="w-full h-full object-cover"
+            onError={(e) => (e.target.style.display = "none")}
+          />
+        ) : (
+          <div className="w-full h-full grid place-items-center">
+            <Sparkles size={22} style={{ color: C.gold, opacity: 0.4 }} />
+          </div>
+        )}
+
+        {template.isFeatured && (
+          <span
+            className="absolute top-1.5 right-1.5 inline-flex items-center gap-0.5 px-1.5 py-0.5 rounded-full"
+            style={{
+              background: C.gold,
+              color: C.mainBg,
+              fontSize: 8.5,
+              fontWeight: 700,
+            }}
+          >
+            <Star size={8} fill={C.mainBg} />
+          </span>
+        )}
+      </div>
+
+      {/* Info */}
+      <div style={{ padding: "8px 10px" }}>
+        <div
+          className="font-bold truncate"
+          style={{ fontSize: 12, color: C.heading }}
+          title={template.name}
+        >
+          {template.name}
+        </div>
+        <div
+          className="mt-1 truncate"
+          style={{ fontSize: 11, color: C.secondary }}
+          title={template.genre}
+        >
+          {template.genre}
+        </div>
+      </div>
+
+      {isSelected && (
+        <span
+          className="absolute grid place-items-center rounded-full"
+          style={{
+            right: 6,
+            top: 6,
+            width: 22,
+            height: 22,
+            background: C.gold,
+            color: C.mainBg,
+            fontWeight: 700,
+            fontSize: 12,
+            boxShadow: "0 2px 8px rgba(0,0,0,.5)",
+          }}
+        >
+          ✓
+        </span>
+      )}
+    </button>
+  );
+}
+
+// ================================================================
+// MAIN PAGE
+// ================================================================
+export default function CreateProduct() {
+  const navigate = useNavigate();
+  const location = useLocation();
+
+  const {
+    templateId: preTemplateId = null,
+    template: preTemplate = null,
+  } = location.state || {};
+
+  // ---- Form state ----
+  const [mysteryTitle, setMysteryTitle] = useState(preTemplate?.name || "");
+  const [genre, setGenre] = useState(preTemplate?.genre || GENRES[0]);
+  const [setting, setSetting] = useState(preTemplate?.setting || SETTINGS[0]);
+  const [difficulty, setDifficulty] = useState(
+    preTemplate?.difficulty || DIFFICULTIES[0]
+  );
+  const [players, setPlayers] = useState(
+    preTemplate?.playerCount
+      ? `${preTemplate.playerCount} Players`
+      : PLAYER_COUNTS[0]
+  );
+  const [duration, setDuration] = useState(
+    preTemplate?.duration
+      ? `${preTemplate.duration} - ${preTemplate.duration + 30} Minutes`
+      : DURATIONS[0]
+  );
+  const [audience, setAudience] = useState(
+    preTemplate?.targetAudience || AUDIENCES[0]
+  );
+  const [storyIdea, setStoryIdea] = useState(preTemplate?.storyIdea || "");
+
+  // ---- Templates from API ----
+  const [templates, setTemplates] = useState([]);
+  const [templatesLoading, setTemplatesLoading] = useState(true);
+  const [selectedTemplate, setSelectedTemplate] = useState(null);
+  const [selectedTemplateId, setSelectedTemplateId] = useState(preTemplateId);
+
+  // ---- Generation state ----
+  const [generating, setGenerating] = useState(false);
+  const [loaderStage, setLoaderStage] = useState("loading");
+  const [rateLimit, setRateLimit] = useState(null);
+
+  // ================================================================
+  // FETCH TEMPLATES
+  // ================================================================
+  useEffect(() => {
+    let cancelled = false;
+    const fetchTemplates = async () => {
+      try {
+        setTemplatesLoading(true);
+        const res = await api.get("/templates");
+        if (!cancelled && res.data?.success) {
+          const list = res.data.data || [];
+          // Show 8 templates (featured first)
+          const sorted = [...list].sort((a, b) => {
+            if (a.isFeatured && !b.isFeatured) return -1;
+            if (!a.isFeatured && b.isFeatured) return 1;
+            return (a.order || 0) - (b.order || 0);
+          });
+          setTemplates(sorted.slice(0, 8));
+        }
+      } catch (err) {
+        console.error("Failed to load templates:", err);
+      } finally {
+        if (!cancelled) setTemplatesLoading(false);
+      }
+    };
+    fetchTemplates();
+    return () => {
+      cancelled = true;
+    };
+  }, []);
+
+  // ================================================================
+  // APPLY TEMPLATE → AUTO-FILL ALL FIELDS
+  // ================================================================
+  const applyTemplate = (template) => {
+    // Toggle deselect
+    if (selectedTemplateId === template._id) {
+      setSelectedTemplateId(null);
+      setSelectedTemplate(null);
+      return;
+    }
+
+    setSelectedTemplateId(template._id);
+    setSelectedTemplate(template);
+
+    // Auto-fill every field
+    if (template.name) setMysteryTitle(template.name);
+
+    if (template.genre && GENRES.includes(template.genre)) {
+      setGenre(template.genre);
+    } else if (template.genre) {
+      // If genre not in list, still set it (select will show a fallback)
+      setGenre(template.genre);
+    }
+
+    if (template.setting) setSetting(template.setting);
+
+    if (
+      template.difficulty &&
+      DIFFICULTIES.includes(template.difficulty)
+    ) {
+      setDifficulty(template.difficulty);
+    }
+
+    if (template.playerCount) {
+      // Convert "4-8" → "4 - 8 Players"
+      const clean = template.playerCount.replace(/-/g, " - ").trim();
+      const withPlayers = /player/i.test(clean)
+        ? clean
+        : `${clean} Players`;
+      setPlayers(withPlayers);
+    }
+
+    if (template.duration) {
+      const num = Number(template.duration);
+      setDuration(`${num} - ${num + 30} Minutes`);
+    }
+
+    if (template.targetAudience) {
+      // "Adults" → "Adults (16+)"
+      const audienceMap = {
+        Adults: "Adults (16+)",
+        Families: "Families",
+        Kids: "Kids (8+)",
+      };
+      setAudience(
+        audienceMap[template.targetAudience] || template.targetAudience
+      );
+    }
+
+    if (template.storyIdea) {
+      setStoryIdea(template.storyIdea);
+    }
+
+    toast.success(`Template "${template.name}" applied`);
+  };
+
+  // ================================================================
+  // GENERATE
+  // ================================================================
+  const handleGenerate = () => {
+    if (!mysteryTitle.trim()) {
+      toast.error("Please enter a mystery title");
+      return;
+    }
+    if (generating) return;
+
+    setGenerating(true);
+    setLoaderStage("loading");
+
+    const durationNumber = parseInt(String(duration).split("-")[0]) || 60;
+    const playerCountClean = players.replace(/\s*Players?/i, "").trim();
+    const audienceClean = audience.replace(/\s*\(.*\)/, "").trim();
+
+    const payload = {
+      title: mysteryTitle.trim(),
+      genre,
+      setting,
+      difficulty,
+      playerCount: playerCountClean,
+      duration: durationNumber,
+      targetAudience: audienceClean,
+      storyIdea: storyIdea.trim(),
+      templateId: selectedTemplateId || null,
+      includeImages: true,
+    };
+
+    api
+      .post("/mysteries/generate", payload)
+      .then((res) => {
+        if (res.data?.success) {
+          console.log("✅ Mystery queued:", res.data.mysteryId);
+        }
+      })
+      .catch((err) => {
+        console.error("❌ Generation request failed:", err);
+
+        if (err.response?.status === 429 && err.response?.data?.rateLimited) {
+          toast.error(
+            err.response.data.message ||
+              "Rate limit reached. Try again in a moment.",
+            { duration: 6000 }
+          );
+          return;
+        }
+
+        toast.error(
+          err.response?.data?.message ||
+            err.message ||
+            "Generation failed to start",
+          { duration: 6000 }
+        );
+      });
+
+    setTimeout(() => {
+      setLoaderStage("success");
+
+      setTimeout(() => {
+        toast.success("Generation started — check My Mysteries");
+        navigate("/my-mysteries");
+      }, 2000);
+    }, 8000);
+  };
+
+  // ================================================================
+  // RENDER
+  // ================================================================
+  return (
+    <div
+      className="flex min-h-screen"
+      style={{ background: C.mainBg, color: C.heading }}
+    >
+      <Sidebar />
+
+      <div className="flex-1 ml-0 md:ml-[18rem] flex flex-col min-h-screen">
+        <Navbar />
+
+        <main className="flex-1 overflow-y-auto">
+          <div className="max-w-[1650px] mx-auto px-5 py-5">
+            {/* HERO */}
+            <section
+              className="relative overflow-hidden rounded-[12px] mb-4 py-[42px] px-[30px] min-h-[340px]"
+              style={{ background: "#000000" }}
+            >
+              <div
+                className="absolute inset-0 z-0 bg-cover bg-[center_right] bg-no-repeat"
+                style={{ backgroundImage: `url(${createMysteryBg})` }}
+              />
+              <div className="absolute inset-0 z-[1] pointer-events-none bg-[linear-gradient(90deg,rgba(0,0,0,.92)_0%,rgba(0,0,0,.72)_45%,rgba(0,0,0,.35)_82%,rgba(0,0,0,.15)_100%)]" />
+              <div className="absolute inset-x-0 bottom-0 z-[1] h-[40%] pointer-events-none bg-[linear-gradient(180deg,transparent,rgba(0,0,0,.45))]" />
+
+              <div className="relative z-10">
+                <div
+                  className="inline-flex items-center gap-2 mb-4 px-[14px] py-[6px] rounded-full"
+                  style={{
+                    background: "rgba(246,197,93,.12)",
+                    border: `1px solid ${C.gold}55`,
+                    color: C.gold,
+                    fontSize: 11.5,
+                    fontWeight: 600,
+                    letterSpacing: "1.6px",
+                    textTransform: "uppercase",
+                  }}
+                >
+                  <span
+                    className="w-[6px] h-[6px] rounded-full"
+                    style={{
+                      background: C.gold,
+                      boxShadow: `0 0 8px ${C.gold}`,
+                    }}
+                  />
+                  Create a New Mystery
+                </div>
+
+                <h1
+                  className="font-['Playfair_Display',Georgia,serif] mb-3"
+                  style={{
+                    fontSize: "clamp(30px,5vw,50px)",
+                    lineHeight: 1.08,
+                    letterSpacing: "-0.5px",
+                    fontWeight: 500,
+                    color: "#ffffff",
+                  }}
+                >
+                  Bring Your{" "}
+                  <em className="not-italic" style={{ color: C.gold }}>
+                    Mystery
+                  </em>
+                  <br />
+                  to Life{" "}
+                  <em className="not-italic" style={{ color: C.gold }}>
+                    With AI
+                  </em>
+                </h1>
+
+                <p
+                  className="leading-[26px] max-w-[620px] mb-[22px]"
+                  style={{
+                    fontSize: "clamp(14px,1.6vw,17px)",
+                    color: C.heading,
+                  }}
+                >
+                  Use AI to create a complete, ready-to-play mystery game with
+                  characters, clues,
+                  <br className="hidden xl:block" /> puzzles, evidence and more.
+                  Just fill in the details and let the AI do the work.
+                </p>
+
+                <div className="flex flex-wrap items-center gap-3">
+                  <button
+                    type="button"
+                    onClick={handleGenerate}
+                    disabled={generating}
+                    className="flex items-center h-[50px] px-[24px] gap-3 text-[15px] font-bold rounded-[11px] transition-all hover:-translate-y-[1px] disabled:opacity-70 disabled:cursor-not-allowed"
+                    style={{
+                      background: C.goldGradient,
+                      color: C.mainBg,
+                      border: `1px solid ${C.goldHover}`,
+                      boxShadow:
+                        "inset 0 1px 1px rgba(255,255,255,.25), 0 8px 22px rgba(246,197,93,.35)",
+                    }}
+                  >
+                    <Sparkles size={17} />
+                    Generate My Mystery
+                    <ArrowRight size={17} />
+                  </button>
+
+                  <button
+                    type="button"
+                    onClick={() => navigate("/templates")}
+                    className="flex items-center h-[50px] px-[22px] gap-2.5 text-[14px] font-semibold rounded-[11px] transition-all hover:-translate-y-[1px]"
+                    style={{
+                      background: "rgba(255,255,255,.06)",
+                      color: C.heading,
+                      border: "1px solid rgba(255,255,255,.18)",
+                      backdropFilter: "blur(6px)",
+                      WebkitBackdropFilter: "blur(6px)",
+                    }}
+                  >
+                    <PlayCircle size={17} style={{ color: C.gold }} />
+                    Browse All Templates
+                  </button>
+                </div>
+              </div>
+            </section>
+
+            {/* 2-COLUMN CONTENT */}
+            <div className="grid grid-cols-1 xl:grid-cols-[minmax(440px,0.93fr)_minmax(520px,1.07fr)] gap-4">
+              {/* LEFT — MYSTERY DETAILS */}
+              <section
+                className="rounded-[12px]"
+                style={{
+                  background: C.card,
+                  border: `1px solid ${C.border}`,
+                  padding: 18,
                 }}
               >
-                <Check size={30} className="text-white" strokeWidth={3} />
+                <div className="flex items-center gap-3.5 mb-[18px]">
+                  <span
+                    className="grid place-items-center shrink-0 rounded-full font-bold"
+                    style={{
+                      width: 35,
+                      height: 35,
+                      color: C.mainBg,
+                      background: C.goldGradient,
+                      border: `1px solid ${C.goldHover}`,
+                      fontSize: 17,
+                    }}
+                  >
+                    1
+                  </span>
+                  <div>
+                    <h2 className="font-bold" style={{ fontSize: 16, color: C.heading }}>
+                      Mystery Details
+                    </h2>
+                    <p className="mt-1" style={{ fontSize: 13, color: C.secondary }}>
+                      Tell us what kind of mystery you want to create.
+                    </p>
+                  </div>
+                </div>
+
+                <label
+                  className="block mb-2"
+                  style={{ fontSize: 13, fontWeight: 600, color: C.heading }}
+                >
+                  Mystery Title
+                </label>
+                <div className="relative mb-5">
+                  <input
+                    type="text"
+                    value={mysteryTitle}
+                    onChange={(e) => setMysteryTitle(e.target.value)}
+                    className="w-full outline-none transition-colors"
+                    placeholder="♙ e.g. Murder at the Grand Hotel"
+                    style={{
+                      height: 44,
+                      border: `1px solid ${C.border}`,
+                      background: C.input,
+                      borderRadius: 8,
+                      color: C.heading,
+                      padding: "0 13px",
+                      fontSize: 13,
+                    }}
+                    onFocus={(e) => (e.target.style.borderColor = C.gold)}
+                    onBlur={(e) => (e.target.style.borderColor = C.border)}
+                  />
+                  <Dices
+                    size={18}
+                    className="absolute right-4 top-1/2 -translate-y-1/2"
+                    style={{ color: C.gold }}
+                  />
+                </div>
+
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-5 gap-y-5">
+                  <SelectField
+                    label="Genre"
+                    icon={Drama}
+                    value={genre}
+                    onChange={setGenre}
+                    options={
+                      GENRES.includes(genre) ? GENRES : [genre, ...GENRES]
+                    }
+                  />
+                  <SelectField
+                    label="Setting"
+                    icon={Building2}
+                    value={setting}
+                    onChange={setSetting}
+                    options={
+                      SETTINGS.includes(setting) ? SETTINGS : [setting, ...SETTINGS]
+                    }
+                  />
+                  <SelectField
+                    label="Difficulty Level"
+                    icon={ChartNoAxesColumn}
+                    value={difficulty}
+                    onChange={setDifficulty}
+                    options={DIFFICULTIES}
+                  />
+                  <SelectField
+                    label="Player Count"
+                    icon={Users}
+                    value={players}
+                    onChange={setPlayers}
+                    options={
+                      PLAYER_COUNTS.includes(players)
+                        ? PLAYER_COUNTS
+                        : [players, ...PLAYER_COUNTS]
+                    }
+                  />
+                  <SelectField
+                    label="Game Duration"
+                    icon={Clock}
+                    value={duration}
+                    onChange={setDuration}
+                    options={
+                      DURATIONS.includes(duration)
+                        ? DURATIONS
+                        : [duration, ...DURATIONS]
+                    }
+                  />
+                  <SelectField
+                    label="Target Audience"
+                    icon={UsersRound}
+                    value={audience}
+                    onChange={setAudience}
+                    options={
+                      AUDIENCES.includes(audience)
+                        ? AUDIENCES
+                        : [audience, ...AUDIENCES]
+                    }
+                  />
+                </div>
+
+                <div className="flex items-center gap-3.5 mt-8 mb-[18px]">
+                  <span
+                    className="grid place-items-center shrink-0 rounded-full font-bold"
+                    style={{
+                      width: 35,
+                      height: 35,
+                      color: C.mainBg,
+                      background: C.goldGradient,
+                      border: `1px solid ${C.goldHover}`,
+                      fontSize: 17,
+                    }}
+                  >
+                    2
+                  </span>
+                  <div>
+                    <h2 className="font-bold" style={{ fontSize: 16, color: C.heading }}>
+                      Story Preferences
+                    </h2>
+                    <p className="mt-1" style={{ fontSize: 13, color: C.secondary }}>
+                      Customize your mystery story.
+                    </p>
+                  </div>
+                </div>
+
+                <div className="relative">
+                  <textarea
+                    value={storyIdea}
+                    onChange={(e) => setStoryIdea(e.target.value)}
+                    maxLength={500}
+                    rows={4}
+                    placeholder={`Add your idea or special requirements (optional)\ne.g. I want a mystery where a famous actor is found dead during a film festival...`}
+                    className="w-full outline-none resize-none transition-colors"
+                    style={{
+                      border: `1px solid ${C.border}`,
+                      background: C.input,
+                      borderRadius: 8,
+                      color: C.heading,
+                      padding: "12px 13px",
+                      fontSize: 13,
+                      minHeight: 106,
+                    }}
+                    onFocus={(e) => (e.target.style.borderColor = C.gold)}
+                    onBlur={(e) => (e.target.style.borderColor = C.border)}
+                  />
+                  <span
+                    className="absolute bottom-3 right-3"
+                    style={{ fontSize: 11, color: C.secondary }}
+                  >
+                    {storyIdea.length}/500
+                  </span>
+                </div>
+
+                <button
+                  type="button"
+                  onClick={handleGenerate}
+                  disabled={generating}
+                  className="w-full mt-6 flex items-center justify-center gap-3 rounded-[9px] transition-all hover:brightness-110 disabled:opacity-70 disabled:cursor-not-allowed"
+                  style={{
+                    height: 53,
+                    background: C.goldGradient,
+                    border: `1px solid ${C.goldHover}`,
+                    color: C.mainBg,
+                    fontWeight: 700,
+                    fontSize: 15,
+                    cursor: "pointer",
+                    boxShadow:
+                      "inset 0 1px 1px rgba(255,255,255,.25), 0 8px 22px rgba(246,197,93,.3)",
+                  }}
+                >
+                  {generating ? (
+                    <>
+                      <Loader2 size={18} className="animate-spin" />
+                      Starting...
+                    </>
+                  ) : (
+                    <>
+                      <Sparkles size={18} />
+                      Generate My Mystery
+                      <ArrowRight size={18} />
+                    </>
+                  )}
+                </button>
+
+                <p className="mt-3" style={{ fontSize: 11, color: C.secondary }}>
+                  You will get a complete mystery game kit with story,
+                  characters, clues, puzzles, evidence and solution.
+                </p>
+              </section>
+
+              {/* RIGHT COLUMN */}
+              <div className="flex flex-col gap-4">
+                {/* Step 3 — Templates from DB */}
+                <section
+                  className="rounded-[12px]"
+                  style={{
+                    background: C.card,
+                    border: `1px solid ${C.border}`,
+                    padding: 18,
+                  }}
+                >
+                  <div className="flex justify-between items-start sm:items-center mb-5 gap-3 flex-wrap">
+                    <div className="flex items-center gap-3.5">
+                      <span
+                        className="grid place-items-center shrink-0 rounded-full font-bold"
+                        style={{
+                          width: 35,
+                          height: 35,
+                          color: C.mainBg,
+                          background: C.goldGradient,
+                          border: `1px solid ${C.goldHover}`,
+                          fontSize: 17,
+                        }}
+                      >
+                        3
+                      </span>
+                      <div>
+                        <h2 className="font-bold" style={{ fontSize: 16, color: C.heading }}>
+                          Choose a Template (Optional)
+                        </h2>
+                        <p className="mt-1" style={{ fontSize: 13, color: C.secondary }}>
+                          Click a template to auto-fill every field below.
+                        </p>
+                      </div>
+                    </div>
+                    <button
+                      type="button"
+                      onClick={() => navigate("/templates")}
+                      className="whitespace-nowrap transition"
+                      style={{
+                        color: C.gold,
+                        fontSize: 12.5,
+                        background: "transparent",
+                        border: 0,
+                        cursor: "pointer",
+                        textDecoration: "underline",
+                      }}
+                    >
+                      View All
+                    </button>
+                  </div>
+
+                  {templatesLoading ? (
+                    <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-3.5">
+                      {[0, 1, 2, 3, 4, 5, 6, 7].map((i) => (
+                        <div
+                          key={i}
+                          className="animate-pulse rounded-[10px]"
+                          style={{
+                            background: C.input,
+                            border: `1px solid ${C.border}`,
+                            height: 140,
+                          }}
+                        />
+                      ))}
+                    </div>
+                  ) : templates.length === 0 ? (
+                    <div
+                      className="rounded-[10px] p-6 text-center"
+                      style={{
+                        background: C.input,
+                        border: `1px dashed ${C.border}`,
+                      }}
+                    >
+                      <p style={{ fontSize: 12.5, color: C.secondary }}>
+                        No templates available yet.
+                      </p>
+                    </div>
+                  ) : (
+                    <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-3.5">
+                      {templates.map((t) => (
+                        <TemplateCard
+                          key={t._id}
+                          template={t}
+                          isSelected={selectedTemplateId === t._id}
+                          onClick={() => applyTemplate(t)}
+                        />
+                      ))}
+                    </div>
+                  )}
+                </section>
+
+                {/* What You'll Get */}
+                <section
+                  className="rounded-[12px]"
+                  style={{
+                    background: C.card,
+                    border: `1px solid ${C.border}`,
+                    padding: 18,
+                  }}
+                >
+                  <div className="flex items-center justify-between mb-4 gap-3 flex-wrap">
+                    <h2
+                      className="flex items-center gap-3 font-bold"
+                      style={{ fontSize: 16, color: C.heading }}
+                    >
+                      <Gift size={20} style={{ color: C.gold }} />
+                      What You&apos;ll Get
+                    </h2>
+                  </div>
+
+                  <div className="grid grid-cols-3 lg:grid-cols-6 gap-3">
+                    {OUTPUTS.map((label, i) => (
+                      <div key={i}>
+                        <div
+                          style={{
+                            height: 90,
+                            borderRadius: 8,
+                            background: C.input,
+                            border: `1px solid ${C.border}`,
+                          }}
+                        />
+                        <div
+                          className="text-center mt-2.5 leading-[17px]"
+                          style={{ fontSize: 11, color: C.heading }}
+                        >
+                          {label}
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </section>
               </div>
             </div>
-
-            <h3 className="text-[20px] font-semibold text-[#eef4ff] mb-2">
-              Queued Successfully!
-            </h3>
-            <p className="text-[13px] text-[#9bb0ca] leading-[1.6]">
-              Your podcast video has been added to the generation queue.
-              You&apos;ll see it on your My Podcasts page as it processes.
-            </p>
-
-            {/* Animated queue dots */}
-            <div className="flex items-center justify-center gap-2 mt-5">
-              {[0, 1, 2].map((i) => (
-                <span
-                  key={i}
-                  className="w-[8px] h-[8px] rounded-full"
-                  style={{
-                    background: "#0ce4bd",
-                    animation: `queueDot 1.4s ease-in-out ${i * 0.2}s infinite`,
-                    boxShadow: "0 0 10px rgba(12,228,189,.6)",
-                  }}
-                />
-              ))}
-            </div>
-
-            <p className="text-[11px] text-[#5f7391] mt-4">
-              Redirecting to My Podcasts...
-            </p>
-
-            <style>{`
-              @keyframes queueDot {
-                0%, 100% { opacity: .3; transform: translateY(0); }
-                50%      { opacity: 1;  transform: translateY(-4px); }
-              }
-            `}</style>
           </div>
-        </div>
+        </main>
+      </div>
+
+      {generating && (
+        <GenerationLoader title={mysteryTitle} stage={loaderStage} />
+      )}
+
+      {rateLimit && (
+        <RateLimitModal
+          info={rateLimit}
+          onClose={() => setRateLimit(null)}
+          onChangeTemplate={() => {
+            setRateLimit(null);
+            navigate("/templates");
+          }}
+        />
       )}
     </div>
   );

@@ -1,3 +1,4 @@
+// frontend/src/pages/Settings.jsx
 import React, { useState, useEffect } from 'react';
 import { useAuth } from '../context/AuthContext';
 import Sidebar from '../components/Sidebar';
@@ -131,16 +132,16 @@ const Settings = () => {
     }
   };
 
-  // ✅ Plan badge — dark-tinted versions
+  // ✅ Plan badge — Luxury Detective theme
   const getPlanBadge = () => {
     const plan = user?.planName || user?.plan || 'Free';
 
     const planDisplay = {
-      'Free': { bg: 'rgba(80,150,255,.12)', border: 'rgba(80,150,255,.35)', fg: '#aebfd5', icon: 'fa-box', label: 'Free Plan' },
-      'Starter': { bg: 'rgba(80,150,255,.15)', border: 'rgba(80,150,255,.4)', fg: '#6ddcff', icon: 'fa-rocket', label: 'Starter Plan' },
-      'Pro': { bg: 'rgba(110,53,237,.2)', border: 'rgba(150,120,255,.5)', fg: '#c9b5ff', icon: 'fa-crown', label: 'Pro Plan' },
-      'Growth': { bg: 'rgba(12,228,189,.15)', border: 'rgba(12,228,189,.35)', fg: '#0ce4bd', icon: 'fa-chart-line', label: 'Growth Plan' },
-      'Enterprise': { bg: 'rgba(150,120,255,.18)', border: 'rgba(150,120,255,.45)', fg: '#c9b5ff', icon: 'fa-building', label: 'Enterprise Plan' },
+      'Free': { bg: 'rgba(154,174,189,.12)', border: 'rgba(154,174,189,.35)', fg: '#9AAEBD', icon: 'fa-box', label: 'Free Plan' },
+      'Starter': { bg: 'rgba(0,213,216,.14)', border: 'rgba(0,213,216,.4)', fg: '#00D5D8', icon: 'fa-rocket', label: 'Starter Plan' },
+      'Pro': { bg: 'rgba(245,185,66,.18)', border: 'rgba(245,185,66,.5)', fg: '#F5B942', icon: 'fa-crown', label: 'Pro Plan' },
+      'Growth': { bg: 'rgba(0,213,216,.15)', border: 'rgba(0,213,216,.4)', fg: '#50F2F0', icon: 'fa-chart-line', label: 'Growth Plan' },
+      'Enterprise': { bg: 'rgba(245,185,66,.2)', border: 'rgba(245,185,66,.5)', fg: '#FFD66B', icon: 'fa-building', label: 'Enterprise Plan' },
     };
 
     const config = planDisplay[plan] || planDisplay['Free'];
@@ -172,12 +173,12 @@ const Settings = () => {
 
   if (loading) {
     return (
-      <div className="flex h-screen" style={{ background: '#020914' }}>
+      <div className="flex h-screen" style={{ background: '#080D13' }}>
         <Sidebar />
         <div className="flex-1 ml-0 md:ml-[18rem] flex justify-center items-center">
           <div className="text-center">
             <div className="loader mx-auto mb-4"></div>
-            <p style={{ color: '#8fa0ba' }}>Loading settings...</p>
+            <p style={{ color: '#9AAEBD' }}>Loading settings...</p>
           </div>
         </div>
       </div>
@@ -185,7 +186,7 @@ const Settings = () => {
   }
 
   return (
-    <div className="flex h-screen" style={{ background: '#020914' }}>
+    <div className="flex h-screen" style={{ background: '#080D13' }}>
       <Sidebar />
       <div className="flex-1 ml-0 md:ml-[18rem]">
         <Navbar />
@@ -193,8 +194,8 @@ const Settings = () => {
           <div className="max-w-6xl mx-auto">
             {/* Header */}
             <div className="mb-6">
-              <h1 className="text-2xl font-bold" style={{ color: '#eaf1ff' }}>Settings</h1>
-              <p className="text-sm mt-0.5" style={{ color: '#8fa0ba' }}>Manage your account and preferences</p>
+              <h1 className="text-2xl font-bold" style={{ color: '#F8FAFC' }}>Settings</h1>
+              <p className="text-sm mt-0.5" style={{ color: '#9AAEBD' }}>Manage your account and preferences</p>
             </div>
 
             {/* Two Column Layout */}
@@ -203,60 +204,60 @@ const Settings = () => {
               <div className="lg:col-span-1">
                 <div
                   className="rounded-2xl shadow-sm overflow-hidden sticky top-4"
-                  style={{ background: '#06162b', border: '1px solid #17385f' }}
+                  style={{ background: '#14212D', border: '1px solid #2A3B48' }}
                 >
-                  {/* User Card Header — purple gradient */}
+                  {/* User Card Header — gold gradient */}
                   <div
                     className="p-6 text-center"
                     style={{
-                      background: 'linear-gradient(100deg, #6e35ed, #3483ff)',
-                      color: '#ffffff',
-                      boxShadow: '0 8px 24px rgba(110,53,237,.35)',
+                      background: 'linear-gradient(100deg, #F5B942, #B77A1D)',
+                      color: '#080D13',
+                      boxShadow: '0 8px 24px rgba(245,185,66,.35)',
                     }}
                   >
                     <div
                       className="w-20 h-20 mx-auto rounded-full flex items-center justify-center text-3xl font-bold"
                       style={{
-                        background: 'rgba(255,255,255,.18)',
-                        border: '4px solid rgba(255,255,255,.3)',
-                        color: '#ffffff',
+                        background: 'rgba(8,13,19,.2)',
+                        border: '4px solid rgba(8,13,19,.3)',
+                        color: '#080D13',
                       }}
                     >
                       {user?.name?.charAt(0)?.toUpperCase() || 'U'}
                     </div>
-                    <h3 className="text-lg font-semibold mt-3" style={{ color: '#ffffff' }}>{user?.name || 'User'}</h3>
-                    <p className="text-sm" style={{ color: 'rgba(255,255,255,.75)' }}>{user?.email || 'No email'}</p>
+                    <h3 className="text-lg font-semibold mt-3" style={{ color: '#080D13' }}>{user?.name || 'User'}</h3>
+                    <p className="text-sm" style={{ color: 'rgba(8,13,19,.75)' }}>{user?.email || 'No email'}</p>
                   </div>
 
                   {/* User Info */}
                   <div className="p-4 space-y-3">
                     <div
                       className="flex items-center justify-between p-3 rounded-xl"
-                      style={{ background: 'rgba(6,20,42,.7)', border: '1px solid rgba(80,150,255,.15)' }}
+                      style={{ background: '#192B38', border: '1px solid #2A3B48' }}
                     >
-                      <span className="text-sm" style={{ color: '#8fa0ba' }}>Plan</span>
+                      <span className="text-sm" style={{ color: '#9AAEBD' }}>Plan</span>
                       <span>{getPlanBadge()}</span>
                     </div>
                     <div
                       className="flex items-center justify-between p-3 rounded-xl"
-                      style={{ background: 'rgba(6,20,42,.7)', border: '1px solid rgba(80,150,255,.15)' }}
+                      style={{ background: '#192B38', border: '1px solid #2A3B48' }}
                     >
-                      <span className="text-sm" style={{ color: '#8fa0ba' }}>Member Since</span>
-                      <span className="text-sm font-medium" style={{ color: '#eaf1ff' }}>
+                      <span className="text-sm" style={{ color: '#9AAEBD' }}>Member Since</span>
+                      <span className="text-sm font-medium" style={{ color: '#F8FAFC' }}>
                         {user?.createdAt ? new Date(user.createdAt).toLocaleDateString() : 'N/A'}
                       </span>
                     </div>
                     <div
                       className="flex items-center justify-between p-3 rounded-xl"
-                      style={{ background: 'rgba(6,20,42,.7)', border: '1px solid rgba(80,150,255,.15)' }}
+                      style={{ background: '#192B38', border: '1px solid #2A3B48' }}
                     >
-                      <span className="text-sm" style={{ color: '#8fa0ba' }}>Role</span>
+                      <span className="text-sm" style={{ color: '#9AAEBD' }}>Role</span>
                       <span
                         className="text-sm font-medium px-3 py-0.5 rounded-full"
                         style={
                           user?.role === 'admin'
-                            ? { background: 'rgba(255,95,126,.15)', color: '#ff8fa8', border: '1px solid rgba(255,95,126,.35)' }
-                            : { background: 'rgba(110,53,237,.2)', color: '#c9b5ff', border: '1px solid rgba(150,120,255,.4)' }
+                            ? { background: 'rgba(255,143,168,.15)', color: '#ff8fa8', border: '1px solid rgba(255,143,168,.35)' }
+                            : { background: 'rgba(245,185,66,.18)', color: '#F5B942', border: '1px solid rgba(245,185,66,.4)' }
                         }
                       >
                         {user?.role || 'User'}
@@ -271,34 +272,34 @@ const Settings = () => {
                 {/* Profile Info (Read Only) */}
                 <div
                   className="rounded-2xl shadow-sm p-6"
-                  style={{ background: '#06162b', border: '1px solid #17385f' }}
+                  style={{ background: '#14212D', border: '1px solid #2A3B48' }}
                 >
-                  <h3 className="text-lg font-semibold mb-4 flex items-center gap-2" style={{ color: '#eaf1ff' }}>
-                    <i className="fas fa-user-circle" style={{ color: '#c9b5ff' }}></i>
+                  <h3 className="text-lg font-semibold mb-4 flex items-center gap-2" style={{ color: '#F8FAFC' }}>
+                    <i className="fas fa-user-circle" style={{ color: '#F5B942' }}></i>
                     Profile Information
                   </h3>
                   <div className="space-y-4">
                     <div>
-                      <label className="block text-sm font-medium mb-1" style={{ color: '#aebfd5' }}>Name</label>
+                      <label className="block text-sm font-medium mb-1" style={{ color: '#9AAEBD' }}>Name</label>
                       <input
                         type="text"
                         value={user?.name || ''}
                         disabled
                         className="w-full px-4 py-2.5 rounded-xl cursor-not-allowed"
-                        style={{ background: 'rgba(6,20,42,.6)', border: '1px solid rgba(80,150,255,.2)', color: '#7d8fa8' }}
+                        style={{ background: '#192B38', border: '1px solid #2A3B48', color: '#9AAEBD' }}
                       />
-                      <p className="text-xs mt-1" style={{ color: '#5f7391' }}>Name cannot be changed</p>
+                      <p className="text-xs mt-1" style={{ color: '#9AAEBD', opacity: 0.7 }}>Name cannot be changed</p>
                     </div>
                     <div>
-                      <label className="block text-sm font-medium mb-1" style={{ color: '#aebfd5' }}>Email</label>
+                      <label className="block text-sm font-medium mb-1" style={{ color: '#9AAEBD' }}>Email</label>
                       <input
                         type="email"
                         value={user?.email || ''}
                         disabled
                         className="w-full px-4 py-2.5 rounded-xl cursor-not-allowed"
-                        style={{ background: 'rgba(6,20,42,.6)', border: '1px solid rgba(80,150,255,.2)', color: '#7d8fa8' }}
+                        style={{ background: '#192B38', border: '1px solid #2A3B48', color: '#9AAEBD' }}
                       />
-                      <p className="text-xs mt-1" style={{ color: '#5f7391' }}>Email cannot be changed</p>
+                      <p className="text-xs mt-1" style={{ color: '#9AAEBD', opacity: 0.7 }}>Email cannot be changed</p>
                     </div>
                   </div>
                 </div>
@@ -306,23 +307,23 @@ const Settings = () => {
                 {/* Change Password */}
                 <div
                   className="rounded-2xl shadow-sm p-6"
-                  style={{ background: '#06162b', border: '1px solid #17385f' }}
+                  style={{ background: '#14212D', border: '1px solid #2A3B48' }}
                 >
                   <div className="flex items-center justify-between">
                     <div>
-                      <h3 className="text-lg font-semibold flex items-center gap-2" style={{ color: '#eaf1ff' }}>
-                        <i className="fas fa-lock" style={{ color: '#c9b5ff' }}></i>
+                      <h3 className="text-lg font-semibold flex items-center gap-2" style={{ color: '#F8FAFC' }}>
+                        <i className="fas fa-lock" style={{ color: '#F5B942' }}></i>
                         Security
                       </h3>
-                      <p className="text-sm mt-0.5" style={{ color: '#8fa0ba' }}>Change your account password</p>
+                      <p className="text-sm mt-0.5" style={{ color: '#9AAEBD' }}>Change your account password</p>
                     </div>
                     <button
                       onClick={() => setShowPasswordModal(true)}
                       className="px-6 py-2.5 rounded-xl font-medium transition flex items-center gap-2 hover:brightness-110"
                       style={{
-                        background: 'linear-gradient(100deg, #6e35ed, #3483ff)',
-                        color: '#ffffff',
-                        boxShadow: '0 8px 20px rgba(110,53,237,.35)',
+                        background: 'linear-gradient(100deg, #F5B942, #B77A1D)',
+                        color: '#080D13',
+                        boxShadow: '0 8px 20px rgba(245,185,66,.35)',
                       }}
                     >
                       <i className="fas fa-key"></i>
@@ -340,34 +341,34 @@ const Settings = () => {
       {showPasswordModal && (
         <div
           className="fixed inset-0 flex items-center justify-center z-50 p-4"
-          style={{ background: 'rgba(2,7,19,.75)', backdropFilter: 'blur(6px)' }}
+          style={{ background: 'rgba(8,13,19,.75)', backdropFilter: 'blur(6px)' }}
         >
           <div
             className="rounded-2xl max-w-md w-full shadow-2xl overflow-hidden animate-fade-in-up"
-            style={{ background: 'linear-gradient(180deg, #06162b, #041124)', border: '1px solid #17385f' }}
+            style={{ background: '#14212D', border: '1px solid #2A3B48' }}
           >
-            {/* Modal header — purple gradient */}
+            {/* Modal header — gold gradient */}
             <div
               className="p-4"
-              style={{ background: 'linear-gradient(100deg, #6e35ed, #3483ff)', color: '#ffffff' }}
+              style={{ background: 'linear-gradient(100deg, #F5B942, #B77A1D)', color: '#080D13' }}
             >
               <div className="flex items-center gap-3">
                 <div
                   className="w-10 h-10 rounded-full flex items-center justify-center"
-                  style={{ background: 'rgba(255,255,255,.2)' }}
+                  style={{ background: 'rgba(8,13,19,.2)' }}
                 >
-                  <i className="fas fa-key text-xl" style={{ color: '#ffffff' }}></i>
+                  <i className="fas fa-key text-xl" style={{ color: '#080D13' }}></i>
                 </div>
                 <div>
-                  <h3 className="text-lg font-semibold" style={{ color: '#ffffff' }}>Change Password</h3>
-                  <p className="text-sm" style={{ color: 'rgba(255,255,255,.8)' }}>Update your account password</p>
+                  <h3 className="text-lg font-semibold" style={{ color: '#080D13' }}>Change Password</h3>
+                  <p className="text-sm" style={{ color: 'rgba(8,13,19,.75)' }}>Update your account password</p>
                 </div>
               </div>
             </div>
 
             <form onSubmit={handlePasswordSubmit} className="p-6">
               <div className="mb-4">
-                <label className="block text-sm font-medium mb-1" style={{ color: '#aebfd5' }}>
+                <label className="block text-sm font-medium mb-1" style={{ color: '#9AAEBD' }}>
                   Current Password
                 </label>
                 <div className="relative">
@@ -378,14 +379,14 @@ const Settings = () => {
                     onChange={handlePasswordChange}
                     placeholder="Enter your current password"
                     className="w-full px-4 py-2.5 rounded-xl transition outline-none"
-                    style={{ background: '#06162b', border: '1px solid #17385f', color: '#eaf1ff' }}
+                    style={{ background: '#192B38', border: '1px solid #2A3B48', color: '#F8FAFC' }}
                     required
                   />
                   <button
                     type="button"
                     onClick={() => setShowPassword(!showPassword)}
                     className="absolute right-3 top-1/2 -translate-y-1/2 transition"
-                    style={{ color: '#7d8fa8' }}
+                    style={{ color: '#9AAEBD' }}
                   >
                     <i className={`fas ${showPassword ? 'fa-eye-slash' : 'fa-eye'}`}></i>
                   </button>
@@ -393,7 +394,7 @@ const Settings = () => {
               </div>
 
               <div className="mb-4">
-                <label className="block text-sm font-medium mb-1" style={{ color: '#aebfd5' }}>
+                <label className="block text-sm font-medium mb-1" style={{ color: '#9AAEBD' }}>
                   New Password
                 </label>
                 <input
@@ -403,15 +404,15 @@ const Settings = () => {
                   onChange={handlePasswordChange}
                   placeholder="Enter new password (min 6 chars)"
                   className="w-full px-4 py-2.5 rounded-xl transition outline-none"
-                  style={{ background: '#06162b', border: '1px solid #17385f', color: '#eaf1ff' }}
+                  style={{ background: '#192B38', border: '1px solid #2A3B48', color: '#F8FAFC' }}
                   minLength={6}
                   required
                 />
-                <p className="text-xs mt-1" style={{ color: '#5f7391' }}>Password must be at least 6 characters</p>
+                <p className="text-xs mt-1" style={{ color: '#9AAEBD', opacity: 0.7 }}>Password must be at least 6 characters</p>
               </div>
 
               <div className="mb-6">
-                <label className="block text-sm font-medium mb-1" style={{ color: '#aebfd5' }}>
+                <label className="block text-sm font-medium mb-1" style={{ color: '#9AAEBD' }}>
                   Confirm New Password
                 </label>
                 <input
@@ -421,7 +422,7 @@ const Settings = () => {
                   onChange={handlePasswordChange}
                   placeholder="Confirm your new password"
                   className="w-full px-4 py-2.5 rounded-xl transition outline-none"
-                  style={{ background: '#06162b', border: '1px solid #17385f', color: '#eaf1ff' }}
+                  style={{ background: '#192B38', border: '1px solid #2A3B48', color: '#F8FAFC' }}
                   required
                 />
               </div>
@@ -438,7 +439,7 @@ const Settings = () => {
                     });
                   }}
                   className="flex-1 px-4 py-2.5 rounded-xl transition font-medium"
-                  style={{ background: 'rgba(6,20,42,.7)', border: '1px solid #17385f', color: '#aebfd5' }}
+                  style={{ background: '#192B38', border: '1px solid #2A3B48', color: '#9AAEBD' }}
                 >
                   Cancel
                 </button>
@@ -446,7 +447,7 @@ const Settings = () => {
                   type="submit"
                   disabled={passwordLoading}
                   className="flex-1 px-4 py-2.5 rounded-xl transition font-medium flex items-center justify-center gap-2 disabled:opacity-50 hover:brightness-110"
-                  style={{ background: 'linear-gradient(100deg, #6e35ed, #3483ff)', color: '#ffffff', boxShadow: '0 6px 18px rgba(110,53,237,.35)' }}
+                  style={{ background: 'linear-gradient(100deg, #F5B942, #B77A1D)', color: '#080D13', boxShadow: '0 6px 18px rgba(245,185,66,.35)' }}
                 >
                   {passwordLoading ? (
                     <i className="fas fa-spinner fa-spin"></i>
@@ -465,35 +466,35 @@ const Settings = () => {
       {showDeletePopup && websiteToDelete && (
         <div
           className="fixed inset-0 flex items-center justify-center z-50 p-4"
-          style={{ background: 'rgba(2,7,19,.75)', backdropFilter: 'blur(6px)' }}
+          style={{ background: 'rgba(8,13,19,.75)', backdropFilter: 'blur(6px)' }}
         >
           <div
             className="rounded-2xl max-w-md w-full shadow-2xl overflow-hidden animate-fade-in-up"
-            style={{ background: 'linear-gradient(180deg, #06162b, #041124)', border: '1px solid #17385f' }}
+            style={{ background: '#14212D', border: '1px solid #2A3B48' }}
           >
             <div
               className="p-4"
-              style={{ background: 'linear-gradient(100deg, #e5395e, #c81c3c)', color: '#ffffff' }}
+              style={{ background: 'linear-gradient(100deg, #ff8fa8, #c81c3c)', color: '#080D13' }}
             >
               <div className="flex items-center gap-3">
                 <div
                   className="w-10 h-10 rounded-full flex items-center justify-center"
-                  style={{ background: 'rgba(255,255,255,.2)' }}
+                  style={{ background: 'rgba(8,13,19,.2)' }}
                 >
-                  <i className="fas fa-trash-alt text-xl" style={{ color: '#ffffff' }}></i>
+                  <i className="fas fa-trash-alt text-xl" style={{ color: '#080D13' }}></i>
                 </div>
                 <div>
-                  <h3 className="text-lg font-semibold" style={{ color: '#ffffff' }}>Delete Website</h3>
-                  <p className="text-sm" style={{ color: 'rgba(255,255,255,.85)' }}>This action cannot be undone</p>
+                  <h3 className="text-lg font-semibold" style={{ color: '#080D13' }}>Delete Website</h3>
+                  <p className="text-sm" style={{ color: 'rgba(8,13,19,.85)' }}>This action cannot be undone</p>
                 </div>
               </div>
             </div>
 
             <div className="p-6">
-              <p className="mb-4" style={{ color: '#aebfd5' }}>
+              <p className="mb-4" style={{ color: '#9AAEBD' }}>
                 Are you sure you want to delete <strong className="font-semibold" style={{ color: '#ff8fa8' }}>{websiteToDelete.url}</strong>?
               </p>
-              <p className="text-sm mb-6" style={{ color: '#8fa0ba' }}>
+              <p className="text-sm mb-6" style={{ color: '#9AAEBD' }}>
                 This will permanently remove the website and all its scan data from your account.
               </p>
 
@@ -504,14 +505,14 @@ const Settings = () => {
                     setWebsiteToDelete(null);
                   }}
                   className="flex-1 px-4 py-2.5 rounded-xl transition font-medium"
-                  style={{ background: 'rgba(6,20,42,.7)', border: '1px solid #17385f', color: '#aebfd5' }}
+                  style={{ background: '#192B38', border: '1px solid #2A3B48', color: '#9AAEBD' }}
                 >
                   Cancel
                 </button>
                 <button
                   onClick={handleDeleteWebsite}
-                  className="flex-1 px-4 py-2.5 text-white rounded-xl transition font-medium flex items-center justify-center gap-2 hover:brightness-110"
-                  style={{ background: 'linear-gradient(100deg, #e5395e, #c81c3c)', boxShadow: '0 6px 18px rgba(229,57,94,.35)' }}
+                  className="flex-1 px-4 py-2.5 rounded-xl transition font-medium flex items-center justify-center gap-2 hover:brightness-110"
+                  style={{ background: 'linear-gradient(100deg, #ff8fa8, #c81c3c)', color: '#080D13', boxShadow: '0 6px 18px rgba(255,143,168,.35)' }}
                 >
                   <i className="fas fa-trash-alt"></i>
                   Delete Website
@@ -531,10 +532,10 @@ const Settings = () => {
           animation: fadeInUp 0.3s ease-out forwards;
         }
 
-        /* Loader — purple themed */
+        /* Loader — gold themed */
         .loader {
-          border: 4px solid rgba(110,53,237,.15);
-          border-top: 4px solid #6e35ed;
+          border: 4px solid rgba(245,185,66,.15);
+          border-top: 4px solid #F5B942;
           border-radius: 50%;
           width: 48px;
           height: 48px;
