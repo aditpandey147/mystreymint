@@ -154,7 +154,7 @@ exports.listPacks = async (req, res) => {
       duration: p.duration,
       description: p.description,
       // Public URLs — served via express.static
-      coverUrl: `/mystery-packs/${p.coverImage}`,
+      coverUrl: `/public/mystery-packs/${p.coverImage}`,
       downloadUrl: `/api/dfy-packs/${p.id}/download`,
       fileName: p.zipFile,
     }));
