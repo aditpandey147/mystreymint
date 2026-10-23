@@ -239,6 +239,12 @@ const Sidebar = () => {
       show: true,
     },
     {
+      path: "/trending",
+      label: "Trending Ideas",
+      icon: Flame,
+      show: true,
+    },
+    {
       path: "/create-mystery",
       label: "Create Mystery",
       icon: SquarePen,
