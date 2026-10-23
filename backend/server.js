@@ -167,6 +167,7 @@ app.use("/api/escape-rooms", require("./routes/escapeRoom"));
 app.use("/api/sales-kit", require("./routes/salesKit"));
 app.use("/api/party-planner", require("./routes/partyPlanner"));
 app.use("/api/dfy-packs", require("./routes/dfyPack"));
+app.use("/api/trending", require("./routes/trending"));
 
 
 // ================================================================
