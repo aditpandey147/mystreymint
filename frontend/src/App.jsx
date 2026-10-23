@@ -22,6 +22,7 @@ import CreateProduct from "./pages/CreateProduct";
 import MyMysteries from "./pages/MyMysteries";
 import MysteryDetail from "./pages/MysteryDetail";
 import Templates from "./pages/Templates";
+import TrendingMystery from "./pages/TrendingMystery";
 
 // Admin
 import AdminDashboard from "./pages/admin/Dashboard";
@@ -62,6 +63,7 @@ const Layout = ({ children }) => {
   const dashboardPages = [
     "/dashboard",
     "/create-mystery",
+    "/trending",
     "/my-mysteries",
     "/templates",
     "/character-studio",
@@ -149,6 +151,15 @@ function App() {
               element={
                 <PrivateRoute>
                   <Dashboard />
+                </PrivateRoute>
+              }
+            />
+
+            <Route
+              path="/trending"
+              element={
+                <PrivateRoute>
+                  <TrendingMystery />
                 </PrivateRoute>
               }
             />
