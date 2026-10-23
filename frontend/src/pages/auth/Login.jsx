@@ -99,7 +99,7 @@ function LoginStyles() {
       }
 
       .mm-logo-slot {
-        height: 254px;
+        height: 150px;
         display: flex;
         align-items: center;
         justify-content: center;
@@ -447,12 +447,12 @@ const Login = () => {
 
         {/* SIGN UP */}
         <p className="mt-[36px] text-center text-[16px] text-[#c4c7cc]">
-          Don&apos;t have an account?{" "}
+          Nedd Support?{""}
           <Link
-            to="/signup"
+            to="/support"
             className="ml-2 font-semibold text-[#ffcf67] hover:underline"
           >
-            Sign up now
+            Contact Support
           </Link>
         </p>
       </section>
