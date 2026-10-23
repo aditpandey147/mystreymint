@@ -18,39 +18,32 @@ import {
   MoreVertical,
   ArrowRight,
   Plus,
+  Loader2,
+  Sparkles,
 } from "lucide-react";
 
 const SERVER_URL = import.meta.env.VITE_SERVER_URL || "http://localhost:5000";
 
 // ================================================================
-// 🎨 THEME — new :root palette
+// 🎨 THEME
 // ================================================================
 const C = {
   mainBg: "#000C16",
   sidebar: "#00101A",
-
   card: "#031520",
   cardSecondary: "#0C1926",
-
   input: "#000611",
   textarea: "#011119",
-
   gold: "#F6C55D",
   goldHover: "#FFD36D",
   darkGold: "#B77B32",
-
   turquoise: "#00D4D9",
-
   heading: "#F5F5F3",
   secondary: "#AAB3B9",
   muted: "#707F88",
-
   border: "#29414C",
-
   goldGradient:
     "linear-gradient(135deg, #FFD36D 0%, #F6C55D 50%, #B77B32 100%)",
-
-  // Aliases to keep existing references working
   cyan: "#00D4D9",
   cyanHover: "#3EE4E8",
 };
@@ -58,123 +51,45 @@ const C = {
 const getImageUrl = (path) => {
   if (!path) return "";
   if (path.startsWith("http://") || path.startsWith("https://")) return path;
-
   const clean = path.startsWith("/") ? path : `/${path}`;
-
-  // Frontend static assets (Vite public folder)
-  if (clean.startsWith("/mystery-templates/")) {
-    return clean;
-  }
-
-  // Backend uploads
+  if (clean.startsWith("/mystery-templates/")) return clean;
   return `${SERVER_URL}${clean}`;
 };
 
 // ================================================================
-// STATIC DATA
+// STATIC DATA (unchanged — will be replaced with real stats below)
 // ================================================================
-const STATS = [
-  {
-    value: "12",
-    label: "Total Mysteries",
-    trend: "↑ 20%",
-    trendColor: C.turquoise,
-    icon: FolderOpen,
-    iconColor: C.gold,
-    iconBg: "linear-gradient(140deg, #3a2a11, #5a3e18)",
-  },
-  {
-    value: "3",
-    label: "Drafts",
-    trend: "→ 0%",
-    trendColor: C.heading,
-    icon: FileText,
-    iconColor: C.turquoise,
-    iconBg: "linear-gradient(140deg, #0a3a3c, #0d4f52)",
-  },
-  {
-    value: "8",
-    label: "Exports",
-    trend: "↑ 60%",
-    trendColor: C.turquoise,
-    icon: Download,
-    iconColor: C.goldHover,
-    iconBg: "linear-gradient(140deg, #3a2a11, #5a3e18)",
-  },
-  {
-    value: "5",
-    label: "Templates Used",
-    trend: "↑ 25%",
-    trendColor: C.turquoise,
-    icon: Users,
-    iconColor: C.turquoise,
-    iconBg: "linear-gradient(140deg, #0a3a3c, #0d4f52)",
-  },
-];
-
-const RECENT_MYSTERIES = [
-  {
-    title: "The Blackwood Manor Mystery",
-    pill: "Detective Mystery",
-    pillClass: "",
-    players: "5–8 players",
-    duration: "60 min",
-  },
-  {
-    title: "Deadly Cruise at Midnight",
-    pill: "Murder Mystery",
-    pillClass: "pink",
-    players: "6–10 players",
-    duration: "90 min",
-  },
-  {
-    title: "The Lost Treasure of Raven Cove",
-    pill: "Treasure Hunt",
-    pillClass: "green",
-    players: "2–4 players",
-    duration: "45 min",
-  },
-];
-
 const QUICK_ACTIONS = [
   {
     title: "Create New Mystery",
     desc: "Generate a complete case\nwith AI",
     icon: Wand2,
     color: "gold",
+    path: "/create-mystery",
   },
   {
     title: "Browse Templates",
     desc: "Use ready-made themes",
     icon: FileText,
     color: "cyan",
+    path: "/templates",
   },
   {
     title: "Design Characters",
     desc: "Create suspects with AI",
     icon: Users,
     color: "gold",
+    path: "/character-studio",
   },
   {
     title: "Build Puzzles",
     desc: "Generate logic puzzles\nand riddles",
     icon: Puzzle,
     color: "cyan",
+    path: "/puzzle-studio",
   },
 ];
 
-const FEATURED_TEMPLATES = [
-  { name: "Victorian Murder Mystery", category: "Detective Mystery" },
-  { name: "Haunted Manor", category: "Paranormal Mystery" },
-  { name: "Luxury Cruise", category: "Murder Mystery" },
-  { name: "Ancient Treasure", category: "Treasure Hunt" },
-  { name: "1920s Speakeasy", category: "Historical Mystery" },
-  { name: "Missing Expedition", category: "Adventure Mystery" },
-];
-
-// ================================================================
-// ACTION COLOR MAP — gold / turquoise only
-// ================================================================
 const ACTION_STYLES = {
   gold: {
     border: C.darkGold,
@@ -193,122 +108,448 @@ const ACTION_STYLES = {
 };
 
 // ================================================================
-// TRENDING CATEGORIES
+// RECENT MYSTERIES — live from /mysteries
 // ================================================================
-function TrendingCategories() {
+function RecentMysteries() {
   const navigate = useNavigate();
-  const [categories, setCategories] = useState([]);
+  const [mysteries, setMysteries] = useState([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     let cancelled = false;
-    const fetchCategories = async () => {
+    const fetchRecent = async () => {
       try {
         setLoading(true);
-        const res = await api.get("/categories");
-        if (!cancelled) setCategories((res.data?.data || []).slice(0, 4));
+        const res = await api.get("/mysteries");
+        if (!cancelled && res.data?.success) {
+          // Take latest 3 (sorted newest first from API)
+          setMysteries((res.data.data || []).slice(0, 3));
+        }
       } catch (err) {
-        console.error("Failed to load categories:", err);
-        if (!cancelled) setCategories([]);
+        console.error("Failed to load recent mysteries:", err);
+        if (!cancelled) setMysteries([]);
       } finally {
         if (!cancelled) setLoading(false);
       }
     };
-    fetchCategories();
+    fetchRecent();
     return () => {
       cancelled = true;
     };
   }, []);
 
+  const pillClassFor = (genre) => {
+    if (!genre) return "";
+    const g = genre.toLowerCase();
+    if (g.includes("murder")) return "pink";
+    if (g.includes("treasure") || g.includes("adventure")) return "green";
+    return "";
+  };
+
   return (
-    <section>
-      <div className="flex justify-between items-center mb-2 h-6">
-        <h2
-          className="text-[19px] sm:text-[21px] font-bold"
-          style={{ color: C.heading }}
-        >
-          Trending Categories
+    <div
+      className="rounded-[12px] min-w-0"
+      style={{
+        background: C.card,
+        border: `1px solid ${C.border}`,
+        padding: "13px 15px 9px",
+      }}
+    >
+      <div className="flex justify-between items-center mb-2">
+        <h2 className="font-bold m-0" style={{ fontSize: 21, color: C.heading }}>
+          Recent Mysteries
         </h2>
-        <span
-          className="text-[14px] sm:text-[15px] cursor-pointer transition-colors"
-          style={{ color: C.gold }}
-          onMouseEnter={(e) => (e.currentTarget.style.color = C.goldHover)}
-          onMouseLeave={(e) => (e.currentTarget.style.color = C.gold)}
+        <button
+          type="button"
+          onClick={() => navigate("/my-mysteries")}
+          className="font-semibold transition"
+          style={{
+            color: C.gold,
+            fontSize: 14,
+            background: "transparent",
+            border: 0,
+            cursor: "pointer",
+          }}
         >
-          View all →
-        </span>
+          View All <ArrowRight size={12} className="inline" />
+        </button>
       </div>
 
       {loading ? (
-        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3">
-          {Array.from({ length: 4 }).map((_, i) => (
+        <div className="space-y-3">
+          {[0, 1, 2].map((i) => (
             <div
               key={i}
-              className="rounded-[9px] animate-pulse"
-              style={{ background: C.input, paddingBottom: "60%" }}
+              className="animate-pulse rounded-[9px]"
+              style={{
+                height: 66,
+                background: C.input,
+                border: `1px solid ${C.border}`,
+              }}
             />
           ))}
         </div>
-      ) : categories.length === 0 ? (
-        <div
-          className="rounded-[10px] p-8 text-center"
-          style={{ border: `1px solid ${C.border}`, background: C.card }}
-        >
-          <p className="text-[15px]" style={{ color: C.secondary }}>
-            No categories yet.
+      ) : mysteries.length === 0 ? (
+        <div className="py-10 text-center">
+          <div
+            className="grid place-items-center mx-auto mb-3"
+            style={{
+              width: 56,
+              height: 56,
+              borderRadius: "50%",
+              background: "rgba(246,197,93,.1)",
+              border: `1px solid ${C.gold}55`,
+            }}
+          >
+            <Sparkles size={22} style={{ color: C.gold }} />
+          </div>
+          <p style={{ fontSize: 14, color: C.secondary, marginBottom: 14 }}>
+            No mysteries yet
           </p>
+          <button
+            onClick={() => navigate("/create-mystery")}
+            className="inline-flex items-center gap-2 h-[40px] px-5 rounded-[10px] text-[13px] font-bold"
+            style={{
+              background: C.goldGradient,
+              color: C.mainBg,
+              border: `1px solid ${C.goldHover}`,
+            }}
+          >
+            <Plus size={14} />
+            Create Your First Mystery
+          </button>
         </div>
       ) : (
-        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3">
-          {categories.map((cat) => (
-            <button
-              key={cat.id}
-              onClick={() =>
-                navigate("/templates", {
-                  state: { categoryId: cat.id, categorySlug: cat.slug },
-                })
-              }
-              className="group rounded-[9px] overflow-hidden flex flex-col text-left transition-all duration-200 hover:-translate-y-[2px] hover:shadow-lg"
-              style={{ border: `1px solid ${C.border}`, background: C.card }}
+        mysteries.map((m, idx) => {
+          const cover = m.images?.cover ? getImageUrl(m.images.cover) : null;
+          const pillClass = pillClassFor(m.genre);
+          return (
+            <div
+              key={m._id || idx}
+              className="flex items-center"
+              style={{
+                gap: 16,
+                borderTop: `1px solid ${C.border}`,
+                paddingTop: 12,
+                paddingBottom: 12,
+              }}
             >
+              {/* Cover thumbnail */}
               <div
-                className="relative shrink-0 overflow-hidden"
-                style={{ background: C.input, paddingBottom: "60%" }}
+                className="shrink-0 overflow-hidden"
+                style={{
+                  width: 100,
+                  height: 66,
+                  border: `1px solid ${C.border}`,
+                  borderRadius: 9,
+                  background: C.input,
+                }}
               >
-                {cat.image ? (
+                {cover ? (
                   <img
-                    src={getImageUrl(cat.image)}
-                    alt={cat.name}
+                    src={cover}
+                    alt={m.title}
                     loading="lazy"
-                    className="absolute inset-0 w-full h-full object-cover transition-transform duration-300 group-hover:scale-105"
-                    onError={(e) => {
-                      e.target.style.display = "none";
-                    }}
+                    className="w-full h-full object-cover"
+                    onError={(e) => (e.target.style.display = "none")}
                   />
                 ) : (
-                  <div className="absolute inset-0 grid place-items-center text-[32px] opacity-60">
-                    📁
+                  <div className="w-full h-full grid place-items-center">
+                    <FileText size={22} style={{ color: C.gold, opacity: 0.5 }} />
                   </div>
                 )}
               </div>
-              <div className="p-3 flex flex-col flex-1">
+
+              <div className="flex-1 min-w-0">
                 <div
-                  className="text-[15px] font-semibold leading-[1.35] transition-colors"
-                  style={{ color: C.heading }}
+                  className="font-bold truncate"
+                  style={{
+                    fontSize: 16,
+                    marginBottom: 8,
+                    color: C.heading,
+                  }}
+                  title={m.title}
                 >
-                  {cat.name}
+                  {m.title}
                 </div>
-                {cat.description && (
-                  <p
-                    className="text-[13px] mt-1.5 leading-[1.4] line-clamp-2"
-                    style={{ color: C.secondary }}
+                <div
+                  className="flex items-center flex-wrap"
+                  style={{ gap: 12, fontSize: 13 }}
+                >
+                  <span
+                    className="rounded-full"
+                    style={{
+                      padding: "5px 10px",
+                      background:
+                        pillClass === "pink"
+                          ? "#2a0f18"
+                          : pillClass === "green"
+                          ? "#052a24"
+                          : C.input,
+                      border:
+                        pillClass === "pink"
+                          ? "1px solid #6b2233"
+                          : pillClass === "green"
+                          ? `1px solid ${C.turquoise}55`
+                          : `1px solid ${C.border}`,
+                      color:
+                        pillClass === "pink"
+                          ? "#ff9eb8"
+                          : pillClass === "green"
+                          ? C.turquoise
+                          : C.heading,
+                      fontWeight: 500,
+                    }}
                   >
-                    {cat.description}
-                  </p>
-                )}
+                    {m.genre || "Mystery"}
+                  </span>
+                  <span
+                    className="flex items-center"
+                    style={{ color: C.secondary, gap: 5 }}
+                  >
+                    <UsersRound size={12} /> {m.playerCount || "—"}
+                  </span>
+                  <span
+                    className="flex items-center"
+                    style={{ color: C.secondary, gap: 5 }}
+                  >
+                    <Clock size={12} /> {m.duration ? `${m.duration} min` : "—"}
+                  </span>
+                </div>
               </div>
-            </button>
+
+              <button
+                className="shrink-0 transition-colors"
+                style={{
+                  padding: "8px 9px",
+                  color: C.secondary,
+                  background: "transparent",
+                  border: 0,
+                  cursor: "pointer",
+                }}
+                onMouseEnter={(e) => (e.currentTarget.style.color = C.heading)}
+                onMouseLeave={(e) => (e.currentTarget.style.color = C.secondary)}
+              >
+                <MoreVertical size={16} />
+              </button>
+
+              <button
+                onClick={() => navigate(`/mystery/${m._id}`)}
+                className="shrink-0 transition-all"
+                style={{
+                  border: `1px solid ${C.border}`,
+                  background: C.input,
+                  color: C.gold,
+                  borderRadius: 8,
+                  padding: "10px 22px",
+                  fontWeight: 600,
+                  fontSize: 15,
+                  cursor: "pointer",
+                }}
+                onMouseEnter={(e) => {
+                  e.currentTarget.style.borderColor = C.gold;
+                  e.currentTarget.style.background = C.cardSecondary;
+                }}
+                onMouseLeave={(e) => {
+                  e.currentTarget.style.borderColor = C.border;
+                  e.currentTarget.style.background = C.input;
+                }}
+              >
+                View
+              </button>
+            </div>
+          );
+        })
+      )}
+    </div>
+  );
+}
+
+// ================================================================
+// FEATURED TEMPLATES — live from /templates
+// ================================================================
+function FeaturedTemplates() {
+  const navigate = useNavigate();
+  const [templates, setTemplates] = useState([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    let cancelled = false;
+    const fetchFeatured = async () => {
+      try {
+        setLoading(true);
+        const res = await api.get("/templates");
+        if (!cancelled && res.data?.success) {
+          const list = res.data.data || [];
+          // Prefer featured, then newest, cap at 6
+          const featured = list.filter((t) => t.isFeatured);
+          const rest = list.filter((t) => !t.isFeatured);
+          setTemplates([...featured, ...rest].slice(0, 6));
+        }
+      } catch (err) {
+        console.error("Failed to load featured templates:", err);
+        if (!cancelled) setTemplates([]);
+      } finally {
+        if (!cancelled) setLoading(false);
+      }
+    };
+    fetchFeatured();
+    return () => {
+      cancelled = true;
+    };
+  }, []);
+
+  const handleClick = (t) => {
+    navigate("/create-mystery", {
+      state: {
+        templateId: t._id,
+        template: {
+          _id: t._id,
+          name: t.name,
+          genre: t.genre,
+          setting: t.setting,
+          difficulty: t.difficulty,
+          playerCount: t.playerCount,
+          duration: t.duration,
+          targetAudience: t.targetAudience,
+          storyIdea: t.storyIdea,
+          thumbnail: t.thumbnail,
+          coverImage: t.coverImage,
+        },
+      },
+    });
+  };
+
+  return (
+    <section
+      className="rounded-[12px]"
+      style={{
+        background: C.card,
+        border: `1px solid ${C.border}`,
+        padding: "13px 15px 15px",
+      }}
+    >
+      <div className="flex justify-between items-center mb-3">
+        <h2 className="font-bold m-0" style={{ fontSize: 21, color: C.heading }}>
+          Featured Templates
+        </h2>
+        <button
+          type="button"
+          onClick={() => navigate("/templates")}
+          className="font-semibold transition whitespace-nowrap"
+          style={{
+            color: C.gold,
+            fontSize: 14,
+            background: "transparent",
+            border: 0,
+            cursor: "pointer",
+          }}
+          onMouseEnter={(e) => (e.currentTarget.style.color = C.goldHover)}
+          onMouseLeave={(e) => (e.currentTarget.style.color = C.gold)}
+        >
+          Browse All Templates <ArrowRight size={12} className="inline" />
+        </button>
+      </div>
+
+      {loading ? (
+        <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3">
+          {Array.from({ length: 6 }).map((_, i) => (
+            <div
+              key={i}
+              className="animate-pulse rounded-[10px]"
+              style={{
+                border: `1px solid ${C.border}`,
+                background: C.cardSecondary,
+                height: 160,
+              }}
+            />
           ))}
+        </div>
+      ) : templates.length === 0 ? (
+        <div className="py-8 text-center">
+          <p style={{ fontSize: 13, color: C.secondary }}>
+            No templates available yet.
+          </p>
+        </div>
+      ) : (
+        <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3">
+          {templates.map((t) => {
+            const cover = t.thumbnail
+              ? getImageUrl(t.thumbnail)
+              : t.coverImage
+              ? getImageUrl(t.coverImage)
+              : null;
+            return (
+              <div
+                key={t._id}
+                onClick={() => handleClick(t)}
+                className="rounded-[10px] overflow-hidden cursor-pointer transition-all hover:-translate-y-[2px] relative"
+                style={{
+                  border: `1px solid ${C.border}`,
+                  background: C.cardSecondary,
+                }}
+                onMouseEnter={(e) => (e.currentTarget.style.borderColor = C.gold)}
+                onMouseLeave={(e) => (e.currentTarget.style.borderColor = C.border)}
+              >
+                {/* Cover image */}
+                <div
+                  className="relative"
+                  style={{
+                    background: C.card,
+                    borderBottom: `1px solid ${C.border}`,
+                    paddingBottom: "68%",
+                  }}
+                >
+                  {cover ? (
+                    <img
+                      src={cover}
+                      alt={t.name}
+                      loading="lazy"
+                      className="absolute inset-0 w-full h-full object-cover"
+                      onError={(e) => (e.target.style.display = "none")}
+                    />
+                  ) : (
+                    <div className="absolute inset-0 grid place-items-center">
+                      <Sparkles size={20} style={{ color: C.gold, opacity: 0.5 }} />
+                    </div>
+                  )}
+                  {t.isFeatured && (
+                    <span
+                      className="absolute top-1.5 right-1.5 px-1.5 py-0.5 rounded-full"
+                      style={{
+                        background: C.gold,
+                        color: C.mainBg,
+                        fontSize: 8.5,
+                        fontWeight: 700,
+                      }}
+                    >
+                      ★
+                    </span>
+                  )}
+                </div>
+
+                <div style={{ padding: "8px 13px" }}>
+                  <div
+                    className="font-bold truncate"
+                    style={{ fontSize: 14, color: C.heading }}
+                    title={t.name}
+                  >
+                    {t.name}
+                  </div>
+                  <div
+                    className="truncate"
+                    style={{
+                      fontSize: 13,
+                      color: C.secondary,
+                      marginTop: 7,
+                    }}
+                  >
+                    {t.genre || t.category || "Mystery"}
+                  </div>
+                </div>
+              </div>
+            );
+          })}
         </div>
       )}
     </section>
@@ -322,6 +563,82 @@ export default function Dashboard() {
   const { user } = useAuth();
   const navigate = useNavigate();
 
+  // Live stats from mysteries
+  const [stats, setStats] = useState({
+    total: "—",
+    drafts: "—",
+    exports: "—",
+    templates: "—",
+  });
+
+  useEffect(() => {
+    const fetchStats = async () => {
+      try {
+        const res = await api.get("/mysteries");
+        if (res.data?.success) {
+          const list = res.data.data || [];
+          const completed = list.filter(
+            (m) => m.generationStatus === "completed"
+          ).length;
+          const generating = list.filter(
+            (m) =>
+              m.generationStatus === "generating" ||
+              m.generationStatus === "pending" ||
+              m.generationStatus === "validating"
+          ).length;
+          setStats({
+            total: String(list.length),
+            drafts: String(generating),
+            exports: String(completed),
+            templates: "6+",
+          });
+        }
+      } catch (err) {
+        console.error("Failed to load stats:", err);
+      }
+    };
+    fetchStats();
+  }, []);
+
+  const STATS = [
+    {
+      value: stats.total,
+      label: "Total Mysteries",
+      trend: "↑ live",
+      trendColor: C.turquoise,
+      icon: FolderOpen,
+      iconColor: C.gold,
+      iconBg: "linear-gradient(140deg, #3a2a11, #5a3e18)",
+    },
+    {
+      value: stats.drafts,
+      label: "In Progress",
+      trend: "→ live",
+      trendColor: C.heading,
+      icon: FileText,
+      iconColor: C.turquoise,
+      iconBg: "linear-gradient(140deg, #0a3a3c, #0d4f52)",
+    },
+    {
+      value: stats.exports,
+      label: "Completed",
+      trend: "↑ live",
+      trendColor: C.turquoise,
+      icon: Download,
+      iconColor: C.goldHover,
+      iconBg: "linear-gradient(140deg, #3a2a11, #5a3e18)",
+    },
+    {
+      value: stats.templates,
+      label: "Templates Available",
+      trend: "↑ live",
+      trendColor: C.turquoise,
+      icon: Users,
+      iconColor: C.turquoise,
+      iconBg: "linear-gradient(140deg, #0a3a3c, #0d4f52)",
+    },
+  ];
+
   return (
     <div
       className="flex min-h-screen"
@@ -329,9 +646,7 @@ export default function Dashboard() {
     >
       <Sidebar />
 
-      <div
-        className="flex-1 ml-0 md:ml-[18rem] flex flex-col min-h-screen "
-      >
+      <div className="flex-1 ml-0 md:ml-[18rem] flex flex-col min-h-screen">
         <Navbar />
 
         <main
@@ -339,7 +654,7 @@ export default function Dashboard() {
           style={{ padding: "20px 12px 20px 20px" }}
         >
           <div className="max-w-[1650px] mx-auto">
-            {/* HERO */}
+            {/* HERO — unchanged */}
             <section
               className="rounded-[12px] overflow-hidden relative mb-[19px]"
               style={{
@@ -359,7 +674,6 @@ export default function Dashboard() {
                   zIndex: 0,
                 }}
               />
-
               <div
                 className="absolute inset-0 pointer-events-none"
                 style={{
@@ -368,7 +682,6 @@ export default function Dashboard() {
                   zIndex: 1,
                 }}
               />
-
               <div
                 className="absolute inset-x-0 bottom-0 pointer-events-none"
                 style={{
@@ -378,7 +691,6 @@ export default function Dashboard() {
                   zIndex: 1,
                 }}
               />
-
               <div
                 className="relative z-10"
                 style={{ paddingLeft: 29, paddingRight: 29 }}
@@ -428,9 +740,7 @@ export default function Dashboard() {
                     Mystery Game
                   </em>
                   <br />
-                  <em style={{ fontStyle: "normal", color: C.gold }}>
-                    With AI
-                  </em>
+                  <em style={{ fontStyle: "normal", color: C.gold }}>With AI</em>
                 </h1>
 
                 <p
@@ -448,7 +758,7 @@ export default function Dashboard() {
 
                 <div className="flex flex-wrap items-center gap-3">
                   <button
-                    onClick={() => navigate("/create-product")}
+                    onClick={() => navigate("/create-mystery")}
                     className="flex items-center transition-all hover:-translate-y-[1px]"
                     style={{
                       height: 50,
@@ -569,163 +879,10 @@ export default function Dashboard() {
               })}
             </section>
 
-            {/* PANELS */}
+            {/* PANELS — Recent Mysteries (live) + Quick Actions (unchanged) */}
             <section className="grid grid-cols-1 lg:grid-cols-[1.425fr_1fr] gap-4 mb-[18px]">
-              {/* Recent Mysteries */}
-              <div
-                className="rounded-[12px] min-w-0"
-                style={{
-                  background: C.card,
-                  border: `1px solid ${C.border}`,
-                  padding: "13px 15px 9px",
-                }}
-              >
-                <div className="flex justify-between items-center mb-2">
-                  <h2
-                    className="font-bold m-0"
-                    style={{ fontSize: 21, color: C.heading }}
-                  >
-                    Recent Mysteries
-                  </h2>
-                  <button
-                    type="button"
-                    onClick={() => navigate("/my-mysteries")}
-                    className="font-semibold transition"
-                    style={{
-                      color: C.gold,
-                      fontSize: 14,
-                      background: "transparent",
-                      border: 0,
-                      cursor: "pointer",
-                    }}
-                  >
-                    View All <ArrowRight size={12} className="inline" />
-                  </button>
-                </div>
+              <RecentMysteries />
 
-                {RECENT_MYSTERIES.map((m, idx) => (
-                  <div
-                    key={idx}
-                    className="flex items-center"
-                    style={{
-                      gap: 16,
-                      borderTop: `1px solid ${C.border}`,
-                      paddingTop: 12,
-                      paddingBottom: 12,
-                    }}
-                  >
-                    <div
-                      className="shrink-0"
-                      style={{
-                        width: 100,
-                        height: 66,
-                        border: `1px solid ${C.border}`,
-                        borderRadius: 9,
-                        background: C.input,
-                      }}
-                    />
-                    <div className="flex-1 min-w-0">
-                      <div
-                        className="font-bold truncate"
-                        style={{
-                          fontSize: 16,
-                          marginBottom: 8,
-                          color: C.heading,
-                        }}
-                      >
-                        {m.title}
-                      </div>
-                      <div
-                        className="flex items-center flex-wrap"
-                        style={{ gap: 12, fontSize: 13 }}
-                      >
-                        <span
-                          className="rounded-full"
-                          style={{
-                            padding: "5px 10px",
-                            background:
-                              m.pillClass === "pink"
-                                ? "#2a0f18"
-                                : m.pillClass === "green"
-                                  ? "#052a24"
-                                  : C.input,
-                            border:
-                              m.pillClass === "pink"
-                                ? "1px solid #6b2233"
-                                : m.pillClass === "green"
-                                  ? `1px solid ${C.turquoise}55`
-                                  : `1px solid ${C.border}`,
-                            color:
-                              m.pillClass === "pink"
-                                ? "#ff9eb8"
-                                : m.pillClass === "green"
-                                  ? C.turquoise
-                                  : C.heading,
-                            fontWeight: 500,
-                          }}
-                        >
-                          {m.pill}
-                        </span>
-                        <span
-                          className="flex items-center"
-                          style={{ color: C.secondary, gap: 5 }}
-                        >
-                          <UsersRound size={12} /> {m.players}
-                        </span>
-                        <span
-                          className="flex items-center"
-                          style={{ color: C.secondary, gap: 5 }}
-                        >
-                          <Clock size={12} /> {m.duration}
-                        </span>
-                      </div>
-                    </div>
-                    <button
-                      className="shrink-0 transition-colors"
-                      style={{
-                        padding: "8px 9px",
-                        color: C.secondary,
-                        background: "transparent",
-                        border: 0,
-                        cursor: "pointer",
-                      }}
-                      onMouseEnter={(e) =>
-                        (e.currentTarget.style.color = C.heading)
-                      }
-                      onMouseLeave={(e) =>
-                        (e.currentTarget.style.color = C.secondary)
-                      }
-                    >
-                      <MoreVertical size={16} />
-                    </button>
-                    <button
-                      className="shrink-0 transition-all"
-                      style={{
-                        border: `1px solid ${C.border}`,
-                        background: C.input,
-                        color: C.gold,
-                        borderRadius: 8,
-                        padding: "10px 22px",
-                        fontWeight: 600,
-                        fontSize: 15,
-                        cursor: "pointer",
-                      }}
-                      onMouseEnter={(e) => {
-                        e.currentTarget.style.borderColor = C.gold;
-                        e.currentTarget.style.background = C.cardSecondary;
-                      }}
-                      onMouseLeave={(e) => {
-                        e.currentTarget.style.borderColor = C.border;
-                        e.currentTarget.style.background = C.input;
-                      }}
-                    >
-                      Edit
-                    </button>
-                  </div>
-                ))}
-              </div>
-
-              {/* Quick Actions */}
               <div
                 className="rounded-[12px] min-w-0"
                 style={{
@@ -761,13 +918,7 @@ export default function Dashboard() {
                           color: C.heading,
                           cursor: "pointer",
                         }}
-                        onClick={() => {
-                          if (a.title === "Create New Mystery") {
-                            navigate("/create-product");
-                          } else if (a.title === "Browse Templates") {
-                            navigate("/templates");
-                          }
-                        }}
+                        onClick={() => navigate(a.path)}
                       >
                         <div
                           className="grid place-items-center shrink-0"
@@ -821,91 +972,8 @@ export default function Dashboard() {
               </div>
             </section>
 
-            {/* FEATURED TEMPLATES */}
-            <section
-              className="rounded-[12px]"
-              style={{
-                background: C.card,
-                border: `1px solid ${C.border}`,
-                padding: "13px 15px 15px",
-              }}
-            >
-              <div className="flex justify-between items-center mb-3">
-                <h2
-                  className="font-bold m-0"
-                  style={{ fontSize: 21, color: C.heading }}
-                >
-                  Featured Templates
-                </h2>
-                <button
-                  type="button"
-                  onClick={() => navigate("/templates")}
-                  className="font-semibold transition whitespace-nowrap"
-                  style={{
-                    color: C.gold,
-                    fontSize: 14,
-                    background: "transparent",
-                    border: 0,
-                    cursor: "pointer",
-                  }}
-                  onMouseEnter={(e) =>
-                    (e.currentTarget.style.color = C.goldHover)
-                  }
-                  onMouseLeave={(e) =>
-                    (e.currentTarget.style.color = C.gold)
-                  }
-                >
-                  Browse All Templates{" "}
-                  <ArrowRight size={12} className="inline" />
-                </button>
-              </div>
-
-              <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3">
-                {FEATURED_TEMPLATES.map((t, idx) => (
-                  <div
-                    key={idx}
-                    className="rounded-[10px] overflow-hidden cursor-pointer transition-all hover:-translate-y-[2px]"
-                    style={{
-                      border: `1px solid ${C.border}`,
-                      background: C.cardSecondary,
-                    }}
-                    onMouseEnter={(e) =>
-                      (e.currentTarget.style.borderColor = C.gold)
-                    }
-                    onMouseLeave={(e) =>
-                      (e.currentTarget.style.borderColor = C.border)
-                    }
-                  >
-                    <div
-                      className="relative"
-                      style={{
-                        background: C.card,
-                        borderBottom: `1px solid ${C.border}`,
-                        paddingBottom: "68%",
-                      }}
-                    />
-                    <div style={{ padding: "8px 13px" }}>
-                      <div
-                        className="font-bold truncate"
-                        style={{ fontSize: 14, color: C.heading }}
-                      >
-                        {t.name}
-                      </div>
-                      <div
-                        className="truncate"
-                        style={{
-                          fontSize: 13,
-                          color: C.secondary,
-                          marginTop: 7,
-                        }}
-                      >
-                        {t.category}
-                      </div>
-                    </div>
-                  </div>
-                ))}
-              </div>
-            </section>
+            {/* FEATURED TEMPLATES — live */}
+            <FeaturedTemplates />
           </div>
         </main>
       </div>
