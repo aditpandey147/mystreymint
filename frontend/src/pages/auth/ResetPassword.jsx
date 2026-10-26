@@ -99,7 +99,7 @@ function LoginStyles() {
       }
 
       .mm-logo-slot {
-        height: 254px;
+        height: 150px;
         display: flex;
         align-items: center;
         justify-content: center;
