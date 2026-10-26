@@ -582,6 +582,16 @@ exports.generateMystery = async (req, res) => {
 // 🏗️ BACKGROUND PIPELINE
 // ================================================================
 async function runMysteryPipeline(mysteryId, input, includeImages) {
+  try {
+    const Export = require("../models/Export");
+    const { EXPORTS_ROOT_ABS } = require("../services/pdfService");
+
+    await Export.deleteMany({ mysteryId });
+    const exportDir = path.join(EXPORTS_ROOT_ABS, String(mysteryId));
+    await fsp.rm(exportDir, { recursive: true, force: true }).catch(() => {});
+  } catch (err) {
+    console.warn("⚠️ Cache invalidation failed:", err.message);
+  }
   const startedAt = Date.now();
 
   const updateProgress = async (progress, stage) => {
@@ -1094,7 +1104,7 @@ const PDF_KINDS = {
 // ================================================================
 // 🖨️ BUILD ONE PDF
 // ================================================================
-async function buildSinglePdf(mysteryDoc, kind) {
+async function buildSinglePdf(mysteryDoc, kind, { forceRebuild = false } = {}) {
   const cfg = PDF_KINDS[kind];
   if (!cfg) throw new Error(`Unknown PDF kind: ${kind}`);
 
@@ -1106,7 +1116,40 @@ async function buildSinglePdf(mysteryDoc, kind) {
 
   const outFile = path.join(pdfDir, cfg.fileName);
 
-  // ✅ Service version: async, embeds cover / scenes / portraits as base64
+  // ─────────────────────────────────────────────────────────
+  // 🎯 CACHE CHECK — if the file exists and is non-empty, skip rebuild
+  // ─────────────────────────────────────────────────────────
+  if (!forceRebuild) {
+    try {
+      const existing = await fsp.stat(outFile);
+      if (existing.size > 1000) {
+        // File exists and is > 1KB (real PDF)
+        console.log(
+          `♻️  [${kind}] Cached PDF found — ${(existing.size / 1024).toFixed(0)} KB`,
+        );
+        return {
+          kind,
+          fileName: cfg.fileName,
+          absolutePath: outFile,
+          relativePath: toRelativePath(outFile),
+          fileSize: existing.size,
+          mimeType: "application/pdf",
+          cached: true,
+        };
+      }
+    } catch (err) {
+      // File doesn't exist — fall through to build
+      if (err.code !== "ENOENT") {
+        console.warn(`⚠️ Cache check failed for ${kind}:`, err.message);
+      }
+    }
+  }
+
+  // ─────────────────────────────────────────────────────────
+  // 🖨️ BUILD — only runs on first request (or forceRebuild)
+  // ─────────────────────────────────────────────────────────
+  console.log(`🖨️  [${kind}] Building PDF from scratch…`);
+
   const base = await buildBaseData(mystery);
   const data = cfg.buildData(mystery, base);
 
@@ -1119,6 +1162,8 @@ async function buildSinglePdf(mysteryDoc, kind) {
 
   const stat = await fsp.stat(outFile);
 
+  console.log(`✅ [${kind}] PDF built — ${(stat.size / 1024).toFixed(0)} KB`);
+
   return {
     kind,
     fileName: cfg.fileName,
@@ -1126,9 +1171,9 @@ async function buildSinglePdf(mysteryDoc, kind) {
     relativePath: toRelativePath(outFile),
     fileSize: stat.size,
     mimeType: "application/pdf",
+    cached: false,
   };
 }
-
 // ================================================================
 // 👁️ VIEW PDF — inline in browser tab
 // GET /api/mysteries/:id/pdf/:kind
@@ -1137,6 +1182,7 @@ exports.viewMysteryPdf = async (req, res) => {
   try {
     const userId = req.user?.id || req.user?._id;
     const { id, kind } = req.params;
+    const forceRebuild = req.query.rebuild === "1";
 
     if (!PDF_KINDS[kind]) {
       return res
@@ -1151,8 +1197,10 @@ exports.viewMysteryPdf = async (req, res) => {
         .json({ success: false, message: "Mystery not found" });
     }
 
-    console.log(`🖨️  [View PDF] Building ${kind} for mystery ${id}…`);
-    const result = await buildSinglePdf(mystery, kind);
+    console.log(
+      `📄 [View PDF] ${kind} for mystery ${id}${forceRebuild ? " (forced rebuild)" : ""}`,
+    );
+    const result = await buildSinglePdf(mystery, kind, { forceRebuild });
 
     res.setHeader("Content-Type", "application/pdf");
     res.setHeader(
@@ -1161,6 +1209,7 @@ exports.viewMysteryPdf = async (req, res) => {
     );
     res.setHeader("Content-Length", result.fileSize);
     res.setHeader("Cache-Control", "no-store");
+    res.setHeader("X-PDF-Cached", result.cached ? "true" : "false");
 
     const stream = fs.createReadStream(result.absolutePath);
     stream.pipe(res);
@@ -1174,7 +1223,6 @@ exports.viewMysteryPdf = async (req, res) => {
     }
   }
 };
-
 // ================================================================
 // ⬇️ DOWNLOAD PDF — as attachment
 // GET /api/mysteries/:id/pdf/:kind/download
@@ -1183,6 +1231,7 @@ exports.downloadMysteryPdf = async (req, res) => {
   try {
     const userId = req.user?.id || req.user?._id;
     const { id, kind } = req.params;
+    const forceRebuild = req.query.rebuild === "1";
 
     if (!PDF_KINDS[kind]) {
       return res
@@ -1197,8 +1246,10 @@ exports.downloadMysteryPdf = async (req, res) => {
         .json({ success: false, message: "Mystery not found" });
     }
 
-    console.log(`🖨️  [Download PDF] Building ${kind} for mystery ${id}…`);
-    const result = await buildSinglePdf(mystery, kind);
+    console.log(
+      `📥 [Download PDF] ${kind} for mystery ${id}${forceRebuild ? " (forced rebuild)" : ""}`,
+    );
+    const result = await buildSinglePdf(mystery, kind, { forceRebuild });
 
     res.setHeader("Content-Type", "application/pdf");
     res.setHeader(
@@ -1206,6 +1257,7 @@ exports.downloadMysteryPdf = async (req, res) => {
       `attachment; filename="${result.fileName}"`,
     );
     res.setHeader("Content-Length", result.fileSize);
+    res.setHeader("X-PDF-Cached", result.cached ? "true" : "false");
 
     const stream = fs.createReadStream(result.absolutePath);
     stream.pipe(res);
