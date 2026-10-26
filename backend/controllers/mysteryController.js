@@ -6,6 +6,7 @@ const { chat, image } = require("../services/aiService");
 const Mystery = require("../models/Mystery");
 const {
   renderPdf,
+  buildBaseData,
   ensureDir,
   toRelativePath,
   EXPORTS_ROOT_ABS,
@@ -67,17 +68,38 @@ const STORY_PROMPT = `${BASE_RULES}
 TASK: Write the PLAYER-FACING STORY using the master blueprint.
 The story must NOT reveal the culprit or the solution.
 
+Word count requirements (STRICT):
+- introduction:      200-250 words (2-3 paragraphs)
+- background:        200-250 words (2-3 paragraphs)
+- settingDescription: 180-220 words (2 paragraphs)
+- mainIncident:      200-250 words (2-3 paragraphs)
+- crimeDiscovery:    180-220 words (2 paragraphs)
+- investigationOpening: 180-220 words (2 paragraphs)
+- suspensefulDevelopments: 5-6 items, each 35-50 words
+- finalChallenge:    150-200 words (2 paragraphs)
+
+Total target: 1400-1800 words across all fields.
+
+Formatting rules:
+- Separate every paragraph with a BLANK LINE (\\n\\n inside the string).
+- Use present-tense literary prose — atmospheric and immersive.
+- Include sensory details (sights, sounds, smells, textures).
+- Include short dialogue snippets where characters speak.
+- Show, don't just tell — describe rooms, faces, actions.
+- Every field must have real content, not one-liners.
+- Build rising tension from introduction through to finalChallenge.
+
 Schema:
 {
-  "introduction": "string (200-300 words)",
-  "background": "string",
-  "settingDescription": "string",
-  "mainIncident": "string",
-  "crimeDiscovery": "string",
-  "investigationOpening": "string",
+  "introduction": "string (200-250 words, paragraphs separated by \\n\\n)",
+  "background": "string (200-250 words, paragraphs separated by \\n\\n)",
+  "settingDescription": "string (180-220 words, paragraphs separated by \\n\\n)",
+  "mainIncident": "string (200-250 words, paragraphs separated by \\n\\n)",
+  "crimeDiscovery": "string (180-220 words, paragraphs separated by \\n\\n)",
+  "investigationOpening": "string (180-220 words, paragraphs separated by \\n\\n)",
   "keyEvents": [ { "id": "S1", "title": "", "description": "" } ],
-  "suspensefulDevelopments": ["..."],
-  "finalChallenge": "string"
+  "suspensefulDevelopments": ["5-6 items, each 35-50 words"],
+  "finalChallenge": "string (150-200 words, paragraphs separated by \\n\\n)"
 }
 Return ONLY the JSON object.`;
 
@@ -227,11 +249,21 @@ Return ONLY the JSON object.`;
 
 const VALIDATOR_PROMPT = `${BASE_RULES}
 TASK: Validate the mystery. Report issues only.
+
+Rules:
+- Only report ACTUAL inconsistencies between blueprint, clues, puzzles, and solution.
+- Each "message" MUST be under 120 characters. No long explanations.
+- Do NOT flag minor wording differences — only factual/logical contradictions.
+- If you find fewer than 3 real issues, return "valid": true and an empty issues array.
+- Maximum 3 issues in the array. Anything more is a warning, not a fatal error.
+
 Schema:
 {
   "valid": true,
-  "issues": [ { "severity": "error|warning", "area": "", "message": "" } ],
-  "notes": ""
+  "issues": [
+    { "severity": "error|warning", "area": "max 20 chars", "message": "max 120 chars" }
+  ],
+  "notes": "max 200 chars"
 }
 Return ONLY the JSON object.`;
 
@@ -244,7 +276,10 @@ function safeJsonParse(raw, label = "AI") {
   let text = String(raw).trim();
 
   if (text.startsWith("```")) {
-    text = text.replace(/^```(?:json)?/i, "").replace(/```$/i, "").trim();
+    text = text
+      .replace(/^```(?:json)?/i, "")
+      .replace(/```$/i, "")
+      .trim();
   }
 
   const firstBrace = text.indexOf("{");
@@ -269,7 +304,7 @@ function safeJsonParse(raw, label = "AI") {
 
     console.error(
       `❌ Failed to parse ${label} JSON. Raw (first 500):`,
-      text.slice(0, 500)
+      text.slice(0, 500),
     );
     throw new Error(`${label} returned invalid JSON`);
   }
@@ -279,7 +314,6 @@ function tryRepairJson(text) {
   let s = text.trim();
 
   const lastComma = s.lastIndexOf(",");
-  const lastColon = s.lastIndexOf(":");
   const lastClose = Math.max(s.lastIndexOf("}"), s.lastIndexOf("]"));
 
   if (lastComma < lastClose) return null;
@@ -323,7 +357,12 @@ function tryRepairJson(text) {
 // ================================================================
 // 🔁 RETRY WRAPPER
 // ================================================================
-async function callJson({ systemPrompt, userMessage, label, maxTokens = 4000 }) {
+async function callJson({
+  systemPrompt,
+  userMessage,
+  label,
+  maxTokens = 4000,
+}) {
   const MAX_ATTEMPTS = 3;
   let lastErr;
 
@@ -339,7 +378,7 @@ async function callJson({ systemPrompt, userMessage, label, maxTokens = 4000 }) 
     } catch (err) {
       lastErr = err;
       console.warn(
-        `🔁 ${label} attempt ${attempt}/${MAX_ATTEMPTS} failed: ${err.message}`
+        `🔁 ${label} attempt ${attempt}/${MAX_ATTEMPTS} failed: ${err.message}`,
       );
       await new Promise((r) => setTimeout(r, 800 * Math.pow(2, attempt - 1)));
     }
@@ -364,29 +403,27 @@ function normalizeCharacters(characters) {
     const safe = c && typeof c === "object" ? c : {};
 
     const relationships = Array.isArray(safe.relationships)
-      ? safe.relationships
-          .filter(Boolean)
-          .map((r) => {
-            if (typeof r === "string") {
-              return { with: "", to: "", from: "", type: "", description: r };
-            }
-            if (typeof r !== "object") {
-              return {
-                with: "",
-                to: "",
-                from: "",
-                type: "",
-                description: String(r || ""),
-              };
-            }
+      ? safe.relationships.filter(Boolean).map((r) => {
+          if (typeof r === "string") {
+            return { with: "", to: "", from: "", type: "", description: r };
+          }
+          if (typeof r !== "object") {
             return {
-              with: r.with || "",
-              to: r.to || "",
-              from: r.from || "",
-              type: r.type || "",
-              description: r.description || r.relation || "",
+              with: "",
+              to: "",
+              from: "",
+              type: "",
+              description: String(r || ""),
             };
-          })
+          }
+          return {
+            with: r.with || "",
+            to: r.to || "",
+            from: r.from || "",
+            type: r.type || "",
+            description: r.description || r.relation || "",
+          };
+        })
       : [];
 
     const pub = safe.publicInformation || {};
@@ -529,7 +566,7 @@ exports.generateMystery = async (req, res) => {
           generationStatus: "failed",
           generationError: err.message || "Generation failed",
           currentStage: "Failed",
-        }
+        },
       ).catch(() => {});
     });
   } catch (error) {
@@ -551,7 +588,7 @@ async function runMysteryPipeline(mysteryId, input, includeImages) {
     try {
       await Mystery.updateOne(
         { _id: mysteryId },
-        { generationProgress: progress, currentStage: stage }
+        { generationProgress: progress, currentStage: stage },
       );
     } catch (err) {
       console.warn("⚠️ Progress update failed:", err.message);
@@ -573,10 +610,10 @@ async function runMysteryPipeline(mysteryId, input, includeImages) {
     const story = await callJson({
       systemPrompt: STORY_PROMPT,
       userMessage: `Request:\n${JSON.stringify(
-        input
+        input,
       )}\n\nBlueprint:\n${JSON.stringify(blueprint)}`,
       label: "Story",
-      maxTokens: 3500,
+      maxTokens: 6000,
     });
 
     console.log("👥 Stage 3/9 — Characters");
@@ -584,9 +621,9 @@ async function runMysteryPipeline(mysteryId, input, includeImages) {
     const charactersResult = await callJson({
       systemPrompt: CHARACTERS_PROMPT,
       userMessage: `Request:\n${JSON.stringify(
-        input
+        input,
       )}\n\nBlueprint:\n${JSON.stringify(
-        blueprint
+        blueprint,
       )}\n\nStory summary:\n${story.introduction}`,
       label: "Characters",
       maxTokens: 8000,
@@ -598,7 +635,7 @@ async function runMysteryPipeline(mysteryId, input, includeImages) {
     const cluesResult = await callJson({
       systemPrompt: CLUES_PROMPT,
       userMessage: `Blueprint:\n${JSON.stringify(
-        blueprint
+        blueprint,
       )}\n\nCharacters:\n${JSON.stringify(characters)}`,
       label: "Clues",
       maxTokens: 3500,
@@ -610,7 +647,7 @@ async function runMysteryPipeline(mysteryId, input, includeImages) {
     const evidenceResult = await callJson({
       systemPrompt: EVIDENCE_PROMPT,
       userMessage: `Blueprint:\n${JSON.stringify(
-        blueprint
+        blueprint,
       )}\n\nClues:\n${JSON.stringify(clues)}`,
       label: "Evidence",
       maxTokens: 4000,
@@ -622,7 +659,7 @@ async function runMysteryPipeline(mysteryId, input, includeImages) {
     const puzzlesResult = await callJson({
       systemPrompt: PUZZLES_PROMPT,
       userMessage: `Blueprint:\n${JSON.stringify(
-        blueprint
+        blueprint,
       )}\n\nClues:\n${JSON.stringify(clues)}`,
       label: "Puzzles",
       maxTokens: 6900,
@@ -643,9 +680,9 @@ async function runMysteryPipeline(mysteryId, input, includeImages) {
     const solution = await callJson({
       systemPrompt: SOLUTION_PROMPT,
       userMessage: `Blueprint:\n${JSON.stringify(
-        blueprint
+        blueprint,
       )}\n\nClues:\n${JSON.stringify(clues)}\n\nPuzzles:\n${JSON.stringify(
-        puzzles
+        puzzles,
       )}`,
       label: "Solution",
       maxTokens: 3500,
@@ -657,7 +694,7 @@ async function runMysteryPipeline(mysteryId, input, includeImages) {
       systemPrompt: VALIDATOR_PROMPT,
       userMessage: JSON.stringify({ blueprint, clues, puzzles, solution }),
       label: "Validation",
-      maxTokens: 1500,
+      maxTokens: 4000,
     });
 
     let coverImage = null;
@@ -676,7 +713,7 @@ async function runMysteryPipeline(mysteryId, input, includeImages) {
         coverImage = await downloadAndStore(
           remoteCover,
           mysteryId,
-          "cover.png"
+          "cover.png",
         );
       } catch (err) {
         console.error("❌ Cover image failed:", err.message);
@@ -686,7 +723,7 @@ async function runMysteryPipeline(mysteryId, input, includeImages) {
         const c = characters[i];
         await updateProgress(
           85 + Math.round((i / Math.max(characters.length, 1)) * 8),
-          `Rendering portraits (${i + 1}/${characters.length})`
+          `Rendering portraits (${i + 1}/${characters.length})`,
         );
         try {
           const remote = await image({
@@ -699,7 +736,7 @@ async function runMysteryPipeline(mysteryId, input, includeImages) {
           const localUrl = await downloadAndStore(
             remote,
             mysteryId,
-            `character-${c.id}.png`
+            `character-${c.id}.png`,
           );
           characterPortraits.push({
             characterId: c.id,
@@ -725,7 +762,7 @@ async function runMysteryPipeline(mysteryId, input, includeImages) {
         const loc = locations[i];
         await updateProgress(
           93 + Math.round((i / Math.max(locations.length, 1)) * 4),
-          `Rendering scene (${i + 1}/${locations.length})`
+          `Rendering scene (${i + 1}/${locations.length})`,
         );
         try {
           const remote = await image({
@@ -735,7 +772,7 @@ async function runMysteryPipeline(mysteryId, input, includeImages) {
           const localUrl = await downloadAndStore(
             remote,
             mysteryId,
-            `scene-${i}.png`
+            `scene-${i}.png`,
           );
           sceneImages.push({ location: loc, url: localUrl });
         } catch (err) {
@@ -776,12 +813,12 @@ async function runMysteryPipeline(mysteryId, input, includeImages) {
           characters: characterPortraits,
           scenes: sceneImages,
         },
-      }
+      },
     );
 
     const elapsedMs = Date.now() - startedAt;
     console.log(
-      `🎉 [Mystery] Completed in ${(elapsedMs / 1000).toFixed(1)}s (status: ${finalStatus})`
+      `🎉 [Mystery] Completed in ${(elapsedMs / 1000).toFixed(1)}s (status: ${finalStatus})`,
     );
   } catch (err) {
     console.error(`❌ [Mystery] Pipeline error:`, err);
@@ -791,7 +828,7 @@ async function runMysteryPipeline(mysteryId, input, includeImages) {
         generationStatus: "failed",
         generationError: err.message || "Generation failed",
         currentStage: "Failed",
-      }
+      },
     ).catch(() => {});
     throw err;
   }
@@ -883,7 +920,7 @@ exports.getMysteryStatus = async (req, res) => {
 
     const mystery = await Mystery.findOne(
       { _id: req.params.id, userId },
-      "generationStatus generationProgress currentStage generationError"
+      "generationStatus generationProgress currentStage generationError",
     ).lean();
 
     if (!mystery) {
@@ -941,6 +978,13 @@ exports.deleteMystery = async (req, res) => {
       console.warn("⚠️ Failed to clean image files:", err.message);
     }
 
+    try {
+      const pdfDir = path.join(EXPORTS_ROOT_ABS, String(mystery._id));
+      await fsp.rm(pdfDir, { recursive: true, force: true });
+    } catch (err) {
+      console.warn("⚠️ Failed to clean PDF files:", err.message);
+    }
+
     await Mystery.deleteOne({ _id: mystery._id, userId });
 
     return res.json({ success: true, message: "Mystery deleted" });
@@ -986,6 +1030,8 @@ exports.testBlueprint = async (req, res) => {
 
 // ================================================================
 // 📄 PDF KIND CONFIG — one entry per section
+// `base` comes from pdfService.buildBaseData(), so every image
+// (cover, scenes, portraits) is already embedded as a data URL.
 // ================================================================
 const PDF_KINDS = {
   story: {
@@ -1000,8 +1046,8 @@ const PDF_KINDS = {
     themeKey: "suspects",
     buildData: (m, base) => {
       const characters = (m.characters || []).map((c) => {
-        const portrait = (m.images?.characters || []).find(
-          (img) => img.characterId === c.id
+        const portrait = (base.characterPortraits || []).find(
+          (img) => img.characterId === c.id,
         );
         return { ...c, portraitUrl: portrait?.url || null };
       });
@@ -1046,29 +1092,6 @@ const PDF_KINDS = {
 };
 
 // ================================================================
-// 🧱 SHARED BASE DATA BUILDER
-// ================================================================
-function buildBaseData(m) {
-  const coverImage = m.images?.cover || "";
-  return {
-    title: m.title || "Untitled Mystery",
-    genre: m.genre || "",
-    setting: m.setting || "",
-    difficulty: m.difficulty || "Medium",
-    playerCount: m.playerCount || "4-8",
-    duration: m.duration || 60,
-    targetAudience: m.targetAudience || "Adults",
-    coverImage,
-    hasCover: !!coverImage,
-    generatedAt: new Date().toLocaleDateString("en-US", {
-      year: "numeric",
-      month: "long",
-      day: "numeric",
-    }),
-  };
-}
-
-// ================================================================
 // 🖨️ BUILD ONE PDF
 // ================================================================
 async function buildSinglePdf(mysteryDoc, kind) {
@@ -1082,7 +1105,9 @@ async function buildSinglePdf(mysteryDoc, kind) {
   await ensureDir(pdfDir);
 
   const outFile = path.join(pdfDir, cfg.fileName);
-  const base = buildBaseData(mystery);
+
+  // ✅ Service version: async, embeds cover / scenes / portraits as base64
+  const base = await buildBaseData(mystery);
   const data = cfg.buildData(mystery, base);
 
   await renderPdf({
@@ -1132,7 +1157,7 @@ exports.viewMysteryPdf = async (req, res) => {
     res.setHeader("Content-Type", "application/pdf");
     res.setHeader(
       "Content-Disposition",
-      `inline; filename="${result.fileName}"`
+      `inline; filename="${result.fileName}"`,
     );
     res.setHeader("Content-Length", result.fileSize);
     res.setHeader("Cache-Control", "no-store");
@@ -1178,7 +1203,7 @@ exports.downloadMysteryPdf = async (req, res) => {
     res.setHeader("Content-Type", "application/pdf");
     res.setHeader(
       "Content-Disposition",
-      `attachment; filename="${result.fileName}"`
+      `attachment; filename="${result.fileName}"`,
     );
     res.setHeader("Content-Length", result.fileSize);
 
