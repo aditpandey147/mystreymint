@@ -3,14 +3,18 @@
 <head>
 <meta charset="UTF-8">
 <link rel="preconnect" href="https://fonts.googleapis.com">
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&family=Playfair+Display:wght@600;700&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Playfair+Display:wght@600;700;800;900&display=swap" rel="stylesheet">
 <style>
   * { box-sizing: border-box; margin: 0; padding: 0; }
 
-  @page {
-    size: A4;
-    margin: 0;                     /* PDF physical margins = 0 */
-  }
+  /* ============================================================
+     NAMED PAGES
+     - cover : full-bleed, no margin
+     - body  : real printer margins
+     ============================================================ */
+  @page { size: A4; margin: 0; }
+  @page cover { size: A4; margin: 0; }
+  @page body  { size: A4; margin: 22mm 18mm 20mm 18mm; }
 
   html, body {
     margin: 0;
@@ -25,154 +29,340 @@
   }
 
   /* ============================================================
-     PAGE 1 — COVER, FULL BLEED (aubergine + gold theme)
+     COVER — cover image as full-page background
      ============================================================ */
   .cover {
-    background: linear-gradient(135deg, #1a0f1e 0%, #241531 60%, #1e1120 100%);
-    color: #fff;
-    padding: 40pt 32pt;
-    margin: 0;
-    border-radius: 0;
+    page: cover;
+    position: relative;
     width: 210mm;
-    min-height: 297mm;
-    display: flex;
-    flex-direction: column;
+    height: 296.6mm;
+    overflow: hidden;
+    color: #fff;
+    background: #1a0f1e;
     page-break-after: always;
     break-after: page;
   }
+
+  .cover-bg {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    object-position: center;
+    z-index: 0;
+  }
+
+  .cover-overlay {
+    position: absolute;
+    inset: 0;
+    opacity: .72;
+    z-index: 1;
+  }
+
+  .cover-vignette {
+    position: absolute;
+    inset: 0;
+    z-index: 2;
+    background:
+      radial-gradient(ellipse at center, rgba(0,0,0,.55) 0%, rgba(0,0,0,.25) 55%, rgba(0,0,0,.55) 100%);
+  }
+
+  .cover-frame {
+    position: absolute;
+    inset: 9mm;
+    border: 1pt solid rgba(255,255,255,.35);
+    z-index: 3;
+    pointer-events: none;
+  }
+
+  .cover-content {
+    position: absolute;
+    inset: 0;
+    z-index: 4;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    text-align: center;
+    padding: 30mm 24mm;
+  }
+
   .cover-eyebrow {
-    font-size: 10pt; text-transform: uppercase; letter-spacing: 2pt;
-    color: #f5b942; font-weight: 700; margin-bottom: 12pt;
-  }
-  .cover h1 {
-    font-family: 'Playfair Display', Georgia, serif;
-    font-size: 40pt; line-height: 1.08; font-weight: 700;
-    margin-bottom: 14pt; color: #fff;
-  }
-  .cover .gold { color: #f5b942; }
-  .cover-lead {
-    font-size: 12pt; color: #e0d8e8; max-width: 420pt; line-height: 1.55;
+    display: inline-block;
+    font-size: 10pt;
+    font-weight: 800;
+    letter-spacing: 4pt;
+    text-transform: uppercase;
+    padding: 6pt 16pt;
+    border-radius: 30pt;
     margin-bottom: 20pt;
+    background: rgba(0,0,0,.35);
   }
-  .cover-img {
-    width: 100%; max-height: 300pt; object-fit: cover;
-    border-radius: 6pt; margin: 20pt 0;
-    border: 1pt solid rgba(245,185,66,.45);
-    box-shadow: 0 8pt 20pt rgba(0,0,0,.35);
+
+  .cover-title {
+    font-family: 'Playfair Display', Georgia, serif;
+    font-weight: 900;
+    color: #ffffff;
+    line-height: 1.12;
+    letter-spacing: -0.3pt;
+    text-transform: uppercase;
+    text-shadow: 0 3pt 18pt rgba(0,0,0,.65);
+    word-wrap: break-word;
+    overflow-wrap: break-word;
+    max-width: 165mm;
   }
+
+  .cover-title.title-short  { font-size: 54pt; }
+  .cover-title.title-medium { font-size: 44pt; }
+  .cover-title.title-long   { font-size: 35pt; }
+  .cover-title.title-xlong  { font-size: 28pt; }
+
+  .cover-divider {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8pt;
+    margin: 22pt 0 18pt;
+  }
+  .cover-divider .line { width: 46mm; height: 1.5pt; }
+  .cover-divider .dot  { width: 7pt; height: 7pt; transform: rotate(45deg); }
+
+  .cover-subtitle {
+    font-size: 13pt;
+    font-weight: 500;
+    line-height: 1.6;
+    color: rgba(255,255,255,.92);
+    max-width: 135mm;
+    text-shadow: 0 2pt 10pt rgba(0,0,0,.6);
+  }
+
+  .cover-bottom {
+    position: absolute;
+    left: 20mm;
+    right: 20mm;
+    bottom: 20mm;
+    z-index: 4;
+  }
+
   .cover-meta {
-    display: flex; flex-wrap: wrap; gap: 22pt;
-    margin-top: auto;
-    padding-top: 16pt; border-top: 1pt solid rgba(245,185,66,.35);
+    display: flex;
+    justify-content: center;
+    flex-wrap: wrap;
+    gap: 6mm 12mm;
+    padding-top: 7mm;
   }
-  .cover-meta div { font-size: 10pt; color: #c8bcd0; }
-  .cover-meta strong {
-    display: block; color: #f5b942; font-size: 8.5pt;
-    text-transform: uppercase; letter-spacing: 1.4pt; margin-bottom: 4pt;
+
+  .cover-meta-item { text-align: center; min-width: 28mm; }
+
+  .cover-meta-label {
+    font-size: 7.5pt;
+    font-weight: 700;
+    letter-spacing: 2pt;
+    text-transform: uppercase;
+    margin-bottom: 3pt;
+  }
+
+  .cover-meta-value {
+    font-size: 11pt;
+    font-weight: 700;
+    color: #fff;
+    line-height: 1.25;
+    text-shadow: 0 1pt 6pt rgba(0,0,0,.6);
   }
 
   /* ============================================================
-     ONE SUSPECT = ONE PAGE
-     22mm top · 18mm sides · 20mm bottom
+     ONE SUSPECT = ONE PAGE (margins from @page body)
      ============================================================ */
   .suspect-page {
-    width: 210mm;
-    min-height: 297mm;
-    padding: 22mm 18mm 20mm 18mm;
-    margin: 0;
+    page: body;
     background: #ffffff;
     page-break-after: always;
     break-after: page;
-    display: flex;
-    flex-direction: column;
-    position: relative;
   }
+
   .suspect-page:last-of-type {
     page-break-after: auto;
     break-after: auto;
   }
 
-  /* ============================================================
-     SECTION HEADER (only used if no characters / shared header)
-     ============================================================ */
+  .subhead {
+    font-size: 9.5pt;
+    text-transform: uppercase;
+    letter-spacing: 2pt;
+    color: #b8862e;
+    font-weight: 700;
+    margin-bottom: 6pt;
+  }
+
   .section-title {
     font-family: 'Playfair Display', Georgia, serif;
-    font-size: 22pt; font-weight: 700;
-    border-bottom: 2pt solid #d99c3e;
-    padding-bottom: 8pt; margin-bottom: 18pt;
+    font-size: 24pt;
+    font-weight: 800;
     color: #0b1a22;
+    line-height: 1.2;
+    padding-bottom: 10pt;
+    margin-bottom: 20pt;
+    border-bottom: 2pt solid #d99c3e;
+    position: relative;
+  }
+
+  .section-title::after {
+    content: "";
+    position: absolute;
+    left: 0;
+    bottom: -4pt;
+    width: 44pt;
+    height: 6pt;
+    background: #d99c3e;
+    border-radius: 3pt;
   }
 
   /* ============================================================
-     SUSPECT CARD — fills its own page
+     SUSPECT CARD
      ============================================================ */
   .suspect {
+    min-height: 246mm;
     border: 1.5pt solid #d99c3e;
-    border-radius: 8pt;
+    border-radius: 10pt;
     background: #fffdf6;
-    padding: 18pt 20pt;
+    padding: 20pt 22pt;
     page-break-inside: avoid;
     break-inside: avoid;
-    display: flex;
-    flex-direction: column;
-    flex: 1;
   }
+
   .suspect-header {
-    display: flex; gap: 16pt; align-items: flex-start; margin-bottom: 14pt;
+    display: flex;
+    gap: 18pt;
+    align-items: flex-start;
+    padding-bottom: 16pt;
+    margin-bottom: 16pt;
+    border-bottom: 1.5pt solid #e8d9a8;
   }
+
   .suspect-portrait {
-    width: 110pt; height: 140pt; border-radius: 6pt;
+    width: 112pt;
+    height: 144pt;
+    border-radius: 8pt;
     background: #1a0f1e center/cover no-repeat;
-    border: 1pt solid #d99c3e;
+    border: 1.5pt solid #d99c3e;
+    box-shadow: 0 4pt 12pt rgba(0,0,0,.18);
     flex-shrink: 0;
-    display: flex; align-items: center; justify-content: center;
+    display: flex;
+    align-items: center;
+    justify-content: center;
     color: #f5b942;
     font-family: 'Playfair Display', Georgia, serif;
-    font-size: 36pt; font-weight: 700;
+    font-size: 40pt;
+    font-weight: 800;
     overflow: hidden;
   }
-  .suspect-info { flex: 1; min-width: 0; }
+
+  .suspect-info { flex: 1; min-width: 0; padding-top: 4pt; }
+
   .suspect-role {
-    font-size: 9pt; text-transform: uppercase; letter-spacing: 1.4pt;
-    color: #b8862e; font-weight: 700; margin-bottom: 5pt;
+    display: inline-block;
+    font-size: 8.5pt;
+    text-transform: uppercase;
+    letter-spacing: 1.6pt;
+    color: #8a5f1a;
+    font-weight: 800;
+    background: #fff2cc;
+    border: 1pt solid #d99c3e;
+    border-radius: 20pt;
+    padding: 3pt 10pt;
+    margin-bottom: 10pt;
   }
+
   .suspect-name {
     font-family: 'Playfair Display', Georgia, serif;
-    font-size: 22pt; font-weight: 700; color: #0b1a22;
-    line-height: 1.15; margin-bottom: 6pt;
+    font-size: 26pt;
+    font-weight: 800;
+    color: #0b1a22;
+    line-height: 1.15;
+    margin-bottom: 8pt;
   }
-  .suspect-meta { font-size: 10.5pt; color: #6b5a2e; }
 
-  .suspect-fields {
-    font-size: 10.5pt; line-height: 1.65;
+  .suspect-meta {
+    font-size: 11pt;
+    font-weight: 500;
+    color: #6b5a2e;
   }
-  .suspect-fields p {
-    margin-bottom: 8pt; color: #2a2a2a;
+
+  /* Field blocks: label on top, text below */
+  .field {
+    padding: 0 0 12pt 14pt;
+    margin-bottom: 12pt;
+    border-left: 3pt solid #d99c3e;
+    page-break-inside: avoid;
+    break-inside: avoid;
   }
-  .suspect-fields p:last-child { margin-bottom: 0; }
-  .suspect-fields strong { color: #8a5f1a; font-weight: 700; }
+
+  .field:last-child { margin-bottom: 0; padding-bottom: 0; }
+
+  .field-label {
+    font-size: 8.5pt;
+    font-weight: 800;
+    text-transform: uppercase;
+    letter-spacing: 1.5pt;
+    color: #8a5f1a;
+    margin-bottom: 3pt;
+  }
+
+  .field-text {
+    font-size: 10.5pt;
+    line-height: 1.7;
+    color: #1a2a33;
+  }
 
   .divider {
-    height: 1pt; background: #e8e0c8; margin: 12pt 0;
+    height: 1pt;
+    background: #e8d9a8;
+    margin: 4pt 0 14pt;
   }
 
   /* ============================================================
-     TAGS
+     KNOWN FACTS — bullet list
      ============================================================ */
-  .tag {
-    display: inline-block; padding: 2pt 8pt;
-    font-size: 8.5pt; border-radius: 20pt;
-    background: #fff2cc; border: 1pt solid #d99c3e;
-    color: #8a5f1a; font-weight: 700;
-    text-transform: uppercase; letter-spacing: .5pt;
-    margin-right: 4pt;
+  .facts-list {
+    list-style: none;
+    padding: 0;
+    margin: 4pt 0 0 0;
+    border: 1pt solid #eadfc4;
+    border-radius: 8pt;
+    overflow: hidden;
   }
 
-  /* ============================================================
-     EMPTY STATE
-     ============================================================ */
+  .facts-list li {
+    position: relative;
+    padding: 8pt 14pt 8pt 30pt;
+    font-size: 10.5pt;
+    line-height: 1.6;
+    color: #1a2a33;
+    background: #fffdf7;
+    border-bottom: 1pt solid #eadfc4;
+    page-break-inside: avoid;
+    break-inside: avoid;
+  }
+
+  .facts-list li:nth-child(even) { background: #fff8e6; }
+  .facts-list li:last-child { border-bottom: none; }
+
+  .facts-list li::before {
+    content: "";
+    position: absolute;
+    left: 13pt;
+    top: 14pt;
+    width: 7pt;
+    height: 7pt;
+    border-radius: 50%;
+    background: #d99c3e;
+    box-shadow: 0 0 0 3pt rgba(217,156,62,.22);
+  }
+
   .empty-note {
-    color: #7a6a44; font-style: italic;
+    color: #7a6a44;
+    font-style: italic;
     padding: 14pt 0;
   }
 </style>
@@ -180,27 +370,63 @@
 <body>
 
   <!-- ========================================================
-       PAGE 1 — COVER (full bleed, aubergine + gold)
+       PAGE 1 — COVER (image = full background)
        ======================================================== -->
-  <div class="cover">
-    <div class="cover-eyebrow">Suspect Dossier</div>
-    <h1><span class="gold">{{title}}</span></h1>
-    <p class="cover-lead">
-      Profiles of all {{characters.length}} suspects — motives, alibis
-      and secrets. Study them carefully. One of them is lying.
-    </p>
+  <div class="cover" style="background: {{theme.gradient}};">
 
     {{#if coverImage}}
-      <img class="cover-img" src="{{coverImage}}" alt="{{title}}">
+      <img class="cover-bg" src="{{coverImage}}" alt="{{title}}" />
     {{/if}}
 
-    <div class="cover-meta">
-      <div><strong>Genre</strong>{{genre}}</div>
-      <div><strong>Setting</strong>{{setting}}</div>
-      <div><strong>Difficulty</strong>{{difficulty}}</div>
-      <div><strong>Audience</strong>{{targetAudience}}</div>
-      <div><strong>Suspects</strong>{{characters.length}}</div>
+    <div class="cover-overlay" style="background: {{theme.gradient}};"></div>
+    <div class="cover-vignette"></div>
+    <div class="cover-frame" style="border-color: {{theme.accentBorder}};"></div>
+
+    <div class="cover-content">
+      <div
+        class="cover-eyebrow"
+        style="color: {{theme.accent}}; border: 1pt solid {{theme.accentBorder}};"
+      >Suspect Dossier</div>
+
+      <h1 class="cover-title {{titleSizeClass}}">{{title}}</h1>
+
+      <div class="cover-divider">
+        <span class="line" style="background: {{theme.accent}};"></span>
+        <span class="dot"  style="background: {{theme.accent}};"></span>
+        <span class="line" style="background: {{theme.accent}};"></span>
+      </div>
+
+      <p class="cover-subtitle">
+        Profiles of all {{characters.length}} suspects — motives, alibis
+        and secrets. Study them carefully. One of them is lying.
+      </p>
     </div>
+
+    <div class="cover-bottom">
+      <div class="cover-meta" style="border-top: 1pt solid {{theme.accentBorder}};">
+        <div class="cover-meta-item">
+          <div class="cover-meta-label" style="color: {{theme.accent}};">Genre</div>
+          <div class="cover-meta-value">{{genre}}</div>
+        </div>
+        <div class="cover-meta-item">
+          <div class="cover-meta-label" style="color: {{theme.accent}};">Setting</div>
+          <div class="cover-meta-value">{{setting}}</div>
+        </div>
+        <div class="cover-meta-item">
+          <div class="cover-meta-label" style="color: {{theme.accent}};">Difficulty</div>
+          <div class="cover-meta-value">{{difficulty}}</div>
+        </div>
+        <div class="cover-meta-item">
+          <div class="cover-meta-label" style="color: {{theme.accent}};">Audience</div>
+          <div class="cover-meta-value">{{targetAudience}}</div>
+        </div>
+        <div class="cover-meta-item">
+          <div class="cover-meta-label" style="color: {{theme.accent}};">Suspects</div>
+          <div class="cover-meta-value">{{characters.length}}</div>
+        </div>
+      </div>
+    </div>
+
   </div>
 
   <!-- ========================================================
@@ -224,35 +450,66 @@
           </div>
         </div>
 
-        <div class="suspect-fields">
-          {{#if personality}}<p><strong>Personality:</strong> {{personality}}</p>{{/if}}
-          {{#if background}}<p><strong>Background:</strong> {{background}}</p>{{/if}}
-          {{#if motive}}<p><strong>Possible Motive:</strong> {{motive}}</p>{{/if}}
-          {{#if alibi}}<p><strong>Stated Alibi:</strong> {{alibi}}</p>{{/if}}
-
-          {{#if publicInformation.appearance}}
-            <div class="divider"></div>
-            <p><strong>Appearance:</strong> {{publicInformation.appearance}}</p>
-          {{/if}}
-          {{#if publicInformation.mannerisms}}
-            <p><strong>Mannerisms:</strong> {{publicInformation.mannerisms}}</p>
-          {{/if}}
-          {{#if publicInformation.knownFacts.length}}
-            <div class="divider"></div>
-            <p><strong>Known Facts:</strong></p>
-            <ul style="padding-left:20pt; margin-top:4pt;">
-              {{#each publicInformation.knownFacts}}
-              <li style="margin-bottom:4pt; font-size:10.5pt; color:#2a2a2a;">{{this}}</li>
-              {{/each}}
-            </ul>
-          {{/if}}
+        {{#if personality}}
+        <div class="field">
+          <div class="field-label">Personality</div>
+          <div class="field-text">{{personality}}</div>
         </div>
+        {{/if}}
+
+        {{#if background}}
+        <div class="field">
+          <div class="field-label">Background</div>
+          <div class="field-text">{{background}}</div>
+        </div>
+        {{/if}}
+
+        {{#if motive}}
+        <div class="field">
+          <div class="field-label">Possible Motive</div>
+          <div class="field-text">{{motive}}</div>
+        </div>
+        {{/if}}
+
+        {{#if alibi}}
+        <div class="field">
+          <div class="field-label">Stated Alibi</div>
+          <div class="field-text">{{alibi}}</div>
+        </div>
+        {{/if}}
+
+        {{#if publicInformation.appearance}}
+        <div class="divider"></div>
+        <div class="field">
+          <div class="field-label">Appearance</div>
+          <div class="field-text">{{publicInformation.appearance}}</div>
+        </div>
+        {{/if}}
+
+        {{#if publicInformation.mannerisms}}
+        <div class="field">
+          <div class="field-label">Mannerisms</div>
+          <div class="field-text">{{publicInformation.mannerisms}}</div>
+        </div>
+        {{/if}}
+
+        {{#if publicInformation.knownFacts.length}}
+        <div class="divider"></div>
+        <div class="field">
+          <div class="field-label">Known Facts</div>
+          <ul class="facts-list">
+            {{#each publicInformation.knownFacts}}
+            <li>{{this}}</li>
+            {{/each}}
+          </ul>
+        </div>
+        {{/if}}
       </div>
     </div>
     {{/each}}
   {{else}}
-    <!-- Empty state — one clean page -->
     <div class="suspect-page">
+      <div class="subhead">The Cast</div>
       <div class="section-title">The Suspects</div>
       <p class="empty-note">No suspects were generated for this mystery.</p>
     </div>
