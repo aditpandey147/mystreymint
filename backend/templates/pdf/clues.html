@@ -1,309 +1,418 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="en">
-  <head>
-    <meta charset="UTF-8" />
-    <link rel="preconnect" href="https://fonts.googleapis.com" />
-    <link
-      href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&family=Playfair+Display:wght@600;700&display=swap"
-      rel="stylesheet"
-    />
-    <style>
-      * {
-        box-sizing: border-box;
-        margin: 0;
-        padding: 0;
-      }
+<head>
+<meta charset="UTF-8">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Playfair+Display:wght@600;700;800;900&display=swap" rel="stylesheet">
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
 
-      @page {
-        size: A4;
-        margin: 0;
-      }
-
-      html,
-      body {
-        margin: 0;
-        padding: 0;
-        background: #fff;
-        color: #0b1a22;
-        font-family: "Inter", Arial, sans-serif;
-        font-size: 11pt;
-        line-height: 1.55;
-        -webkit-print-color-adjust: exact;
-        print-color-adjust: exact;
-      }
-
-      /* ============================================================
-     PAGE 1 — COVER, FULL BLEED
+  /* ============================================================
+     NAMED PAGES
+     - cover : full-bleed, no margin
+     - body  : real printer margins
      ============================================================ */
-      .cover {
-        background: linear-gradient(
-          135deg,
-          #0f1a14 0%,
-          #14261c 60%,
-          #0d2019 100%
-        );
-        color: #fff;
-        padding: 40pt 32pt;
-        margin: 0;
-        border-radius: 0;
-        width: 210mm;
-        height: 297mm; /* ← CHANGED: fixed height, not min-height */
-        display: flex;
-        flex-direction: column;
-        page-break-after: always;
-        break-after: page;
-        overflow: hidden; /* ← NEW: never allow overflow */
-      }
-      .cover-eyebrow {
-        font-size: 10pt;
-        text-transform: uppercase;
-        letter-spacing: 2pt;
-        color: #86efac;
-        font-weight: 700;
-        margin-bottom: 12pt;
-      }
-      .cover h1 {
-        font-family: "Playfair Display", Georgia, serif;
-        font-size: 40pt;
-        line-height: 1.08;
-        font-weight: 700;
-        margin-bottom: 14pt;
-        color: #fff;
-      }
-      .cover .gold {
-        color: #86efac;
-      }
-      .cover-lead {
-        font-size: 12pt;
-        color: #d8e8de;
-        max-width: 420pt;
-        line-height: 1.55;
-        margin-bottom: 20pt;
-      }
-      .cover-img {
-        width: 100%;
-        max-height: 300pt;
-        object-fit: cover;
-        border-radius: 6pt;
-        margin: 20pt 0;
-        border: 1pt solid rgba(134, 239, 172, 0.45);
-        box-shadow: 0 8pt 20pt rgba(0, 0, 0, 0.35);
-      }
-      .cover-meta {
-        display: flex;
-        flex-wrap: wrap;
-        gap: 22pt;
-        margin-top: auto;
-        padding-top: 16pt;
-        border-top: 1pt solid rgba(134, 239, 172, 0.35);
-      }
-      .cover-meta div {
-        font-size: 10pt;
-        color: #c4d8ca;
-      }
-      .cover-meta strong {
-        display: block;
-        color: #86efac;
-        font-size: 8.5pt;
-        text-transform: uppercase;
-        letter-spacing: 1.4pt;
-        margin-bottom: 4pt;
-      }
+  @page { size: A4; margin: 0; }
+  @page cover { size: A4; margin: 0; }
+  @page body  { size: A4; margin: 22mm 18mm 20mm 18mm; }
 
-      /* ============================================================
-     EVERY SECTION = EXACTLY ONE PAGE — NEVER OVERFLOWS
+  html, body {
+    margin: 0;
+    padding: 0;
+    background: #fff;
+    color: #0b1a22;
+    font-family: 'Inter', Arial, sans-serif;
+    font-size: 11pt;
+    line-height: 1.55;
+    -webkit-print-color-adjust: exact;
+    print-color-adjust: exact;
+  }
+
+  /* ============================================================
+     COVER — cover image as full-page background
      ============================================================ */
-      .section-page {
-        width: 210mm;
-        height: 297mm; /* ← CHANGED: fixed, not min-height */
-        padding: 30mm 18mm 20mm 18mm; /* ← top gap now enforced */
-        margin: 0;
-        background: #ffffff;
-        page-break-after: always;
-        break-after: page;
-        display: flex;
-        flex-direction: column;
-        position: relative;
-        overflow: hidden; /* ← NEW: overflow is clipped, forces manual pagination */
-      }
-      .section-page:last-of-type {
-        page-break-after: auto;
-        break-after: auto;
-      }
+  .cover {
+    page: cover;
+    position: relative;
+    width: 210mm;
+    height: 296.6mm;
+    overflow: hidden;
+    color: #fff;
+    background: #0f1a14;
+    page-break-after: always;
+    break-after: page;
+  }
 
-      /* Force inner content to fit — otherwise clipped */
-      .section-page > * {
-        flex-shrink: 0; /* ← NEW: don't shrink children */
-      }
+  .cover-bg {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    object-position: center;
+    z-index: 0;
+  }
 
-      /* ============================================================
-     SECTION HEADER
+  .cover-overlay {
+    position: absolute;
+    inset: 0;
+    opacity: .72;
+    z-index: 1;
+  }
+
+  .cover-vignette {
+    position: absolute;
+    inset: 0;
+    z-index: 2;
+    background:
+      radial-gradient(ellipse at center, rgba(0,0,0,.55) 0%, rgba(0,0,0,.25) 55%, rgba(0,0,0,.55) 100%);
+  }
+
+  .cover-frame {
+    position: absolute;
+    inset: 9mm;
+    border: 1pt solid rgba(255,255,255,.35);
+    z-index: 3;
+    pointer-events: none;
+  }
+
+  .cover-content {
+    position: absolute;
+    inset: 0;
+    z-index: 4;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    text-align: center;
+    padding: 30mm 24mm;
+  }
+
+  .cover-eyebrow {
+    display: inline-block;
+    font-size: 10pt;
+    font-weight: 800;
+    letter-spacing: 4pt;
+    text-transform: uppercase;
+    padding: 6pt 16pt;
+    border-radius: 30pt;
+    margin-bottom: 20pt;
+    background: rgba(0,0,0,.35);
+  }
+
+  .cover-title {
+    font-family: 'Playfair Display', Georgia, serif;
+    font-weight: 900;
+    color: #ffffff;
+    line-height: 1.12;
+    letter-spacing: -0.3pt;
+    text-transform: uppercase;
+    text-shadow: 0 3pt 18pt rgba(0,0,0,.65);
+    word-wrap: break-word;
+    overflow-wrap: break-word;
+    max-width: 165mm;
+  }
+
+  .cover-title.title-short  { font-size: 54pt; }
+  .cover-title.title-medium { font-size: 44pt; }
+  .cover-title.title-long   { font-size: 35pt; }
+  .cover-title.title-xlong  { font-size: 28pt; }
+
+  .cover-divider {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8pt;
+    margin: 22pt 0 18pt;
+  }
+  .cover-divider .line { width: 46mm; height: 1.5pt; }
+  .cover-divider .dot  { width: 7pt; height: 7pt; transform: rotate(45deg); }
+
+  .cover-subtitle {
+    font-size: 13pt;
+    font-weight: 500;
+    line-height: 1.6;
+    color: rgba(255,255,255,.92);
+    max-width: 140mm;
+    text-shadow: 0 2pt 10pt rgba(0,0,0,.6);
+  }
+
+  .cover-bottom {
+    position: absolute;
+    left: 20mm;
+    right: 20mm;
+    bottom: 20mm;
+    z-index: 4;
+  }
+
+  .cover-meta {
+    display: flex;
+    justify-content: center;
+    flex-wrap: wrap;
+    gap: 6mm 12mm;
+    padding-top: 7mm;
+  }
+
+  .cover-meta-item { text-align: center; min-width: 30mm; }
+
+  .cover-meta-label {
+    font-size: 7.5pt;
+    font-weight: 700;
+    letter-spacing: 2pt;
+    text-transform: uppercase;
+    margin-bottom: 3pt;
+  }
+
+  .cover-meta-value {
+    font-size: 11pt;
+    font-weight: 700;
+    color: #fff;
+    line-height: 1.25;
+    text-shadow: 0 1pt 6pt rgba(0,0,0,.6);
+  }
+
+  /* ============================================================
+     BODY PAGES — margins come from @page body
+     No fixed height / overflow:hidden, so nothing gets clipped:
+     long lists of clues or documents continue on the next page.
      ============================================================ */
-      .subhead {
-        font-size: 9.5pt;
-        text-transform: uppercase;
-        letter-spacing: 1.6pt;
-        color: #b8862e;
-        font-weight: 700;
-        margin-bottom: 5pt;
-      }
-      .section-title {
-        font-family: "Playfair Display", Georgia, serif;
-        font-size: 22pt;
-        font-weight: 700;
-        color: #0b1a22;
-        border-bottom: 2pt solid #d99c3e;
-        padding-bottom: 8pt;
-        margin-bottom: 18pt;
-      }
+  .section-page {
+    page: body;
+    background: #ffffff;
+    page-break-after: always;
+    break-after: page;
+  }
 
-      /* ============================================================
-     CLUE CARDS — never split
+  .section-page:last-of-type {
+    page-break-after: auto;
+    break-after: auto;
+  }
+
+  .subhead {
+    font-size: 9.5pt;
+    text-transform: uppercase;
+    letter-spacing: 2pt;
+    color: #b8862e;
+    font-weight: 700;
+    margin-bottom: 6pt;
+  }
+
+  .section-title {
+    font-family: 'Playfair Display', Georgia, serif;
+    font-size: 24pt;
+    font-weight: 800;
+    color: #0b1a22;
+    line-height: 1.2;
+    padding-bottom: 10pt;
+    margin-bottom: 22pt;
+    border-bottom: 2pt solid #d99c3e;
+    position: relative;
+  }
+
+  .section-title::after {
+    content: "";
+    position: absolute;
+    left: 0;
+    bottom: -4pt;
+    width: 44pt;
+    height: 6pt;
+    background: #d99c3e;
+    border-radius: 3pt;
+  }
+
+  /* ============================================================
+     CLUE CARDS — never split across pages
      ============================================================ */
-      .clue {
-        border-left: 3pt solid #d99c3e;
-        background: #fbf7ea;
-        padding: 12pt 16pt;
-        margin-bottom: 12pt;
-        page-break-inside: avoid;
-        break-inside: avoid;
-        border-radius: 0 6pt 6pt 0;
-      }
-      .clue-title {
-        font-weight: 700;
-        font-size: 11.5pt;
-        margin-bottom: 6pt;
-        color: #0b1a22;
-      }
-      .clue-body {
-        font-size: 10.5pt;
-        line-height: 1.6;
-        color: #2a2a2a;
-        margin-bottom: 6pt;
-      }
-      .clue-meta {
-        font-size: 9.5pt;
-        color: #7a6a44;
-        margin-top: 5pt;
-        font-style: italic;
-      }
+  .clue {
+    border: 1pt solid #eadfc4;
+    border-left: 4pt solid #d99c3e;
+    background: #fffdf7;
+    padding: 14pt 18pt;
+    margin-bottom: 12pt;
+    border-radius: 0 8pt 8pt 0;
+    page-break-inside: avoid;
+    break-inside: avoid;
+  }
 
-      .tag {
-        display: inline-block;
-        padding: 2pt 8pt;
-        font-size: 8pt;
-        border-radius: 20pt;
-        background: #f0ead0;
-        border: 1pt solid #d9c78a;
-        color: #6b5a2e;
-        font-weight: 700;
-        text-transform: uppercase;
-        letter-spacing: 0.5pt;
-        margin-left: 4pt;
-      }
-      .tag.gold {
-        background: #fff2cc;
-        border-color: #d99c3e;
-        color: #8a5f1a;
-      }
+  .clue:nth-of-type(even) { background: #fff8e6; }
 
-      /* ============================================================
-     EVIDENCE DOCUMENTS — never split
+  .clue-title {
+    font-weight: 800;
+    font-size: 11.5pt;
+    margin-bottom: 7pt;
+    color: #0b1a22;
+    line-height: 1.4;
+  }
+
+  .clue-body {
+    font-size: 10.5pt;
+    line-height: 1.7;
+    color: #1a2a33;
+  }
+
+  .clue-meta {
+    font-size: 9.5pt;
+    color: #7a6a44;
+    margin-top: 7pt;
+    font-style: italic;
+    line-height: 1.5;
+  }
+
+  .tag {
+    display: inline-block;
+    padding: 2pt 9pt;
+    font-size: 7.5pt;
+    border-radius: 20pt;
+    background: #f0ead0;
+    border: 1pt solid #d9c78a;
+    color: #6b5a2e;
+    font-weight: 800;
+    text-transform: uppercase;
+    letter-spacing: .6pt;
+    margin-left: 4pt;
+    vertical-align: middle;
+  }
+
+  .tag.gold { background: #fff2cc; border-color: #d99c3e; color: #8a5f1a; }
+
+  /* ============================================================
+     EVIDENCE DOCUMENTS — never split across pages
      ============================================================ */
-      .document {
-        border: 1pt dashed #a89a6a;
-        background: #fcfaf4;
-        padding: 18pt 20pt;
-        margin-bottom: 16pt;
-        font-family: "Courier New", monospace;
-        font-size: 10pt;
-        line-height: 1.7;
-        page-break-inside: avoid;
-        break-inside: avoid;
-        border-radius: 4pt;
-      }
-      .document-title {
-        font-family: "Inter", Arial, sans-serif;
-        font-weight: 700;
-        text-transform: uppercase;
-        letter-spacing: 1.6pt;
-        margin-bottom: 12pt;
-        color: #6b5a2e;
-        font-size: 9.5pt;
-        border-bottom: 1pt solid #d9c78a;
-        padding-bottom: 6pt;
-      }
-      .document-body {
-        white-space: pre-wrap;
-        color: #2a2a2a;
-        font-size: 10pt;
-        line-height: 1.7;
-      }
+  .document {
+    border: 1.5pt dashed #a89a6a;
+    background: #fcfaf4;
+    padding: 18pt 22pt;
+    margin-bottom: 16pt;
+    font-family: 'Courier New', monospace;
+    font-size: 10pt;
+    line-height: 1.7;
+    border-radius: 8pt;
+    page-break-inside: avoid;
+    break-inside: avoid;
+  }
 
-      /* ============================================================
+  .document-title {
+    font-family: 'Inter', Arial, sans-serif;
+    font-weight: 800;
+    text-transform: uppercase;
+    letter-spacing: 1.6pt;
+    margin-bottom: 12pt;
+    color: #6b5a2e;
+    font-size: 9.5pt;
+    border-bottom: 1pt solid #d9c78a;
+    padding-bottom: 8pt;
+  }
+
+  .document-body {
+    white-space: pre-wrap;
+    color: #2a2a2a;
+    font-size: 10pt;
+    line-height: 1.7;
+  }
+
+  /* ============================================================
      SCENE ILLUSTRATIONS
      ============================================================ */
-      .scene-block {
-        margin: 0 0 18pt 0;
-        page-break-inside: avoid;
-        break-inside: avoid;
-      }
-      .scene-block img {
-        width: 100%;
-        max-height: 260pt;
-        object-fit: cover;
-        border-radius: 5pt;
-        border: 1pt solid #d99c3e;
-        display: block;
-      }
-      .scene-caption {
-        margin-top: 6pt;
-        font-size: 9pt;
-        text-align: center;
-        color: #6b5a2e;
-        font-style: italic;
-      }
+  .scene-block {
+    margin-bottom: 20pt;
+    page-break-inside: avoid;
+    break-inside: avoid;
+  }
 
-      .empty-note {
-        color: #7a6a44;
-        font-style: italic;
-        padding: 14pt 0;
-      }
-    </style>
-  </head>
-  <body>
-    <!-- ========================================================
-       PAGE 1 — COVER (full bleed, forest green)
+  .scene-block img {
+    width: 100%;
+    max-height: 190pt;
+    object-fit: cover;
+    border-radius: 8pt;
+    border: 1.5pt solid #d99c3e;
+    display: block;
+    box-shadow: 0 4pt 12pt rgba(0,0,0,.15);
+  }
+
+  .scene-caption {
+    margin-top: 8pt;
+    font-size: 9pt;
+    text-align: center;
+    color: #6b5a2e;
+    font-style: italic;
+    letter-spacing: .3pt;
+  }
+
+  .empty-note {
+    color: #7a6a44;
+    font-style: italic;
+    padding: 14pt 0;
+  }
+</style>
+</head>
+<body>
+
+  <!-- ========================================================
+       PAGE 1 — COVER (image = full background)
        ======================================================== -->
-    <div class="cover">
-      <div class="cover-eyebrow">Investigator's Folder</div>
-      <h1><span class="gold">{{title}}</span></h1>
-      <p class="cover-lead">
+  <div class="cover" style="background: {{theme.gradient}};">
+
+    {{#if coverImage}}
+      <img class="cover-bg" src="{{coverImage}}" alt="{{title}}" />
+    {{/if}}
+
+    <div class="cover-overlay" style="background: {{theme.gradient}};"></div>
+    <div class="cover-vignette"></div>
+    <div class="cover-frame" style="border-color: {{theme.accentBorder}};"></div>
+
+    <div class="cover-content">
+      <div
+        class="cover-eyebrow"
+        style="color: {{theme.accent}}; border: 1pt solid {{theme.accentBorder}};"
+      >Investigator's Folder</div>
+
+      <h1 class="cover-title {{titleSizeClass}}">{{title}}</h1>
+
+      <div class="cover-divider">
+        <span class="line" style="background: {{theme.accent}};"></span>
+        <span class="dot"  style="background: {{theme.accent}};"></span>
+        <span class="line" style="background: {{theme.accent}};"></span>
+      </div>
+
+      <p class="cover-subtitle">
         All clues recovered and evidence documents collected during the
-        investigation. Review every detail — the truth hides in the smallest
-        things.
+        investigation. Review every detail — the truth hides in the
+        smallest things.
       </p>
+    </div>
 
-      {{#if coverImage}}
-      <img class="cover-img" src="{{coverImage}}" alt="{{title}}" />
-      {{/if}}
-
-      <div class="cover-meta">
-        <div><strong>Genre</strong>{{genre}}</div>
-        <div><strong>Setting</strong>{{setting}}</div>
-        <div><strong>Difficulty</strong>{{difficulty}}</div>
-        <div><strong>Audience</strong>{{targetAudience}}</div>
+    <div class="cover-bottom">
+      <div class="cover-meta" style="border-top: 1pt solid {{theme.accentBorder}};">
+        <div class="cover-meta-item">
+          <div class="cover-meta-label" style="color: {{theme.accent}};">Genre</div>
+          <div class="cover-meta-value">{{genre}}</div>
+        </div>
+        <div class="cover-meta-item">
+          <div class="cover-meta-label" style="color: {{theme.accent}};">Setting</div>
+          <div class="cover-meta-value">{{setting}}</div>
+        </div>
+        <div class="cover-meta-item">
+          <div class="cover-meta-label" style="color: {{theme.accent}};">Difficulty</div>
+          <div class="cover-meta-value">{{difficulty}}</div>
+        </div>
+        <div class="cover-meta-item">
+          <div class="cover-meta-label" style="color: {{theme.accent}};">Audience</div>
+          <div class="cover-meta-value">{{targetAudience}}</div>
+        </div>
       </div>
     </div>
 
-    <!-- ========================================================
-       PAGE 2 — CLUES (fresh page)
-       ======================================================== -->
-    <div class="section-page">
-      <div class="subhead">Part One</div>
-      <div class="section-title">Clues</div>
+  </div>
 
-      {{#if clues.length}} {{#each clues}}
+  <!-- ========================================================
+       CLUES
+       ======================================================== -->
+  <div class="section-page">
+    <div class="subhead">Part One</div>
+    <div class="section-title">Clues</div>
+
+    {{#if clues.length}}
+      {{#each clues}}
       <div class="clue">
         <div class="clue-title">
           {{title}}
@@ -312,49 +421,53 @@
         </div>
         <div class="clue-body">{{nl2br description}}</div>
         {{#if discoveryLocation}}
-        <div class="clue-meta">Found at: {{discoveryLocation}}</div>
-        {{/if}} {{#if hint}}
-        <div class="clue-meta">Hint: {{hint}}</div>
+          <div class="clue-meta">Found at: {{discoveryLocation}}</div>
+        {{/if}}
+        {{#if hint}}
+          <div class="clue-meta">Hint: {{hint}}</div>
         {{/if}}
       </div>
-      {{/each}} {{else}}
+      {{/each}}
+    {{else}}
       <p class="empty-note">No clues recorded.</p>
-      {{/if}}
-    </div>
+    {{/if}}
+  </div>
 
-    <!-- ========================================================
-       PAGE 3 — EVIDENCE DOCUMENTS (fresh page)
+  <!-- ========================================================
+       EVIDENCE DOCUMENTS
        ======================================================== -->
-    <div class="section-page">
-      <div class="subhead">Part Two</div>
-      <div class="section-title">Evidence Documents</div>
+  <div class="section-page">
+    <div class="subhead">Part Two</div>
+    <div class="section-title">Evidence Documents</div>
 
-      {{#if evidence.length}} {{#each evidence}}
+    {{#if evidence.length}}
+      {{#each evidence}}
       <div class="document">
         <div class="document-title">{{type}} — {{title}}</div>
         <div class="document-body">{{body}}</div>
       </div>
-      {{/each}} {{else}}
-      <p class="empty-note">No evidence documents recorded.</p>
-      {{/if}}
-    </div>
-
-    <!-- ========================================================
-       PAGE 4 — CRIME SCENE ILLUSTRATIONS (fresh page)
-       Only rendered if sceneImages exist
-       ======================================================== -->
-    {{#if sceneImages.length}}
-    <div class="section-page">
-      <div class="subhead">Part Three</div>
-      <div class="section-title">Crime Scene Illustrations</div>
-
-      {{#each sceneImages}}
-      <div class="scene-block">
-        <img src="{{this.url}}" alt="{{this.location}}" />
-        <div class="scene-caption">{{this.location}}</div>
-      </div>
       {{/each}}
-    </div>
+    {{else}}
+      <p class="empty-note">No evidence documents recorded.</p>
     {{/if}}
-  </body>
+  </div>
+
+  <!-- ========================================================
+       CRIME SCENE ILLUSTRATIONS (only if sceneImages exist)
+       ======================================================== -->
+  {{#if sceneImages.length}}
+  <div class="section-page">
+    <div class="subhead">Part Three</div>
+    <div class="section-title">Crime Scene Illustrations</div>
+
+    {{#each sceneImages}}
+    <div class="scene-block">
+      <img src="{{this.url}}" alt="{{this.location}}" />
+      <div class="scene-caption">{{this.location}}</div>
+    </div>
+    {{/each}}
+  </div>
+  {{/if}}
+
+</body>
 </html>
