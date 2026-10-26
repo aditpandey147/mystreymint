@@ -13,19 +13,10 @@ const zipService = require("../services/zipService");
 const EXPORTS_ROOT_ABS = path.join(__dirname, "../uploads/exports");
 const EXPORTS_PREFIX = "/uploads/exports";
 
-/**
- * Convert a stored path (relative or external URL) into an
- * absolute filesystem path for reading files.
- * Safe for:
- *   - "/uploads/exports/..."  → absolute
- *   - "https://..."           → unchanged (external)
- *   - "/home/isolic-kubuntu/..." (legacy) → unchanged
- */
 function toAbsolutePath(p) {
   if (!p) return p;
   if (/^https?:\/\//i.test(p)) return p;
 
-  // New relative format
   if (p.startsWith(EXPORTS_PREFIX)) {
     return path.join(
       EXPORTS_ROOT_ABS,
@@ -33,24 +24,21 @@ function toAbsolutePath(p) {
     );
   }
 
-  // Legacy absolute path — still valid on this machine
   if (p.startsWith("/")) return p;
-
-  // Fallback: treat as relative to uploads/exports
   return path.join(EXPORTS_ROOT_ABS, p);
 }
 
-// Statuses that are allowed to be exported
 const EXPORTABLE_STATUSES = ["completed", "needs_review"];
 
 // ================================================================
-// 🏗️ BUILD ALL EXPORTS FOR A MYSTERY
+// 🏗️ BUILD ALL EXPORTS FOR A MYSTERY — WITH CACHING
 // POST /api/mysteries/:id/export
 // ================================================================
 exports.buildExports = async (req, res) => {
   const startedAt = Date.now();
   const userId = req.user.id || req.user._id;
   const mysteryId = req.params.id;
+  const forceRebuild = req.query.rebuild === "1";
 
   try {
     // ---------- LOAD MYSTERY ----------
@@ -69,16 +57,93 @@ exports.buildExports = async (req, res) => {
       });
     }
 
-    console.log(`📦 Building exports for mystery: ${mystery.title}`);
+    // ─────────────────────────────────────────────────────────
+    // 🎯 CACHE CHECK — return existing kit if available
+    // ─────────────────────────────────────────────────────────
+    if (!forceRebuild) {
+      const existingZip = await Export.findOne({
+        mysteryId,
+        userId,
+        type: "zip",
+        kind: "complete_kit",
+        status: "ready",
+      }).sort({ createdAt: -1 });
+
+      if (existingZip && existingZip.filePath) {
+        const absPath = toAbsolutePath(existingZip.filePath);
+        try {
+          const stat = await fsp.stat(absPath);
+          if (stat.size > 1000) {
+            console.log(
+              `♻️  [Kit] Cached ZIP found — ${(stat.size / 1024 / 1024).toFixed(1)} MB`
+            );
+
+            const pdfExports = await Export.find({
+              mysteryId,
+              userId,
+              type: "pdf",
+              status: "ready",
+            });
+
+            const coverExport = await Export.findOne({
+              mysteryId,
+              userId,
+              type: "image",
+              kind: "cover",
+              status: "ready",
+            });
+
+            return res.json({
+              success: true,
+              message: "Exports cached — returning existing kit",
+              cached: true,
+              mysteryId,
+              zip: {
+                id: existingZip._id,
+                fileName: existingZip.fileName,
+                fileSize: existingZip.fileSize,
+                status: existingZip.status,
+                downloadUrl: `/exports/${existingZip._id}/download`,
+              },
+              pdfs: pdfExports.map((e) => ({
+                id: e._id,
+                kind: e.kind,
+                fileName: e.fileName,
+                fileSize: e.fileSize,
+                downloadUrl: `/exports/${e._id}/download`,
+              })),
+              cover: coverExport
+                ? {
+                    id: coverExport._id,
+                    url: coverExport.filePath,
+                    downloadUrl: `/exports/${coverExport._id}/download`,
+                  }
+                : null,
+              meta: { elapsedMs: Date.now() - startedAt },
+            });
+          }
+        } catch (err) {
+          if (err.code !== "ENOENT") {
+            console.warn("⚠️ Kit cache check failed:", err.message);
+          }
+        }
+      }
+    }
+
+    // ─────────────────────────────────────────────────────────
+    // 🖨️ REBUILD — only reaches here on first click or forced rebuild
+    // ─────────────────────────────────────────────────────────
+    console.log(
+      `📦 Building exports for mystery: ${mystery.title}${
+        forceRebuild ? " (forced rebuild)" : ""
+      }`
+    );
 
     // ---------- DELETE OLD EXPORTS ----------
     const oldExports = await Export.find({ mysteryId, userId });
     for (const old of oldExports) {
       try {
-        if (
-          old.filePath &&
-          !/^https?:\/\//i.test(old.filePath)
-        ) {
+        if (old.filePath && !/^https?:\/\//i.test(old.filePath)) {
           const abs = toAbsolutePath(old.filePath);
           if (fs.existsSync(abs)) {
             await fsp.unlink(abs);
@@ -102,7 +167,7 @@ exports.buildExports = async (req, res) => {
           userId,
           type: "pdf",
           kind: r.kind,
-          filePath: r.filePath, // already relative from pdfService
+          filePath: r.filePath,
           fileName: r.fileName,
           fileSize: r.fileSize || 0,
           mimeType: "application/pdf",
@@ -141,7 +206,7 @@ exports.buildExports = async (req, res) => {
           userId,
           type: "image",
           kind: "cover",
-          filePath: mystery.images.cover, // relative from mystery doc
+          filePath: mystery.images.cover,
           fileName: "Mystery_Cover.png",
           mimeType: "image/png",
           status: "ready",
@@ -163,7 +228,7 @@ exports.buildExports = async (req, res) => {
         userId,
         type: "zip",
         kind: "complete_kit",
-        filePath: zipResult.filePath, // relative from zipService
+        filePath: zipResult.filePath,
         fileName: zipResult.fileName,
         fileSize: zipResult.fileSize,
         mimeType: "application/zip",
@@ -198,10 +263,10 @@ exports.buildExports = async (req, res) => {
     const elapsedMs = Date.now() - startedAt;
     console.log(`🎉 Exports complete in ${(elapsedMs / 1000).toFixed(1)}s`);
 
-    // ✅ downloadUrl has no /api prefix — axios baseURL adds it
     return res.json({
       success: true,
       message: "Exports built successfully",
+      cached: false,
       mysteryId,
       zip: zipExport
         ? {
@@ -259,12 +324,10 @@ exports.downloadExport = async (req, res) => {
       });
     }
 
-    // External URL (e.g. legacy Replicate cover) → redirect
     if (exp.filePath && /^https?:\/\//i.test(exp.filePath)) {
       return res.redirect(exp.filePath);
     }
 
-    // Resolve relative → absolute
     const absPath = toAbsolutePath(exp.filePath);
 
     if (!absPath || !fs.existsSync(absPath)) {
@@ -345,6 +408,40 @@ exports.listExports = async (req, res) => {
     return res.status(500).json({
       success: false,
       message: err.message || "Failed to list exports",
+    });
+  }
+};
+
+// ================================================================
+// 🧹 CLEAR EXPORT CACHE (optional endpoint)
+// DELETE /api/mysteries/:id/exports/cache
+// ================================================================
+exports.clearExportCache = async (req, res) => {
+  try {
+    const userId = req.user.id || req.user._id;
+    const mysteryId = req.params.id;
+
+    const mystery = await Mystery.findOne({ _id: mysteryId, userId });
+    if (!mystery) {
+      return res
+        .status(404)
+        .json({ success: false, message: "Mystery not found" });
+    }
+
+    await Export.deleteMany({ mysteryId, userId });
+
+    const dir = path.join(EXPORTS_ROOT_ABS, String(mysteryId));
+    await fsp.rm(dir, { recursive: true, force: true }).catch(() => {});
+
+    mystery.exportIds = [];
+    await mystery.save();
+
+    return res.json({ success: true, message: "Export cache cleared" });
+  } catch (err) {
+    console.error("❌ clearExportCache failed:", err);
+    return res.status(500).json({
+      success: false,
+      message: err.message || "Failed to clear cache",
     });
   }
 };
