@@ -10,7 +10,7 @@ const DEMO_PDF_ROOT = path.join(DEMO_PUBLIC_ROOT, "pdf");
 const DEMO_IMG_ROOT = path.join(DEMO_PUBLIC_ROOT, "images");
 
 // Public URL prefix (served by express.static("/public"))
-const DEMO_PUBLIC_URL = "/demo";
+const DEMO_PUBLIC_URL = "/public/demo";
 
 function isDemoMode() {
   return String(process.env.DEMO_MODE || "").toLowerCase() === "true";
@@ -1189,32 +1189,32 @@ function buildDemoMystery(publicUrl = "/demo") {
         {
           characterId: "C1",
           name: "Celia Ward",
-          url: "/demo/images/character-C1.jpg",
+          url: "public/demo/images/character-C1.jpg",
         },
         {
           characterId: "C2",
           name: "Nora Ashcombe",
-          url: "/demo/images/character-C2.jpg",
+          url: "public/demo/images/character-C2.jpg",
         },
         {
           characterId: "C3",
           name: "Dr Felix Mercer",
-          url: "/demo/images/character-C3.jpg",
+          url: "public/demo/images/character-C3.jpg",
         },
         {
           characterId: "C4",
           name: "Gideon Pike",
-          url: "/demo/images/character-C4.jpg",
+          url: "public/demo/images/character-C4.jpg",
         },
         {
           characterId: "C5",
           name: "Martha Reed",
-          url: "/demo/images/character-C5.jpg",
+          url: "public/demo/images/character-C5.jpg",
         },
         {
           characterId: "C6",
           name: "Arthur Bell",
-          url: "/demo/images/character-C6.jpg",
+          url: "public/demo/images/character-C6.jpg",
         },
       ],
     },
