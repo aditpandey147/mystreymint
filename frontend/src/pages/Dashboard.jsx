@@ -57,7 +57,7 @@ const getImageUrl = (path) => {
 };
 
 // ================================================================
-// STATIC DATA (unchanged — will be replaced with real stats below)
+// STATIC DATA
 // ================================================================
 const QUICK_ACTIONS = [
   {
@@ -108,7 +108,7 @@ const ACTION_STYLES = {
 };
 
 // ================================================================
-// RECENT MYSTERIES — live from /mysteries
+// RECENT MYSTERIES
 // ================================================================
 function RecentMysteries() {
   const navigate = useNavigate();
@@ -122,7 +122,6 @@ function RecentMysteries() {
         setLoading(true);
         const res = await api.get("/mysteries");
         if (!cancelled && res.data?.success) {
-          // Take latest 3 (sorted newest first from API)
           setMysteries((res.data.data || []).slice(0, 3));
         }
       } catch (err) {
@@ -155,20 +154,27 @@ function RecentMysteries() {
         padding: "13px 15px 9px",
       }}
     >
-      <div className="flex justify-between items-center mb-2">
-        <h2 className="font-bold m-0" style={{ fontSize: 21, color: C.heading }}>
+      <div className="flex justify-between items-center mb-2 gap-2 flex-wrap">
+        <h2
+          className="font-bold m-0"
+          style={{
+            fontSize: "clamp(16px, 4vw, 21px)",
+            color: C.heading,
+          }}
+        >
           Recent Mysteries
         </h2>
         <button
           type="button"
           onClick={() => navigate("/my-mysteries")}
-          className="font-semibold transition"
+          className="font-semibold transition shrink-0"
           style={{
             color: C.gold,
-            fontSize: 14,
+            fontSize: "clamp(12px, 3.2vw, 14px)",
             background: "transparent",
             border: 0,
             cursor: "pointer",
+            whiteSpace: "nowrap",
           }}
         >
           View All <ArrowRight size={12} className="inline" />
@@ -190,7 +196,7 @@ function RecentMysteries() {
           ))}
         </div>
       ) : mysteries.length === 0 ? (
-        <div className="py-10 text-center">
+        <div className="py-8 text-center">
           <div
             className="grid place-items-center mx-auto mb-3"
             style={{
@@ -203,19 +209,25 @@ function RecentMysteries() {
           >
             <Sparkles size={22} style={{ color: C.gold }} />
           </div>
-          <p style={{ fontSize: 14, color: C.secondary, marginBottom: 14 }}>
+          <p
+            style={{
+              fontSize: "clamp(12px, 3.2vw, 14px)",
+              color: C.secondary,
+              marginBottom: 14,
+            }}
+          >
             No mysteries yet
           </p>
           <button
             onClick={() => navigate("/create-mystery")}
-            className="inline-flex items-center gap-2 h-[40px] px-5 rounded-[10px] text-[13px] font-bold"
+            className="inline-flex items-center gap-2 h-[40px] px-4 rounded-[10px] text-[12.5px] font-bold"
             style={{
               background: C.goldGradient,
               color: C.mainBg,
               border: `1px solid ${C.goldHover}`,
             }}
           >
-            <Plus size={14} />
+            <Plus size={13} />
             Create Your First Mystery
           </button>
         </div>
@@ -226,9 +238,9 @@ function RecentMysteries() {
           return (
             <div
               key={m._id || idx}
-              className="flex items-center"
+              className="flex items-start"
               style={{
-                gap: 16,
+                gap: "clamp(8px, 2.5vw, 16px)",
                 borderTop: `1px solid ${C.border}`,
                 paddingTop: 12,
                 paddingBottom: 12,
@@ -238,8 +250,8 @@ function RecentMysteries() {
               <div
                 className="shrink-0 overflow-hidden"
                 style={{
-                  width: 100,
-                  height: 66,
+                  width: "clamp(56px, 16vw, 100px)",
+                  height: "clamp(40px, 11vw, 66px)",
                   border: `1px solid ${C.border}`,
                   borderRadius: 9,
                   background: C.input,
@@ -255,7 +267,10 @@ function RecentMysteries() {
                   />
                 ) : (
                   <div className="w-full h-full grid place-items-center">
-                    <FileText size={22} style={{ color: C.gold, opacity: 0.5 }} />
+                    <FileText
+                      size={18}
+                      style={{ color: C.gold, opacity: 0.5 }}
+                    />
                   </div>
                 )}
               </div>
@@ -264,8 +279,8 @@ function RecentMysteries() {
                 <div
                   className="font-bold truncate"
                   style={{
-                    fontSize: 16,
-                    marginBottom: 8,
+                    fontSize: "clamp(12px, 3.4vw, 16px)",
+                    marginBottom: 6,
                     color: C.heading,
                   }}
                   title={m.title}
@@ -274,12 +289,12 @@ function RecentMysteries() {
                 </div>
                 <div
                   className="flex items-center flex-wrap"
-                  style={{ gap: 12, fontSize: 13 }}
+                  style={{ gap: "clamp(4px, 1.5vw, 12px)", fontSize: 12 }}
                 >
                   <span
-                    className="rounded-full"
+                    className="rounded-full truncate"
                     style={{
-                      padding: "5px 10px",
+                      padding: "3px 8px",
                       background:
                         pillClass === "pink"
                           ? "#2a0f18"
@@ -299,39 +314,35 @@ function RecentMysteries() {
                           ? C.turquoise
                           : C.heading,
                       fontWeight: 500,
+                      fontSize: "clamp(9px, 2.4vw, 12px)",
+                      maxWidth: "100%",
                     }}
                   >
                     {m.genre || "Mystery"}
                   </span>
                   <span
-                    className="flex items-center"
-                    style={{ color: C.secondary, gap: 5 }}
+                    className="flex items-center whitespace-nowrap"
+                    style={{
+                      color: C.secondary,
+                      gap: 4,
+                      fontSize: "clamp(9px, 2.4vw, 12px)",
+                    }}
                   >
-                    <UsersRound size={12} /> {m.playerCount || "—"}
+                    <UsersRound size={10} /> {m.playerCount || "—"}
                   </span>
                   <span
-                    className="flex items-center"
-                    style={{ color: C.secondary, gap: 5 }}
+                    className="flex items-center whitespace-nowrap"
+                    style={{
+                      color: C.secondary,
+                      gap: 4,
+                      fontSize: "clamp(9px, 2.4vw, 12px)",
+                    }}
                   >
-                    <Clock size={12} /> {m.duration ? `${m.duration} min` : "—"}
+                    <Clock size={10} />{" "}
+                    {m.duration ? `${m.duration}m` : "—"}
                   </span>
                 </div>
               </div>
-
-              <button
-                className="shrink-0 transition-colors"
-                style={{
-                  padding: "8px 9px",
-                  color: C.secondary,
-                  background: "transparent",
-                  border: 0,
-                  cursor: "pointer",
-                }}
-                onMouseEnter={(e) => (e.currentTarget.style.color = C.heading)}
-                onMouseLeave={(e) => (e.currentTarget.style.color = C.secondary)}
-              >
-                <MoreVertical size={16} />
-              </button>
 
               <button
                 onClick={() => navigate(`/mystery/${m._id}`)}
@@ -341,10 +352,12 @@ function RecentMysteries() {
                   background: C.input,
                   color: C.gold,
                   borderRadius: 8,
-                  padding: "10px 22px",
+                  padding: "6px 12px",
                   fontWeight: 600,
-                  fontSize: 15,
+                  fontSize: "clamp(10px, 2.6vw, 13px)",
                   cursor: "pointer",
+                  whiteSpace: "nowrap",
+                  alignSelf: "center",
                 }}
                 onMouseEnter={(e) => {
                   e.currentTarget.style.borderColor = C.gold;
@@ -366,7 +379,7 @@ function RecentMysteries() {
 }
 
 // ================================================================
-// FEATURED TEMPLATES — live from /templates
+// FEATURED TEMPLATES
 // ================================================================
 function FeaturedTemplates() {
   const navigate = useNavigate();
@@ -381,7 +394,6 @@ function FeaturedTemplates() {
         const res = await api.get("/templates");
         if (!cancelled && res.data?.success) {
           const list = res.data.data || [];
-          // Prefer featured, then newest, cap at 6
           const featured = list.filter((t) => t.isFeatured);
           const rest = list.filter((t) => !t.isFeatured);
           setTemplates([...featured, ...rest].slice(0, 6));
@@ -429,30 +441,35 @@ function FeaturedTemplates() {
         padding: "13px 15px 15px",
       }}
     >
-      <div className="flex justify-between items-center mb-3">
-        <h2 className="font-bold m-0" style={{ fontSize: 21, color: C.heading }}>
+      <div className="flex justify-between items-center mb-3 gap-2 flex-wrap">
+        <h2
+          className="font-bold m-0"
+          style={{ fontSize: "clamp(16px, 4vw, 21px)", color: C.heading }}
+        >
           Featured Templates
         </h2>
         <button
           type="button"
           onClick={() => navigate("/templates")}
-          className="font-semibold transition whitespace-nowrap"
+          className="font-semibold transition shrink-0"
           style={{
             color: C.gold,
-            fontSize: 14,
+            fontSize: "clamp(12px, 3vw, 14px)",
             background: "transparent",
             border: 0,
             cursor: "pointer",
+            whiteSpace: "nowrap",
           }}
           onMouseEnter={(e) => (e.currentTarget.style.color = C.goldHover)}
           onMouseLeave={(e) => (e.currentTarget.style.color = C.gold)}
         >
-          Browse All Templates <ArrowRight size={12} className="inline" />
+          Browse All <span className="hidden sm:inline">Templates</span>{" "}
+          <ArrowRight size={12} className="inline" />
         </button>
       </div>
 
       {loading ? (
-        <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3">
+        <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-2 sm:gap-3">
           {Array.from({ length: 6 }).map((_, i) => (
             <div
               key={i}
@@ -460,19 +477,19 @@ function FeaturedTemplates() {
               style={{
                 border: `1px solid ${C.border}`,
                 background: C.cardSecondary,
-                height: 160,
+                height: "clamp(120px, 32vw, 160px)",
               }}
             />
           ))}
         </div>
       ) : templates.length === 0 ? (
-        <div className="py-8 text-center">
-          <p style={{ fontSize: 13, color: C.secondary }}>
+        <div className="py-6 text-center">
+          <p style={{ fontSize: 12, color: C.secondary }}>
             No templates available yet.
           </p>
         </div>
       ) : (
-        <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3">
+        <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-2 sm:gap-3">
           {templates.map((t) => {
             const cover = t.thumbnail
               ? getImageUrl(t.thumbnail)
@@ -488,10 +505,13 @@ function FeaturedTemplates() {
                   border: `1px solid ${C.border}`,
                   background: C.cardSecondary,
                 }}
-                onMouseEnter={(e) => (e.currentTarget.style.borderColor = C.gold)}
-                onMouseLeave={(e) => (e.currentTarget.style.borderColor = C.border)}
+                onMouseEnter={(e) =>
+                  (e.currentTarget.style.borderColor = C.gold)
+                }
+                onMouseLeave={(e) =>
+                  (e.currentTarget.style.borderColor = C.border)
+                }
               >
-                {/* Cover image */}
                 <div
                   className="relative"
                   style={{
@@ -510,17 +530,21 @@ function FeaturedTemplates() {
                     />
                   ) : (
                     <div className="absolute inset-0 grid place-items-center">
-                      <Sparkles size={20} style={{ color: C.gold, opacity: 0.5 }} />
+                      <Sparkles
+                        size={18}
+                        style={{ color: C.gold, opacity: 0.5 }}
+                      />
                     </div>
                   )}
                   {t.isFeatured && (
                     <span
-                      className="absolute top-1.5 right-1.5 px-1.5 py-0.5 rounded-full"
+                      className="absolute top-1 right-1 px-1 py-0.5 rounded-full"
                       style={{
                         background: C.gold,
                         color: C.mainBg,
-                        fontSize: 8.5,
+                        fontSize: 8,
                         fontWeight: 700,
+                        lineHeight: 1,
                       }}
                     >
                       ★
@@ -528,10 +552,13 @@ function FeaturedTemplates() {
                   )}
                 </div>
 
-                <div style={{ padding: "8px 13px" }}>
+                <div style={{ padding: "6px 8px" }}>
                   <div
                     className="font-bold truncate"
-                    style={{ fontSize: 14, color: C.heading }}
+                    style={{
+                      fontSize: "clamp(10px, 2.8vw, 14px)",
+                      color: C.heading,
+                    }}
                     title={t.name}
                   >
                     {t.name}
@@ -539,9 +566,9 @@ function FeaturedTemplates() {
                   <div
                     className="truncate"
                     style={{
-                      fontSize: 13,
+                      fontSize: "clamp(9px, 2.4vw, 12px)",
                       color: C.secondary,
-                      marginTop: 7,
+                      marginTop: 3,
                     }}
                   >
                     {t.genre || t.category || "Mystery"}
@@ -563,7 +590,6 @@ export default function Dashboard() {
   const { user } = useAuth();
   const navigate = useNavigate();
 
-  // Live stats from mysteries
   const [stats, setStats] = useState({
     total: "—",
     drafts: "—",
@@ -630,7 +656,7 @@ export default function Dashboard() {
     },
     {
       value: stats.templates,
-      label: "Templates Available",
+      label: "Templates",
       trend: "↑ live",
       trendColor: C.turquoise,
       icon: Users,
@@ -646,22 +672,24 @@ export default function Dashboard() {
     >
       <Sidebar />
 
-      <div className="flex-1 ml-0 md:ml-[18rem] flex flex-col min-h-screen">
+      <div className="flex-1 ml-0 md:ml-[18rem] flex flex-col min-h-screen min-w-0">
         <Navbar />
 
         <main
           className="flex-1 overflow-y-auto"
-          style={{ padding: "20px 12px 20px 20px" }}
+          style={{
+            padding: "clamp(12px, 3vw, 20px) clamp(8px, 2vw, 12px) clamp(12px, 3vw, 20px) clamp(12px, 3vw, 20px)",
+          }}
         >
-          <div className="max-w-[1650px] mx-auto">
-            {/* HERO — unchanged */}
+          <div className="max-w-[1650px] mx-auto min-w-0">
+            {/* HERO */}
             <section
-              className="rounded-[12px] overflow-hidden relative mb-[19px]"
+              className="rounded-[12px] overflow-hidden relative mb-4"
               style={{
                 background: "#000000",
-                paddingTop: "40px",
-                paddingBottom: "40px",
-                minHeight: "360px",
+                paddingTop: "clamp(24px, 5vw, 40px)",
+                paddingBottom: "clamp(24px, 5vw, 40px)",
+                minHeight: "clamp(280px, 50vw, 360px)",
               }}
             >
               <div
@@ -693,19 +721,22 @@ export default function Dashboard() {
               />
               <div
                 className="relative z-10"
-                style={{ paddingLeft: 29, paddingRight: 29 }}
+                style={{
+                  paddingLeft: "clamp(16px, 4vw, 29px)",
+                  paddingRight: "clamp(16px, 4vw, 29px)",
+                }}
               >
                 <div
-                  className="inline-flex items-center gap-2 mb-4"
+                  className="inline-flex items-center gap-2 mb-3"
                   style={{
-                    padding: "6px 14px",
+                    padding: "5px 12px",
                     borderRadius: 999,
                     background: "rgba(246,197,93,.12)",
                     border: `1px solid ${C.gold}55`,
                     color: C.gold,
-                    fontSize: 12,
+                    fontSize: "clamp(9px, 2.4vw, 12px)",
                     fontWeight: 600,
-                    letterSpacing: "1.5px",
+                    letterSpacing: "clamp(0.8px, 0.3vw, 1.5px)",
                     textTransform: "uppercase",
                   }}
                 >
@@ -722,14 +753,13 @@ export default function Dashboard() {
                 </div>
 
                 <h1
-                  className="mm-serif"
                   style={{
                     fontFamily: "'Playfair Display', Georgia, serif",
-                    fontSize: "clamp(34px, 5.5vw, 54px)",
-                    lineHeight: 1.08,
+                    fontSize: "clamp(22px, 6vw, 54px)",
+                    lineHeight: 1.1,
                     letterSpacing: "-0.5px",
                     fontWeight: 500,
-                    margin: "0 0 14px",
+                    margin: "0 0 12px",
                     color: "#ffffff",
                   }}
                 >
@@ -740,14 +770,16 @@ export default function Dashboard() {
                     Mystery Game
                   </em>
                   <br />
-                  <em style={{ fontStyle: "normal", color: C.gold }}>With AI</em>
+                  <em style={{ fontStyle: "normal", color: C.gold }}>
+                    With AI
+                  </em>
                 </h1>
 
                 <p
                   style={{
-                    fontSize: "clamp(15px, 1.8vw, 19px)",
-                    lineHeight: "30px",
-                    margin: "0 0 24px",
+                    fontSize: "clamp(12px, 3vw, 19px)",
+                    lineHeight: 1.6,
+                    margin: "0 0 clamp(16px, 4vw, 24px)",
                     color: C.heading,
                     maxWidth: 620,
                   }}
@@ -756,16 +788,16 @@ export default function Dashboard() {
                   <br className="hidden sm:block" />— ready to play or sell.
                 </p>
 
-                <div className="flex flex-wrap items-center gap-3">
+                <div className="flex flex-wrap items-center gap-2 sm:gap-3">
                   <button
                     onClick={() => navigate("/create-mystery")}
                     className="flex items-center transition-all hover:-translate-y-[1px]"
                     style={{
-                      height: 50,
-                      paddingLeft: 24,
-                      paddingRight: 24,
-                      fontSize: 16,
-                      gap: 14,
+                      height: "clamp(42px, 10vw, 50px)",
+                      paddingLeft: "clamp(14px, 3vw, 24px)",
+                      paddingRight: "clamp(14px, 3vw, 24px)",
+                      fontSize: "clamp(12px, 3vw, 16px)",
+                      gap: "clamp(6px, 1.5vw, 14px)",
                       background: C.goldGradient,
                       color: "#000C16",
                       border: `1px solid ${C.goldHover}`,
@@ -774,6 +806,7 @@ export default function Dashboard() {
                       boxShadow:
                         "inset 0 1px 1px rgba(255,255,255,.25), 0 8px 22px rgba(246,197,93,.35)",
                       cursor: "pointer",
+                      whiteSpace: "nowrap",
                     }}
                     onMouseEnter={(e) =>
                       (e.currentTarget.style.filter = "brightness(1.08)")
@@ -782,20 +815,20 @@ export default function Dashboard() {
                       (e.currentTarget.style.filter = "brightness(1)")
                     }
                   >
-                    <Plus size={19} />
-                    Create New Mystery
-                    <ArrowRight size={19} />
+                    <Plus size={16} />
+                    Create Mystery
+                    <ArrowRight size={16} />
                   </button>
 
                   <button
                     onClick={() => navigate("/templates")}
                     className="flex items-center transition-all hover:-translate-y-[1px]"
                     style={{
-                      height: 50,
-                      paddingLeft: 22,
-                      paddingRight: 22,
-                      fontSize: 15,
-                      gap: 10,
+                      height: "clamp(42px, 10vw, 50px)",
+                      paddingLeft: "clamp(12px, 3vw, 22px)",
+                      paddingRight: "clamp(12px, 3vw, 22px)",
+                      fontSize: "clamp(11px, 2.8vw, 15px)",
+                      gap: "clamp(5px, 1.2vw, 10px)",
                       background: "rgba(255,255,255,.06)",
                       color: C.heading,
                       border: "1px solid rgba(255,255,255,.18)",
@@ -804,16 +837,17 @@ export default function Dashboard() {
                       backdropFilter: "blur(6px)",
                       WebkitBackdropFilter: "blur(6px)",
                       cursor: "pointer",
+                      whiteSpace: "nowrap",
                     }}
                   >
-                    Browse Templates
+                    Templates
                   </button>
                 </div>
               </div>
             </section>
 
             {/* STATS */}
-            <section className="grid grid-cols-2 lg:grid-cols-4 gap-3 mb-[18px]">
+            <section className="grid grid-cols-2 lg:grid-cols-4 gap-2 sm:gap-3 mb-4">
               {STATS.map((s, i) => {
                 const Icon = s.icon;
                 return (
@@ -823,38 +857,47 @@ export default function Dashboard() {
                     style={{
                       border: `1px solid ${C.border}`,
                       background: C.card,
-                      padding: 12,
-                      gap: 14,
+                      padding: "clamp(8px, 2.5vw, 12px)",
+                      gap: "clamp(8px, 2vw, 14px)",
+                      minWidth: 0,
                     }}
                   >
                     <div
                       className="grid place-items-center shrink-0"
                       style={{
-                        width: 56,
-                        height: 56,
-                        borderRadius: 14,
+                        width: "clamp(40px, 11vw, 56px)",
+                        height: "clamp(40px, 11vw, 56px)",
+                        borderRadius: "clamp(10px, 3vw, 14px)",
                         color: s.iconColor,
                         background: s.iconBg,
                       }}
                     >
-                      <Icon size={26} strokeWidth={1.8} />
+                      <Icon
+                        size={22}
+                        strokeWidth={1.8}
+                        style={{
+                          width: "clamp(18px, 5vw, 26px)",
+                          height: "clamp(18px, 5vw, 26px)",
+                        }}
+                      />
                     </div>
                     <div className="min-w-0 flex-1">
                       <div
-                        className="font-bold leading-none"
+                        className="font-bold leading-none truncate"
                         style={{
-                          fontSize: "clamp(24px, 3vw, 34px)",
+                          fontSize: "clamp(18px, 5vw, 34px)",
                           color: C.heading,
                         }}
                       >
                         {s.value}
                       </div>
                       <div
-                        className="mt-1"
+                        className="mt-1 truncate"
                         style={{
-                          fontSize: "clamp(12px, 1.3vw, 15px)",
+                          fontSize: "clamp(10px, 2.6vw, 15px)",
                           color: C.secondary,
                         }}
+                        title={s.label}
                       >
                         {s.label}
                       </div>
@@ -879,8 +922,8 @@ export default function Dashboard() {
               })}
             </section>
 
-            {/* PANELS — Recent Mysteries (live) + Quick Actions (unchanged) */}
-            <section className="grid grid-cols-1 lg:grid-cols-[1.425fr_1fr] gap-4 mb-[18px]">
+            {/* PANELS */}
+            <section className="grid grid-cols-1 lg:grid-cols-[1.425fr_1fr] gap-3 sm:gap-4 mb-4">
               <RecentMysteries />
 
               <div
@@ -894,13 +937,16 @@ export default function Dashboard() {
                 <div className="flex justify-between items-center mb-2">
                   <h2
                     className="font-bold m-0"
-                    style={{ fontSize: 21, color: C.heading }}
+                    style={{
+                      fontSize: "clamp(16px, 4vw, 21px)",
+                      color: C.heading,
+                    }}
                   >
                     Quick Actions
                   </h2>
                 </div>
 
-                <div className="grid grid-cols-2 gap-3">
+                <div className="grid grid-cols-1 xs:grid-cols-2 gap-3">
                   {QUICK_ACTIONS.map((a, idx) => {
                     const Icon = a.icon;
                     const S = ACTION_STYLES[a.color];
@@ -911,57 +957,66 @@ export default function Dashboard() {
                         style={{
                           border: `1px solid ${S.border}`,
                           background: S.bg,
-                          minHeight: 105,
+                          minHeight: "clamp(88px, 22vw, 105px)",
                           display: "flex",
-                          gap: 14,
-                          padding: "12px 10px",
+                          gap: "clamp(8px, 2vw, 14px)",
+                          padding: "clamp(8px, 2vw, 12px)",
                           color: C.heading,
                           cursor: "pointer",
+                          minWidth: 0,
                         }}
                         onClick={() => navigate(a.path)}
                       >
                         <div
                           className="grid place-items-center shrink-0"
                           style={{
-                            width: 48,
-                            height: 48,
-                            borderRadius: 13,
+                            width: "clamp(36px, 9vw, 48px)",
+                            height: "clamp(36px, 9vw, 48px)",
+                            borderRadius: "clamp(9px, 2.5vw, 13px)",
                             background: S.iconBg,
                             color: S.iconColor,
                           }}
                         >
-                          <Icon size={24} strokeWidth={1.8} />
-                        </div>
-                        <div className="min-w-0">
-                          <div
-                            className="font-bold"
+                          <Icon
+                            size={20}
+                            strokeWidth={1.8}
                             style={{
-                              fontSize: 14,
-                              marginTop: 10,
-                              whiteSpace: "nowrap",
+                              width: "clamp(16px, 4.5vw, 24px)",
+                              height: "clamp(16px, 4.5vw, 24px)",
+                            }}
+                          />
+                        </div>
+                        <div className="min-w-0 flex-1 pr-4">
+                          <div
+                            className="font-bold truncate"
+                            style={{
+                              fontSize: "clamp(11px, 2.8vw, 14px)",
+                              marginTop: "clamp(4px, 1.5vw, 10px)",
                               color: C.heading,
                             }}
+                            title={a.title}
                           >
                             {a.title}
                           </div>
                           <div
+                            className="truncate"
                             style={{
-                              fontSize: 13,
-                              lineHeight: "20px",
-                              marginTop: 4,
+                              fontSize: "clamp(10px, 2.4vw, 13px)",
+                              lineHeight: 1.4,
+                              marginTop: 2,
                               color: C.secondary,
-                              whiteSpace: "pre-line",
                             }}
+                            title={a.desc.replace(/\n/g, " ")}
                           >
-                            {a.desc}
+                            {a.desc.replace(/\n/g, " ")}
                           </div>
                         </div>
                         <ArrowRight
-                          size={14}
+                          size={12}
                           style={{
                             position: "absolute",
-                            bottom: 10,
-                            right: 12,
+                            bottom: "clamp(6px, 1.5vw, 10px)",
+                            right: "clamp(8px, 2vw, 12px)",
                             color: S.arrowColor,
                           }}
                         />
@@ -972,7 +1027,7 @@ export default function Dashboard() {
               </div>
             </section>
 
-            {/* FEATURED TEMPLATES — live */}
+            {/* FEATURED TEMPLATES */}
             <FeaturedTemplates />
           </div>
         </main>
