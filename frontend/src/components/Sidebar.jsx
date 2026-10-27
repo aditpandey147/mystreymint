@@ -245,6 +245,12 @@ const Sidebar = () => {
       show: true,
     },
     {
+      path: "/templates",
+      label: "Mystery Templates",
+      icon: LayoutGrid,
+      show: true,
+    },
+    {
       path: "/create-mystery",
       label: "Create Mystery",
       icon: SquarePen,
@@ -254,12 +260,6 @@ const Sidebar = () => {
       path: "/my-mysteries",
       label: "My Mysteries",
       icon: BookOpen,
-      show: true,
-    },
-    {
-      path: "/templates",
-      label: "Mystery Templates",
-      icon: LayoutGrid,
       show: true,
     },
     {
