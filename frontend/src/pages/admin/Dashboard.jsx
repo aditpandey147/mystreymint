@@ -15,7 +15,7 @@ import {
 } from 'lucide-react';
 
 // ================================================================
-// 🎨 THEME — matches the rest of the app
+// 🎨 THEME
 // ================================================================
 const C = {
   mainBg: "#000C16",
@@ -187,32 +187,39 @@ const AdminDashboard = () => {
   return (
     <div className="flex h-screen" style={{ background: C.mainBg }}>
       <Sidebar />
-      <div className="flex-1 ml-0 md:ml-[18rem] overflow-auto">
+      <div className="flex-1 ml-0 md:ml-[18rem] overflow-auto min-w-0">
         {/* Header */}
         <div
-          className="px-6 py-4 flex items-center justify-between sticky top-0 z-10"
+          className="px-3 sm:px-4 md:px-6 py-3 sm:py-4 flex items-center justify-between sticky top-0 z-10 gap-2"
           style={{
             background: C.card,
             borderBottom: `1px solid ${C.border}`,
           }}
         >
-          <div>
+          <div className="min-w-0 flex-1">
             <h1
-              className="font-['Playfair_Display',Georgia,serif] text-xl font-bold"
-              style={{ color: C.heading }}
+              className="font-['Playfair_Display',Georgia,serif] font-bold truncate"
+              style={{ color: C.heading, fontSize: "clamp(15px, 4vw, 20px)" }}
             >
               Admin Dashboard
             </h1>
-            <p className="text-sm" style={{ color: C.secondary }}>
+            <p
+              className="truncate hidden sm:block"
+              style={{ color: C.secondary, fontSize: "clamp(11px, 2.6vw, 14px)" }}
+            >
               Manage users, plans, and monitor platform
             </p>
           </div>
-          <div className="flex items-center gap-4">
-            <span className="text-sm" style={{ color: C.secondary }}>
+          <div className="flex items-center gap-2 sm:gap-3 md:gap-4 shrink-0">
+            <span
+              className="hidden lg:inline text-sm truncate max-w-[180px]"
+              style={{ color: C.secondary }}
+              title={user?.email}
+            >
               {user?.email}
             </span>
             <span
-              className="px-2 py-1 text-xs rounded-full font-medium"
+              className="px-2 py-1 text-xs rounded-full font-medium whitespace-nowrap"
               style={{
                 background: "rgba(255,95,126,.15)",
                 color: C.rose,
@@ -225,23 +232,24 @@ const AdminDashboard = () => {
               onClick={logout}
               className="text-sm transition"
               style={{ color: C.secondary }}
+              aria-label="Logout"
             >
               <i className="fa-solid fa-right-from-bracket"></i>
             </button>
           </div>
         </div>
 
-        <div className="p-6">
+        <div className="p-3 sm:p-4 md:p-6">
           {/* Tabs */}
           <div
-            className="flex gap-1 mb-6 rounded-lg p-1 w-fit flex-wrap"
+            className="flex gap-1 mb-4 sm:mb-6 rounded-lg p-1 w-full sm:w-fit flex-wrap"
             style={{ background: C.card, border: `1px solid ${C.border}` }}
           >
             {['overview', 'users', 'plans', 'payments'].map((tab) => (
               <button
                 key={tab}
                 onClick={() => setActiveTab(tab)}
-                className="px-4 py-2 rounded-md text-sm font-medium transition capitalize"
+                className="px-2.5 sm:px-3 md:px-4 py-1.5 sm:py-2 rounded-md font-medium transition capitalize flex-1 sm:flex-none"
                 style={
                   activeTab === tab
                     ? {
@@ -249,8 +257,12 @@ const AdminDashboard = () => {
                         color: C.mainBg,
                         boxShadow:
                           "inset 0 1px 1px rgba(255,255,255,.25), 0 4px 14px rgba(246,197,93,.35)",
+                        fontSize: "clamp(11px, 2.8vw, 14px)",
                       }
-                    : { color: C.secondary }
+                    : {
+                        color: C.secondary,
+                        fontSize: "clamp(11px, 2.8vw, 14px)",
+                      }
                 }
               >
                 {tab}
@@ -260,14 +272,14 @@ const AdminDashboard = () => {
 
           {/* Overview Tab */}
           {activeTab === 'overview' && stats && (
-            <div className="space-y-6">
-              <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
+            <div className="space-y-4 sm:space-y-6">
+              <div className="grid grid-cols-2 lg:grid-cols-4 gap-2 sm:gap-3 md:gap-4">
                 <StatCard icon="fa-users" color="blue" value={stats.totalUsers} label="Total Users" />
                 <StatCard icon="fa-user-check" color="green" value={stats.activeUsers} label="Active Users (7d)" />
                 <StatCard icon="fa-globe" color="purple" value={stats.totalWebsites} label="Total Websites" />
                 <StatCard icon="fa-search" color="orange" value={stats.totalScans || 0} label="Total Scans" />
               </div>
-              <div className="grid grid-cols-3 gap-4">
+              <div className="grid grid-cols-1 xs:grid-cols-3 gap-2 sm:gap-3 md:gap-4">
                 <MiniStat value={stats.newUsersThisMonth} label="New Users" color="#0ce4bd" />
                 <MiniStat value={stats.scansToday || 0} label="Scans Today" color={C.cyan} />
                 <MiniStat value={stats.totalAdmins} label="Admins" color={C.gold} />
@@ -278,12 +290,12 @@ const AdminDashboard = () => {
           {/* Users Tab */}
           {activeTab === 'users' && (
             <div>
-              <div className="flex items-center justify-between mb-4">
-                <div className="flex items-center gap-3">
-                  <div className="relative">
+              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 mb-4">
+                <div className="flex items-center gap-2 flex-wrap">
+                  <div className="relative flex-1 min-w-[140px]">
                     <Search
-                      size={16}
-                      className="absolute left-3 top-1/2 transform -translate-y-1/2"
+                      size={14}
+                      className="absolute left-2.5 top-1/2 transform -translate-y-1/2"
                       style={{ color: C.muted }}
                     />
                     <input
@@ -291,30 +303,35 @@ const AdminDashboard = () => {
                       placeholder="Search users..."
                       value={searchTerm}
                       onChange={(e) => setSearchTerm(e.target.value)}
-                      className="pl-10 pr-4 py-2 rounded-lg text-sm w-64 focus:outline-none"
+                      className="pl-8 pr-3 py-1.5 rounded-lg w-full focus:outline-none"
                       style={{
                         background: C.input,
                         border: `1px solid ${C.border}`,
                         color: C.heading,
+                        fontSize: "clamp(11px, 2.8vw, 13px)",
                       }}
                     />
                   </div>
-                  <span className="text-sm" style={{ color: C.secondary }}>
+                  <span
+                    className="text-xs sm:text-sm whitespace-nowrap"
+                    style={{ color: C.secondary }}
+                  >
                     {filteredUsers.length} users
                   </span>
                 </div>
                 <button
                   onClick={() => setShowAddModal(true)}
-                  className="flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-bold transition hover:-translate-y-[1px]"
+                  className="flex items-center justify-center gap-1.5 px-3 py-1.5 rounded-lg font-bold transition hover:-translate-y-[1px] whitespace-nowrap"
                   style={{
                     background: C.goldGradient,
                     color: C.mainBg,
                     border: `1px solid ${C.goldHover}`,
                     boxShadow:
                       "inset 0 1px 1px rgba(255,255,255,.25), 0 4px 14px rgba(246,197,93,.35)",
+                    fontSize: "clamp(11px, 2.8vw, 13px)",
                   }}
                 >
-                  <UserPlus size={16} /> Add User
+                  <UserPlus size={14} /> Add User
                 </button>
               </div>
 
@@ -330,12 +347,12 @@ const AdminDashboard = () => {
                         background: C.cardSecondary,
                       }}
                     >
-                      <th className="text-left px-4 py-3 text-xs font-semibold uppercase" style={{ color: C.secondary }}>User</th>
-                      <th className="text-left px-4 py-3 text-xs font-semibold uppercase" style={{ color: C.secondary }}>Role</th>
-                      <th className="text-left px-4 py-3 text-xs font-semibold uppercase" style={{ color: C.secondary }}>Plan</th>
-                      <th className="text-left px-4 py-3 text-xs font-semibold uppercase" style={{ color: C.secondary }}>Agency</th>
-                      <th className="text-center px-4 py-3 text-xs font-semibold uppercase" style={{ color: C.secondary }}>Status</th>
-                      <th className="text-center px-4 py-3 text-xs font-semibold uppercase" style={{ color: C.secondary }}>Actions</th>
+                      <th className="text-left px-2.5 sm:px-4 py-2.5 sm:py-3 text-[10px] sm:text-xs font-semibold uppercase whitespace-nowrap" style={{ color: C.secondary }}>User</th>
+                      <th className="text-left px-2.5 sm:px-4 py-2.5 sm:py-3 text-[10px] sm:text-xs font-semibold uppercase whitespace-nowrap" style={{ color: C.secondary }}>Role</th>
+                      <th className="text-left px-2.5 sm:px-4 py-2.5 sm:py-3 text-[10px] sm:text-xs font-semibold uppercase whitespace-nowrap" style={{ color: C.secondary }}>Plan</th>
+                      <th className="text-left px-2.5 sm:px-4 py-2.5 sm:py-3 text-[10px] sm:text-xs font-semibold uppercase whitespace-nowrap" style={{ color: C.secondary }}>Agency</th>
+                      <th className="text-center px-2.5 sm:px-4 py-2.5 sm:py-3 text-[10px] sm:text-xs font-semibold uppercase whitespace-nowrap" style={{ color: C.secondary }}>Status</th>
+                      <th className="text-center px-2.5 sm:px-4 py-2.5 sm:py-3 text-[10px] sm:text-xs font-semibold uppercase whitespace-nowrap" style={{ color: C.secondary }}>Actions</th>
                     </tr>
                   </thead>
                   <tbody>
@@ -348,28 +365,28 @@ const AdminDashboard = () => {
                         const isAgencyMember = !!u.ownerId;
                         return (
                           <tr key={u._id} className="transition" style={{ borderBottom: `1px solid rgba(41,65,76,.5)` }}>
-                            <td className="px-4 py-3">
-                              <div className="flex items-center gap-3">
+                            <td className="px-2.5 sm:px-4 py-2 sm:py-3">
+                              <div className="flex items-center gap-2 sm:gap-3">
                                 <div
-                                  className="w-8 h-8 rounded-full flex items-center justify-center"
+                                  className="w-7 h-7 sm:w-8 sm:h-8 rounded-full flex items-center justify-center shrink-0"
                                   style={{
                                     background: "rgba(246,197,93,.15)",
                                     border: `1px solid ${C.gold}55`,
                                   }}
                                 >
-                                  <span className="text-xs font-medium" style={{ color: C.gold }}>
+                                  <span className="text-[10px] sm:text-xs font-medium" style={{ color: C.gold }}>
                                     {u.name?.charAt(0)?.toUpperCase()}
                                   </span>
                                 </div>
-                                <div>
-                                  <p className="text-sm font-medium" style={{ color: C.heading }}>{u.name}</p>
-                                  <p className="text-xs" style={{ color: C.secondary }}>{u.email}</p>
+                                <div className="min-w-0">
+                                  <p className="text-xs sm:text-sm font-medium truncate" style={{ color: C.heading }}>{u.name}</p>
+                                  <p className="text-[10px] sm:text-xs truncate" style={{ color: C.secondary }}>{u.email}</p>
                                 </div>
                               </div>
                             </td>
-                            <td className="px-4 py-3">
+                            <td className="px-2.5 sm:px-4 py-2 sm:py-3">
                               <span
-                                className="text-xs px-2 py-1 rounded-full font-medium"
+                                className="text-[10px] sm:text-xs px-1.5 sm:px-2 py-0.5 sm:py-1 rounded-full font-medium whitespace-nowrap"
                                 style={
                                   u.role === 'admin'
                                     ? {
@@ -385,40 +402,41 @@ const AdminDashboard = () => {
                                 }
                               >{u.role}</span>
                             </td>
-                            <td className="px-4 py-3">
+                            <td className="px-2.5 sm:px-4 py-2 sm:py-3">
                               <div className="flex items-center gap-1 flex-wrap">
                                 {userPlanIds.map((planId) => (
                                   <span
                                     key={planId}
-                                    className="text-xs px-2 py-1 rounded-full font-medium flex items-center gap-1"
+                                    className="text-[10px] sm:text-xs px-1.5 sm:px-2 py-0.5 sm:py-1 rounded-full font-medium flex items-center gap-1 whitespace-nowrap"
                                     style={{
                                       background: "rgba(246,197,93,.12)",
                                       color: C.gold,
                                       border: `1px solid ${C.gold}45`,
                                     }}
                                   >
-                                    {getPlanIcon(planId)} {getPlanName(planId)}
+                                    {getPlanIcon(planId)}{" "}
+                                    <span className="hidden sm:inline">{getPlanName(planId)}</span>
+                                    <span className="sm:hidden">{planId}</span>
                                   </span>
                                 ))}
                               </div>
                             </td>
-
-                            {/* AGENCY COLUMN */}
-                            <td className="px-4 py-3">
+                            <td className="px-2.5 sm:px-4 py-2 sm:py-3">
                               {isAgencyOwner ? (
                                 <span
-                                  className="inline-flex items-center gap-1 text-xs px-2 py-1 rounded-full font-medium whitespace-nowrap"
+                                  className="inline-flex items-center gap-1 text-[10px] sm:text-xs px-1.5 sm:px-2 py-0.5 sm:py-1 rounded-full font-medium whitespace-nowrap"
                                   style={{
                                     background: "rgba(246,197,93,.15)",
                                     color: C.gold,
                                     border: `1px solid ${C.gold}45`,
                                   }}
                                 >
-                                  ⭐ Agency Owner
+                                  ⭐ <span className="hidden sm:inline">Agency Owner</span>
+                                  <span className="sm:hidden">Owner</span>
                                 </span>
                               ) : isAgencyMember ? (
                                 <span
-                                  className="inline-flex items-center gap-1 text-xs px-2 py-1 rounded-full font-medium whitespace-nowrap"
+                                  className="inline-flex items-center gap-1 text-[10px] sm:text-xs px-1.5 sm:px-2 py-0.5 sm:py-1 rounded-full font-medium whitespace-nowrap"
                                   style={{
                                     background: "rgba(0,212,217,.15)",
                                     color: C.cyan,
@@ -426,17 +444,17 @@ const AdminDashboard = () => {
                                   }}
                                   title={`Owned by ${u.ownerId.name || ''} ${u.ownerId.email ? `(${u.ownerId.email})` : ''}`}
                                 >
-                                  🏢 {u.ownerId.name || 'Agency'}
+                                  🏢 <span className="hidden sm:inline">{u.ownerId.name || 'Agency'}</span>
+                                  <span className="sm:hidden">Agency</span>
                                 </span>
                               ) : (
                                 <span className="text-xs" style={{ color: C.muted }}>—</span>
                               )}
                             </td>
-
-                            <td className="px-4 py-3 text-center">
+                            <td className="px-2.5 sm:px-4 py-2 sm:py-3 text-center">
                               <button
                                 onClick={() => handleToggleStatus(u._id)}
-                                className="text-xs px-2 py-1 rounded-full font-medium"
+                                className="text-[10px] sm:text-xs px-1.5 sm:px-2 py-0.5 sm:py-1 rounded-full font-medium whitespace-nowrap"
                                 style={
                                   u.isActive !== false
                                     ? {
@@ -454,26 +472,26 @@ const AdminDashboard = () => {
                                 {u.isActive !== false ? 'Active' : 'Disabled'}
                               </button>
                             </td>
-                            <td className="px-4 py-3">
-                              <div className="flex items-center justify-center gap-2">
+                            <td className="px-2.5 sm:px-4 py-2 sm:py-3">
+                              <div className="flex items-center justify-center gap-1.5 sm:gap-2">
                                 <button
                                   onClick={() => openSubscriptionModal(u)}
                                   className="text-xs font-medium flex items-center gap-1 transition hover:brightness-125"
                                   style={{ color: "#0ce4bd" }}
                                   title="Manage Subscriptions"
                                 >
-                                  <Crown size={14} />
+                                  <Crown size={13} />
                                 </button>
                                 <button
                                   onClick={() => openEditModal(u)}
-                                  className="text-xs font-medium transition hover:brightness-125"
+                                  className="text-[10px] sm:text-xs font-medium transition hover:brightness-125 whitespace-nowrap"
                                   style={{ color: C.cyan }}
                                 >
                                   Edit
                                 </button>
                                 <button
                                   onClick={() => openDeleteModal(u)}
-                                  className="text-xs font-medium transition hover:brightness-125"
+                                  className="text-[10px] sm:text-xs font-medium transition hover:brightness-125 whitespace-nowrap"
                                   style={{ color: C.rose }}
                                 >
                                   Delete
@@ -493,24 +511,25 @@ const AdminDashboard = () => {
           {/* Plans Tab */}
           {activeTab === 'plans' && (
             <div>
-              <div className="flex items-center justify-between mb-4">
+              <div className="flex items-center justify-between mb-4 gap-2">
                 <div className="flex items-center gap-3">
-                  <span className="text-sm" style={{ color: C.secondary }}>
+                  <span className="text-xs sm:text-sm whitespace-nowrap" style={{ color: C.secondary }}>
                     {plans.length} plans
                   </span>
                 </div>
                 <button
                   onClick={openAddPlanModal}
-                  className="flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-bold transition hover:-translate-y-[1px]"
+                  className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg font-bold transition hover:-translate-y-[1px] whitespace-nowrap"
                   style={{
                     background: C.goldGradient,
                     color: C.mainBg,
                     border: `1px solid ${C.goldHover}`,
                     boxShadow:
                       "inset 0 1px 1px rgba(255,255,255,.25), 0 4px 14px rgba(246,197,93,.35)",
+                    fontSize: "clamp(11px, 2.8vw, 13px)",
                   }}
                 >
-                  <Plus size={16} /> Add Plan
+                  <Plus size={14} /> Add Plan
                 </button>
               </div>
 
@@ -527,10 +546,10 @@ const AdminDashboard = () => {
                       }}
                     >
                       {['ID', 'Name', 'Slug', 'JVZoo ID', 'LaunchPad ID'].map((h) => (
-                        <th key={h} className="text-left px-4 py-3 text-xs font-semibold uppercase" style={{ color: C.secondary }}>{h}</th>
+                        <th key={h} className="text-left px-2.5 sm:px-4 py-2.5 sm:py-3 text-[10px] sm:text-xs font-semibold uppercase whitespace-nowrap" style={{ color: C.secondary }}>{h}</th>
                       ))}
                       {['Validity', 'Status', 'Actions'].map((h) => (
-                        <th key={h} className="text-center px-4 py-3 text-xs font-semibold uppercase" style={{ color: C.secondary }}>{h}</th>
+                        <th key={h} className="text-center px-2.5 sm:px-4 py-2.5 sm:py-3 text-[10px] sm:text-xs font-semibold uppercase whitespace-nowrap" style={{ color: C.secondary }}>{h}</th>
                       ))}
                     </tr>
                   </thead>
@@ -540,15 +559,15 @@ const AdminDashboard = () => {
                     ) : (
                       plans.map((p) => (
                         <tr key={p._id} className="transition" style={{ borderBottom: `1px solid rgba(41,65,76,.5)` }}>
-                          <td className="px-4 py-3 text-sm" style={{ color: C.heading }}>{p.planId}</td>
-                          <td className="px-4 py-3 text-sm font-medium" style={{ color: C.heading }}>{p.name}</td>
-                          <td className="px-4 py-3 text-sm" style={{ color: C.secondary }}>{p.slug}</td>
-                          <td className="px-4 py-3 text-sm" style={{ color: C.secondary }}>{p.jvzoo_id || '-'}</td>
-                          <td className="px-4 py-3 text-sm" style={{ color: C.secondary }}>{p.launchpad_id || '-'}</td>
-                          <td className="px-4 py-3 text-sm text-center" style={{ color: C.secondary }}>{p.validity_days} days</td>
-                          <td className="px-4 py-3 text-center">
+                          <td className="px-2.5 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm" style={{ color: C.heading }}>{p.planId}</td>
+                          <td className="px-2.5 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-medium truncate max-w-[100px] sm:max-w-none" style={{ color: C.heading }}>{p.name}</td>
+                          <td className="px-2.5 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm truncate max-w-[100px] sm:max-w-none" style={{ color: C.secondary }}>{p.slug}</td>
+                          <td className="px-2.5 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm" style={{ color: C.secondary }}>{p.jvzoo_id || '-'}</td>
+                          <td className="px-2.5 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm" style={{ color: C.secondary }}>{p.launchpad_id || '-'}</td>
+                          <td className="px-2.5 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm text-center whitespace-nowrap" style={{ color: C.secondary }}>{p.validity_days}d</td>
+                          <td className="px-2.5 sm:px-4 py-2 sm:py-3 text-center">
                             <span
-                              className="text-xs px-2 py-1 rounded-full font-medium"
+                              className="text-[10px] sm:text-xs px-1.5 sm:px-2 py-0.5 sm:py-1 rounded-full font-medium whitespace-nowrap"
                               style={
                                 p.status === 'active'
                                   ? {
@@ -564,18 +583,18 @@ const AdminDashboard = () => {
                               }
                             >{p.status}</span>
                           </td>
-                          <td className="px-4 py-3">
+                          <td className="px-2.5 sm:px-4 py-2 sm:py-3">
                             <div className="flex items-center justify-center gap-2">
                               <button
                                 onClick={() => openEditPlanModal(p)}
-                                className="text-xs font-medium transition hover:brightness-125"
+                                className="text-[10px] sm:text-xs font-medium transition hover:brightness-125 whitespace-nowrap"
                                 style={{ color: C.cyan }}
                               >
                                 Edit
                               </button>
                               <button
                                 onClick={() => openDeletePlanModal(p)}
-                                className="text-xs font-medium transition hover:brightness-125"
+                                className="text-[10px] sm:text-xs font-medium transition hover:brightness-125 whitespace-nowrap"
                                 style={{ color: C.rose }}
                               >
                                 Delete
@@ -594,27 +613,28 @@ const AdminDashboard = () => {
           {/* Payments Tab */}
           {activeTab === 'payments' && (
             <div>
-              <div className="flex items-center gap-3 mb-4">
-                <div className="flex-1 relative">
+              <div className="flex items-center gap-2 mb-4">
+                <div className="flex-1 relative min-w-0">
                   <input
                     type="text"
-                    placeholder="Search payments by email, transaction ID, or name..."
+                    placeholder="Search payments..."
                     value={paymentSearch}
                     onChange={(e) => setPaymentSearch(e.target.value)}
-                    className="w-full px-4 py-2 pl-10 rounded-lg text-sm focus:outline-none"
+                    className="w-full px-3 py-1.5 pl-8 rounded-lg focus:outline-none"
                     style={{
                       background: C.input,
                       border: `1px solid ${C.border}`,
                       color: C.heading,
+                      fontSize: "clamp(11px, 2.8vw, 13px)",
                     }}
                   />
                   <Search
-                    size={16}
-                    className="absolute left-3 top-1/2 transform -translate-y-1/2"
+                    size={14}
+                    className="absolute left-2.5 top-1/2 transform -translate-y-1/2"
                     style={{ color: C.muted }}
                   />
                 </div>
-                <span className="text-sm whitespace-nowrap" style={{ color: C.secondary }}>
+                <span className="text-xs sm:text-sm whitespace-nowrap" style={{ color: C.secondary }}>
                   {filteredPayments.length} payments
                 </span>
               </div>
@@ -632,11 +652,11 @@ const AdminDashboard = () => {
                       }}
                     >
                       {['Transaction', 'Buyer', 'Plan'].map((h) => (
-                        <th key={h} className="text-left px-4 py-3 text-xs font-semibold uppercase" style={{ color: C.secondary }}>{h}</th>
+                        <th key={h} className="text-left px-2.5 sm:px-4 py-2.5 sm:py-3 text-[10px] sm:text-xs font-semibold uppercase whitespace-nowrap" style={{ color: C.secondary }}>{h}</th>
                       ))}
-                      <th className="text-left px-4 py-3 text-xs font-semibold uppercase" style={{ color: C.secondary }}>Platform</th>
+                      <th className="text-left px-2.5 sm:px-4 py-2.5 sm:py-3 text-[10px] sm:text-xs font-semibold uppercase whitespace-nowrap" style={{ color: C.secondary }}>Platform</th>
                       {['Amount', 'Status', 'Date', 'Action'].map((h) => (
-                        <th key={h} className="text-center px-4 py-3 text-xs font-semibold uppercase" style={{ color: C.secondary }}>{h}</th>
+                        <th key={h} className="text-center px-2.5 sm:px-4 py-2.5 sm:py-3 text-[10px] sm:text-xs font-semibold uppercase whitespace-nowrap" style={{ color: C.secondary }}>{h}</th>
                       ))}
                     </tr>
                   </thead>
@@ -646,18 +666,18 @@ const AdminDashboard = () => {
                     ) : (
                       filteredPayments.map((p) => (
                         <tr key={p._id} className="transition" style={{ borderBottom: `1px solid rgba(41,65,76,.5)` }}>
-                          <td className="px-4 py-3">
-                            <div className="text-sm font-medium truncate max-w-[150px]" style={{ color: C.heading }} title={p.transactionId}>{p.transactionId}</div>
+                          <td className="px-2.5 sm:px-4 py-2 sm:py-3">
+                            <div className="text-xs sm:text-sm font-medium truncate max-w-[90px] sm:max-w-[150px]" style={{ color: C.heading }} title={p.transactionId}>{p.transactionId}</div>
                           </td>
-                          <td className="px-4 py-3">
-                            <div>
-                              <p className="text-sm font-medium" style={{ color: C.heading }}>{p.buyerName}</p>
-                              <p className="text-xs" style={{ color: C.secondary }}>{p.buyerEmail}</p>
+                          <td className="px-2.5 sm:px-4 py-2 sm:py-3">
+                            <div className="min-w-0">
+                              <p className="text-xs sm:text-sm font-medium truncate" style={{ color: C.heading }}>{p.buyerName}</p>
+                              <p className="text-[10px] sm:text-xs truncate" style={{ color: C.secondary }}>{p.buyerEmail}</p>
                             </div>
                           </td>
-                          <td className="px-4 py-3">
+                          <td className="px-2.5 sm:px-4 py-2 sm:py-3">
                             <span
-                              className="text-xs px-2 py-1 rounded-full font-medium"
+                              className="text-[10px] sm:text-xs px-1.5 sm:px-2 py-0.5 sm:py-1 rounded-full font-medium whitespace-nowrap"
                               style={{
                                 background: "rgba(246,197,93,.12)",
                                 color: C.gold,
@@ -667,9 +687,9 @@ const AdminDashboard = () => {
                               {p.purchasedPlanName || getPlanName(p.purchasedPlanId)}
                             </span>
                           </td>
-                          <td className="px-4 py-3">
+                          <td className="px-2.5 sm:px-4 py-2 sm:py-3">
                             <span
-                              className="text-xs px-2 py-1 rounded-full font-medium"
+                              className="text-[10px] sm:text-xs px-1.5 sm:px-2 py-0.5 sm:py-1 rounded-full font-medium whitespace-nowrap"
                               style={
                                 p.platform === 'jvzoo'
                                   ? {
@@ -685,12 +705,12 @@ const AdminDashboard = () => {
                               }
                             >{p.platform || 'unknown'}</span>
                           </td>
-                          <td className="px-4 py-3 text-center text-sm font-bold" style={{ color: C.heading }}>
+                          <td className="px-2.5 sm:px-4 py-2 sm:py-3 text-center text-xs sm:text-sm font-bold whitespace-nowrap" style={{ color: C.heading }}>
                             ${p.amount?.toFixed(2) || '0.00'}
                           </td>
-                          <td className="px-4 py-3 text-center">
+                          <td className="px-2.5 sm:px-4 py-2 sm:py-3 text-center">
                             <span
-                              className="text-xs px-2 py-1 rounded-full font-medium"
+                              className="text-[10px] sm:text-xs px-1.5 sm:px-2 py-0.5 sm:py-1 rounded-full font-medium whitespace-nowrap"
                               style={
                                 p.status === 'completed'
                                   ? {
@@ -712,16 +732,16 @@ const AdminDashboard = () => {
                               }
                             >{p.status}</span>
                           </td>
-                          <td className="px-4 py-3 text-center text-sm" style={{ color: C.secondary }}>
+                          <td className="px-2.5 sm:px-4 py-2 sm:py-3 text-center text-[10px] sm:text-xs whitespace-nowrap" style={{ color: C.secondary }}>
                             {new Date(p.paymentDate || p.createdAt).toLocaleDateString()}
                           </td>
-                          <td className="px-4 py-3 text-center">
+                          <td className="px-2.5 sm:px-4 py-2 sm:py-3 text-center">
                             <button
                               onClick={() => openPaymentDetail(p)}
-                              className="text-xs font-medium transition hover:brightness-125"
+                              className="text-[10px] sm:text-xs font-medium transition hover:brightness-125 whitespace-nowrap"
                               style={{ color: C.cyan }}
                             >
-                              View IPN Data
+                              View IPN
                             </button>
                           </td>
                         </tr>
@@ -737,40 +757,40 @@ const AdminDashboard = () => {
 
       {/* ==================== SUBSCRIPTION MANAGEMENT MODAL ==================== */}
       {showSubscriptionModal && selectedUser && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center">
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-2">
           <div
             className="absolute inset-0"
             style={{ background: "rgba(0,12,22,.85)", backdropFilter: "blur(4px)" }}
             onClick={() => setShowSubscriptionModal(false)}
           ></div>
           <div
-            className="relative rounded-2xl shadow-2xl p-6 w-full max-w-2xl mx-4 max-h-[90vh] overflow-y-auto"
+            className="relative rounded-2xl shadow-2xl p-4 sm:p-6 w-full max-w-2xl max-h-[95vh] overflow-y-auto"
             style={{ background: C.card, border: `1px solid ${C.border}` }}
           >
-            <div className="flex items-center justify-between mb-6">
-              <div>
+            <div className="flex items-start justify-between mb-4 sm:mb-6 gap-2">
+              <div className="min-w-0">
                 <h3
-                  className="text-lg font-bold flex items-center gap-2"
-                  style={{ color: C.heading }}
+                  className="font-bold flex items-center gap-2"
+                  style={{ color: C.heading, fontSize: "clamp(14px, 3.6vw, 18px)" }}
                 >
-                  <Crown size={20} style={{ color: C.gold }} />
+                  <Crown size={18} style={{ color: C.gold }} />
                   Manage Subscriptions
                 </h3>
-                <p className="text-sm" style={{ color: C.secondary }}>
+                <p className="text-xs sm:text-sm truncate" style={{ color: C.secondary }}>
                   {selectedUser.name} - {selectedUser.email}
                 </p>
               </div>
               <button
                 onClick={() => setShowSubscriptionModal(false)}
-                className="w-8 h-8 rounded-full flex items-center justify-center transition"
+                className="w-8 h-8 rounded-full flex items-center justify-center transition shrink-0"
                 style={{ background: "rgba(246,197,93,.1)" }}
               >
-                <X size={20} style={{ color: C.secondary }} />
+                <X size={18} style={{ color: C.secondary }} />
               </button>
             </div>
 
-            <div className="mb-6">
-              <h4 className="text-sm font-semibold mb-3" style={{ color: C.gold }}>
+            <div className="mb-4 sm:mb-6">
+              <h4 className="text-xs sm:text-sm font-semibold mb-2 sm:mb-3" style={{ color: C.gold }}>
                 Current Subscriptions
               </h4>
               {selectedUser.planId && selectedUser.planId.length > 0 ? (
@@ -779,20 +799,20 @@ const AdminDashboard = () => {
                     selectedUser.planId.map((planId) => (
                       <div
                         key={planId}
-                        className="flex items-center justify-between p-3 rounded-lg"
+                        className="flex items-center justify-between p-2 sm:p-3 rounded-lg gap-2"
                         style={{ background: C.input, border: `1px solid ${C.border}` }}
                       >
-                        <div className="flex items-center gap-3">
-                          <span className="text-2xl">{getPlanIcon(planId)}</span>
-                          <div>
-                            <p className="text-sm font-medium" style={{ color: C.heading }}>{getPlanName(planId)}</p>
-                            <p className="text-xs" style={{ color: C.secondary }}>Plan ID: {planId}</p>
+                        <div className="flex items-center gap-2 sm:gap-3 min-w-0">
+                          <span className="text-lg sm:text-2xl">{getPlanIcon(planId)}</span>
+                          <div className="min-w-0">
+                            <p className="text-xs sm:text-sm font-medium truncate" style={{ color: C.heading }}>{getPlanName(planId)}</p>
+                            <p className="text-[10px] sm:text-xs" style={{ color: C.secondary }}>Plan ID: {planId}</p>
                           </div>
                         </div>
                         <button
                           onClick={() => handleRemoveSubscription(selectedUser._id, planId)}
                           disabled={removingSubscription}
-                          className="px-3 py-1 text-xs font-medium rounded-lg transition hover:brightness-125"
+                          className="px-2 sm:px-3 py-1 text-[10px] sm:text-xs font-medium rounded-lg transition hover:brightness-125 whitespace-nowrap shrink-0"
                           style={{
                             color: C.rose,
                             background: "rgba(255,95,126,.1)",
@@ -805,20 +825,20 @@ const AdminDashboard = () => {
                     ))
                   ) : (
                     <div
-                      className="flex items-center justify-between p-3 rounded-lg"
+                      className="flex items-center justify-between p-2 sm:p-3 rounded-lg gap-2"
                       style={{ background: C.input, border: `1px solid ${C.border}` }}
                     >
-                      <div className="flex items-center gap-3">
-                        <span className="text-2xl">{getPlanIcon(selectedUser.planId)}</span>
-                        <div>
-                          <p className="text-sm font-medium" style={{ color: C.heading }}>{getPlanName(selectedUser.planId)}</p>
-                          <p className="text-xs" style={{ color: C.secondary }}>Plan ID: {selectedUser.planId}</p>
+                      <div className="flex items-center gap-2 sm:gap-3 min-w-0">
+                        <span className="text-lg sm:text-2xl">{getPlanIcon(selectedUser.planId)}</span>
+                        <div className="min-w-0">
+                          <p className="text-xs sm:text-sm font-medium truncate" style={{ color: C.heading }}>{getPlanName(selectedUser.planId)}</p>
+                          <p className="text-[10px] sm:text-xs" style={{ color: C.secondary }}>Plan ID: {selectedUser.planId}</p>
                         </div>
                       </div>
                       <button
                         onClick={() => handleRemoveSubscription(selectedUser._id, selectedUser.planId)}
                         disabled={removingSubscription}
-                        className="px-3 py-1 text-xs font-medium rounded-lg transition hover:brightness-125"
+                        className="px-2 sm:px-3 py-1 text-[10px] sm:text-xs font-medium rounded-lg transition hover:brightness-125 whitespace-nowrap shrink-0"
                         style={{
                           color: C.rose,
                           background: "rgba(255,95,126,.1)",
@@ -831,24 +851,24 @@ const AdminDashboard = () => {
                   )}
                 </div>
               ) : (
-                <p className="text-sm" style={{ color: C.secondary }}>
+                <p className="text-xs sm:text-sm" style={{ color: C.secondary }}>
                   No subscriptions found for this user.
                 </p>
               )}
             </div>
 
-            <div className="pt-4" style={{ borderTop: `1px solid ${C.border}` }}>
-              <h4 className="text-sm font-semibold mb-3" style={{ color: C.gold }}>
+            <div className="pt-3 sm:pt-4" style={{ borderTop: `1px solid ${C.border}` }}>
+              <h4 className="text-xs sm:text-sm font-semibold mb-2 sm:mb-3" style={{ color: C.gold }}>
                 Add Subscription
               </h4>
-              <div className="space-y-4">
+              <div className="space-y-3 sm:space-y-4">
                 <div>
-                  <label className="block text-sm font-medium mb-1.5" style={{ color: C.secondary }}>Select Plan</label>
+                  <label className="block text-xs sm:text-sm font-medium mb-1.5" style={{ color: C.secondary }}>Select Plan</label>
                   <select
                     value={subscriptionForm.planId}
                     onChange={(e) => setSubscriptionForm({ ...subscriptionForm, planId: e.target.value })}
-                    className="w-full px-4 py-2.5 rounded-lg text-sm focus:outline-none"
-                    style={{ background: C.input, border: `1px solid ${C.border}`, color: C.heading }}
+                    className="w-full px-2 sm:px-4 py-2 sm:py-2.5 rounded-lg focus:outline-none"
+                    style={{ background: C.input, border: `1px solid ${C.border}`, color: C.heading, fontSize: "clamp(11px, 2.8vw, 13px)" }}
                   >
                     <option value="">Select a plan...</option>
                     {plans.map((plan) => {
@@ -863,37 +883,37 @@ const AdminDashboard = () => {
                     })}
                   </select>
                 </div>
-                <div className="grid grid-cols-2 gap-4">
+                <div className="grid grid-cols-1 xs:grid-cols-2 gap-2 sm:gap-4">
                   <div>
-                    <label className="block text-sm font-medium mb-1.5" style={{ color: C.secondary }}>Transaction ID</label>
+                    <label className="block text-xs sm:text-sm font-medium mb-1.5" style={{ color: C.secondary }}>Transaction ID</label>
                     <input
                       type="text"
                       value={subscriptionForm.transactionId}
                       onChange={(e) => setSubscriptionForm({ ...subscriptionForm, transactionId: e.target.value })}
                       placeholder="ADMIN_12345"
-                      className="w-full px-4 py-2.5 rounded-lg text-sm focus:outline-none"
-                      style={{ background: C.input, border: `1px solid ${C.border}`, color: C.heading }}
+                      className="w-full px-2 sm:px-4 py-2 sm:py-2.5 rounded-lg focus:outline-none"
+                      style={{ background: C.input, border: `1px solid ${C.border}`, color: C.heading, fontSize: "clamp(11px, 2.8vw, 13px)" }}
                     />
                   </div>
                   <div>
-                    <label className="block text-sm font-medium mb-1.5" style={{ color: C.secondary }}>Amount</label>
+                    <label className="block text-xs sm:text-sm font-medium mb-1.5" style={{ color: C.secondary }}>Amount</label>
                     <input
                       type="number"
                       value={subscriptionForm.amount}
                       onChange={(e) => setSubscriptionForm({ ...subscriptionForm, amount: e.target.value })}
                       placeholder="0.00"
-                      className="w-full px-4 py-2.5 rounded-lg text-sm focus:outline-none"
-                      style={{ background: C.input, border: `1px solid ${C.border}`, color: C.heading }}
+                      className="w-full px-2 sm:px-4 py-2 sm:py-2.5 rounded-lg focus:outline-none"
+                      style={{ background: C.input, border: `1px solid ${C.border}`, color: C.heading, fontSize: "clamp(11px, 2.8vw, 13px)" }}
                     />
                   </div>
                 </div>
                 <div>
-                  <label className="block text-sm font-medium mb-1.5" style={{ color: C.secondary }}>Source</label>
+                  <label className="block text-xs sm:text-sm font-medium mb-1.5" style={{ color: C.secondary }}>Source</label>
                   <select
                     value={subscriptionForm.source}
                     onChange={(e) => setSubscriptionForm({ ...subscriptionForm, source: e.target.value })}
-                    className="w-full px-4 py-2.5 rounded-lg text-sm focus:outline-none"
-                    style={{ background: C.input, border: `1px solid ${C.border}`, color: C.heading }}
+                    className="w-full px-2 sm:px-4 py-2 sm:py-2.5 rounded-lg focus:outline-none"
+                    style={{ background: C.input, border: `1px solid ${C.border}`, color: C.heading, fontSize: "clamp(11px, 2.8vw, 13px)" }}
                   >
                     <option value="Admin">Admin</option>
                     <option value="BULK_FIX">BULK_FIX</option>
@@ -904,27 +924,28 @@ const AdminDashboard = () => {
                 </div>
               </div>
 
-              <div className="flex gap-3 mt-4">
+              <div className="flex flex-col xs:flex-row gap-2 sm:gap-3 mt-4">
                 <button
                   onClick={() => setShowSubscriptionModal(false)}
-                  className="flex-1 px-4 py-2.5 rounded-lg text-sm font-medium transition"
-                  style={{ background: C.input, border: `1px solid ${C.border}`, color: C.secondary }}
+                  className="flex-1 px-4 py-2 sm:py-2.5 rounded-lg font-medium transition"
+                  style={{ background: C.input, border: `1px solid ${C.border}`, color: C.secondary, fontSize: "clamp(11px, 2.8vw, 13px)" }}
                 >
                   Cancel
                 </button>
                 <button
                   onClick={handleAddSubscription}
                   disabled={addingSubscription || !subscriptionForm.planId}
-                  className="flex-1 px-4 py-2.5 rounded-lg text-sm font-bold transition disabled:opacity-50 flex items-center justify-center gap-2 hover:-translate-y-[1px]"
+                  className="flex-1 px-4 py-2 sm:py-2.5 rounded-lg font-bold transition disabled:opacity-50 flex items-center justify-center gap-2 hover:-translate-y-[1px]"
                   style={{
                     background: C.goldGradient,
                     color: C.mainBg,
                     border: `1px solid ${C.goldHover}`,
                     boxShadow:
                       "inset 0 1px 1px rgba(255,255,255,.25), 0 4px 14px rgba(246,197,93,.35)",
+                    fontSize: "clamp(11px, 2.8vw, 13px)",
                   }}
                 >
-                  {addingSubscription ? (<><RefreshCw size={16} className="animate-spin" />Adding...</>) : (<><Plus size={16} />Add Subscription</>)}
+                  {addingSubscription ? (<><RefreshCw size={14} className="animate-spin" />Adding...</>) : (<><Plus size={14} />Add</>)}
                 </button>
               </div>
             </div>
@@ -934,48 +955,50 @@ const AdminDashboard = () => {
 
       {/* ==================== DELETE USER MODAL ==================== */}
       {showDeleteModal && selectedUser && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center">
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-2">
           <div
             className="absolute inset-0"
             style={{ background: "rgba(0,12,22,.85)", backdropFilter: "blur(4px)" }}
             onClick={() => setShowDeleteModal(false)}
           ></div>
           <div
-            className="relative rounded-2xl shadow-2xl p-6 w-full max-w-md mx-4"
+            className="relative rounded-2xl shadow-2xl p-4 sm:p-6 w-full max-w-md max-h-[95vh] overflow-y-auto"
             style={{ background: C.card, border: `1px solid ${C.border}` }}
           >
-            <div className="text-center mb-6">
+            <div className="text-center mb-4 sm:mb-6">
               <div
-                className="w-14 h-14 rounded-full flex items-center justify-center mx-auto mb-4"
+                className="w-12 h-12 sm:w-14 sm:h-14 rounded-full flex items-center justify-center mx-auto mb-3 sm:mb-4"
                 style={{
                   background: "rgba(255,95,126,.15)",
                   border: "1px solid rgba(255,95,126,.35)",
                 }}
               >
-                <Trash2 size={24} style={{ color: C.rose }} />
+                <Trash2 size={20} className="sm:hidden" style={{ color: C.rose }} />
+                <Trash2 size={24} className="hidden sm:block" style={{ color: C.rose }} />
               </div>
-              <h3 className="text-lg font-bold" style={{ color: C.heading }}>Delete User?</h3>
-              <p className="text-sm mt-2" style={{ color: C.secondary }}>
+              <h3 className="font-bold" style={{ color: C.heading, fontSize: "clamp(14px, 3.8vw, 18px)" }}>Delete User?</h3>
+              <p className="text-xs sm:text-sm mt-2" style={{ color: C.secondary }}>
                 This will permanently delete <strong style={{ color: C.heading }}>{selectedUser.name}</strong> and all their data.
               </p>
             </div>
-            <div className="flex gap-3">
+            <div className="flex gap-2 sm:gap-3">
               <button
                 onClick={() => setShowDeleteModal(false)}
-                className="flex-1 px-4 py-2.5 rounded-lg text-sm font-medium transition"
-                style={{ background: C.input, border: `1px solid ${C.border}`, color: C.secondary }}
+                className="flex-1 px-3 sm:px-4 py-2 sm:py-2.5 rounded-lg font-medium transition"
+                style={{ background: C.input, border: `1px solid ${C.border}`, color: C.secondary, fontSize: "clamp(11px, 2.8vw, 13px)" }}
               >
                 Cancel
               </button>
               <button
                 onClick={handleDeleteUser}
-                className="flex-1 px-4 py-2.5 rounded-lg text-sm font-bold transition hover:-translate-y-[1px]"
+                className="flex-1 px-3 sm:px-4 py-2 sm:py-2.5 rounded-lg font-bold transition hover:-translate-y-[1px]"
                 style={{
                   background: `linear-gradient(115deg, ${C.rose}, #ff5f7e)`,
                   color: "#0b0208",
                   border: `1px solid ${C.rose}`,
                   boxShadow:
                     "inset 0 1px 1px rgba(255,255,255,.25), 0 6px 18px rgba(255,95,126,.35)",
+                  fontSize: "clamp(11px, 2.8vw, 13px)",
                 }}
               >
                 Delete
@@ -987,115 +1010,116 @@ const AdminDashboard = () => {
 
       {/* ==================== EDIT USER MODAL ==================== */}
       {showEditModal && selectedUser && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center">
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-2">
           <div
             className="absolute inset-0"
             style={{ background: "rgba(0,12,22,.85)", backdropFilter: "blur(4px)" }}
             onClick={() => setShowEditModal(false)}
           ></div>
           <div
-            className="relative rounded-2xl shadow-2xl p-6 w-full max-w-lg mx-4 max-h-[90vh] overflow-y-auto"
+            className="relative rounded-2xl shadow-2xl p-4 sm:p-6 w-full max-w-lg max-h-[95vh] overflow-y-auto"
             style={{ background: C.card, border: `1px solid ${C.border}` }}
           >
-            <div className="flex items-center justify-between mb-6">
-              <div>
-                <h3 className="text-lg font-bold" style={{ color: C.heading }}>Edit User</h3>
-                <p className="text-sm" style={{ color: C.secondary }}>{selectedUser.email}</p>
+            <div className="flex items-start justify-between mb-4 sm:mb-6 gap-2">
+              <div className="min-w-0">
+                <h3 className="font-bold" style={{ color: C.heading, fontSize: "clamp(14px, 3.8vw, 18px)" }}>Edit User</h3>
+                <p className="text-xs sm:text-sm truncate" style={{ color: C.secondary }}>{selectedUser.email}</p>
               </div>
               <button
                 onClick={() => setShowEditModal(false)}
-                className="w-8 h-8 rounded-full flex items-center justify-center transition"
+                className="w-8 h-8 rounded-full flex items-center justify-center transition shrink-0"
                 style={{ background: "rgba(246,197,93,.1)" }}
               >
-                <X size={20} style={{ color: C.secondary }} />
+                <X size={18} style={{ color: C.secondary }} />
               </button>
             </div>
-            <form onSubmit={handleEditUser} className="space-y-4">
+            <form onSubmit={handleEditUser} className="space-y-3 sm:space-y-4">
               <div>
-                <label className="block text-sm font-medium mb-1.5" style={{ color: C.secondary }}>Name</label>
+                <label className="block text-xs sm:text-sm font-medium mb-1.5" style={{ color: C.secondary }}>Name</label>
                 <input
                   type="text"
                   value={editForm.name}
                   onChange={(e) => setEditForm({ ...editForm, name: e.target.value })}
-                  className="w-full px-4 py-2.5 rounded-lg text-sm focus:outline-none"
-                  style={{ background: C.input, border: `1px solid ${C.border}`, color: C.heading }}
+                  className="w-full px-2 sm:px-4 py-2 sm:py-2.5 rounded-lg focus:outline-none"
+                  style={{ background: C.input, border: `1px solid ${C.border}`, color: C.heading, fontSize: "clamp(11px, 2.8vw, 13px)" }}
                   required
                 />
               </div>
               <div>
-                <label className="block text-sm font-medium mb-1.5" style={{ color: C.secondary }}>Email</label>
+                <label className="block text-xs sm:text-sm font-medium mb-1.5" style={{ color: C.secondary }}>Email</label>
                 <input
                   type="email"
                   value={editForm.email}
                   onChange={(e) => setEditForm({ ...editForm, email: e.target.value })}
-                  className="w-full px-4 py-2.5 rounded-lg text-sm focus:outline-none"
-                  style={{ background: C.input, border: `1px solid ${C.border}`, color: C.heading }}
+                  className="w-full px-2 sm:px-4 py-2 sm:py-2.5 rounded-lg focus:outline-none"
+                  style={{ background: C.input, border: `1px solid ${C.border}`, color: C.heading, fontSize: "clamp(11px, 2.8vw, 13px)" }}
                   required
                 />
               </div>
-              <div className="grid grid-cols-2 gap-4">
+              <div className="grid grid-cols-1 xs:grid-cols-2 gap-3 sm:gap-4">
                 <div>
-                  <label className="block text-sm font-medium mb-1.5" style={{ color: C.secondary }}>Role</label>
+                  <label className="block text-xs sm:text-sm font-medium mb-1.5" style={{ color: C.secondary }}>Role</label>
                   <select
                     value={editForm.role}
                     onChange={(e) => setEditForm({ ...editForm, role: e.target.value })}
-                    className="w-full px-4 py-2.5 rounded-lg text-sm focus:outline-none"
-                    style={{ background: C.input, border: `1px solid ${C.border}`, color: C.heading }}
+                    className="w-full px-2 sm:px-4 py-2 sm:py-2.5 rounded-lg focus:outline-none"
+                    style={{ background: C.input, border: `1px solid ${C.border}`, color: C.heading, fontSize: "clamp(11px, 2.8vw, 13px)" }}
                   >
                     <option value="user">User</option>
                     <option value="admin">Admin</option>
                   </select>
                 </div>
                 <div>
-                  <label className="block text-sm font-medium mb-1.5" style={{ color: C.secondary }}>Plan</label>
+                  <label className="block text-xs sm:text-sm font-medium mb-1.5" style={{ color: C.secondary }}>Plan</label>
                   <select
                     value={editForm.planId}
                     onChange={(e) => setEditForm({ ...editForm, planId: parseInt(e.target.value) })}
-                    className="w-full px-4 py-2.5 rounded-lg text-sm focus:outline-none"
-                    style={{ background: C.input, border: `1px solid ${C.border}`, color: C.heading }}
+                    className="w-full px-2 sm:px-4 py-2 sm:py-2.5 rounded-lg focus:outline-none"
+                    style={{ background: C.input, border: `1px solid ${C.border}`, color: C.heading, fontSize: "clamp(11px, 2.8vw, 13px)" }}
                   >
                     {plans.map(plan => (<option key={plan._id} value={plan.planId}>{plan.name}</option>))}
                   </select>
                 </div>
               </div>
               <div
-                className="flex items-center justify-between p-3 rounded-lg"
+                className="flex items-center justify-between p-2 sm:p-3 rounded-lg gap-2"
                 style={{ background: C.input, border: `1px solid ${C.border}` }}
               >
-                <div>
-                  <p className="text-sm font-medium" style={{ color: C.heading }}>Account Active</p>
-                  <p className="text-xs" style={{ color: C.secondary }}>User can login and use the platform</p>
+                <div className="min-w-0">
+                  <p className="text-xs sm:text-sm font-medium" style={{ color: C.heading }}>Account Active</p>
+                  <p className="text-[10px] sm:text-xs" style={{ color: C.secondary }}>User can login</p>
                 </div>
                 <button
                   type="button"
                   onClick={() => setEditForm({ ...editForm, isActive: !editForm.isActive })}
-                  className={`relative w-11 h-6 rounded-full transition-colors ${editForm.isActive ? 'bg-green-500' : 'bg-gray-300'}`}
+                  className={`relative w-11 h-6 rounded-full transition-colors shrink-0 ${editForm.isActive ? 'bg-green-500' : 'bg-gray-300'}`}
                 >
                   <span className={`absolute top-0.5 left-0.5 w-5 h-5 bg-white rounded-full shadow transition-transform ${editForm.isActive ? 'translate-x-5' : ''}`}></span>
                 </button>
               </div>
-              <div className="flex gap-3 pt-2">
+              <div className="flex flex-col xs:flex-row gap-2 sm:gap-3 pt-2">
                 <button
                   type="button"
                   onClick={() => setShowEditModal(false)}
-                  className="flex-1 px-4 py-2.5 rounded-lg text-sm font-medium transition"
-                  style={{ background: C.input, border: `1px solid ${C.border}`, color: C.secondary }}
+                  className="flex-1 px-3 sm:px-4 py-2 sm:py-2.5 rounded-lg font-medium transition"
+                  style={{ background: C.input, border: `1px solid ${C.border}`, color: C.secondary, fontSize: "clamp(11px, 2.8vw, 13px)" }}
                 >
                   Cancel
                 </button>
                 <button
                   type="submit"
                   disabled={savingUser}
-                  className="flex-1 px-4 py-2.5 rounded-lg text-sm font-bold transition disabled:opacity-50 hover:-translate-y-[1px]"
+                  className="flex-1 px-3 sm:px-4 py-2 sm:py-2.5 rounded-lg font-bold transition disabled:opacity-50 hover:-translate-y-[1px]"
                   style={{
                     background: C.goldGradient,
                     color: C.mainBg,
                     border: `1px solid ${C.goldHover}`,
                     boxShadow:
                       "inset 0 1px 1px rgba(255,255,255,.25), 0 4px 14px rgba(246,197,93,.35)",
+                    fontSize: "clamp(11px, 2.8vw, 13px)",
                   }}
                 >
-                  {savingUser ? 'Saving...' : 'Save Changes'}
+                  {savingUser ? 'Saving...' : 'Save'}
                 </button>
               </div>
             </form>
@@ -1105,114 +1129,115 @@ const AdminDashboard = () => {
 
       {/* ==================== ADD USER MODAL ==================== */}
       {showAddModal && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center">
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-2">
           <div
             className="absolute inset-0"
             style={{ background: "rgba(0,12,22,.85)", backdropFilter: "blur(4px)" }}
             onClick={() => setShowAddModal(false)}
           ></div>
           <div
-            className="relative rounded-2xl shadow-2xl p-6 w-full max-w-lg mx-4 max-h-[90vh] overflow-y-auto"
+            className="relative rounded-2xl shadow-2xl p-4 sm:p-6 w-full max-w-lg max-h-[95vh] overflow-y-auto"
             style={{ background: C.card, border: `1px solid ${C.border}` }}
           >
-            <div className="flex items-center justify-between mb-6">
-              <div>
-                <h3 className="text-lg font-bold" style={{ color: C.heading }}>Add New User</h3>
-                <p className="text-sm" style={{ color: C.secondary }}>Create a user account manually</p>
+            <div className="flex items-start justify-between mb-4 sm:mb-6 gap-2">
+              <div className="min-w-0">
+                <h3 className="font-bold" style={{ color: C.heading, fontSize: "clamp(14px, 3.8vw, 18px)" }}>Add New User</h3>
+                <p className="text-xs sm:text-sm" style={{ color: C.secondary }}>Create a user account manually</p>
               </div>
               <button
                 onClick={() => setShowAddModal(false)}
-                className="w-8 h-8 rounded-full flex items-center justify-center transition"
+                className="w-8 h-8 rounded-full flex items-center justify-center transition shrink-0"
                 style={{ background: "rgba(246,197,93,.1)" }}
               >
-                <X size={20} style={{ color: C.secondary }} />
+                <X size={18} style={{ color: C.secondary }} />
               </button>
             </div>
-            <form onSubmit={handleAddUser} className="space-y-4">
+            <form onSubmit={handleAddUser} className="space-y-3 sm:space-y-4">
               <div>
-                <label className="block text-sm font-medium mb-1.5" style={{ color: C.secondary }}>Full Name *</label>
+                <label className="block text-xs sm:text-sm font-medium mb-1.5" style={{ color: C.secondary }}>Full Name *</label>
                 <input
                   type="text"
                   value={addForm.name}
                   onChange={(e) => setAddForm({ ...addForm, name: e.target.value })}
                   placeholder="John Doe"
-                  className="w-full px-4 py-2.5 rounded-lg text-sm focus:outline-none"
-                  style={{ background: C.input, border: `1px solid ${C.border}`, color: C.heading }}
+                  className="w-full px-2 sm:px-4 py-2 sm:py-2.5 rounded-lg focus:outline-none"
+                  style={{ background: C.input, border: `1px solid ${C.border}`, color: C.heading, fontSize: "clamp(11px, 2.8vw, 13px)" }}
                   required
                 />
               </div>
               <div>
-                <label className="block text-sm font-medium mb-1.5" style={{ color: C.secondary }}>Email *</label>
+                <label className="block text-xs sm:text-sm font-medium mb-1.5" style={{ color: C.secondary }}>Email *</label>
                 <input
                   type="email"
                   value={addForm.email}
                   onChange={(e) => setAddForm({ ...addForm, email: e.target.value })}
                   placeholder="john@example.com"
-                  className="w-full px-4 py-2.5 rounded-lg text-sm focus:outline-none"
-                  style={{ background: C.input, border: `1px solid ${C.border}`, color: C.heading }}
+                  className="w-full px-2 sm:px-4 py-2 sm:py-2.5 rounded-lg focus:outline-none"
+                  style={{ background: C.input, border: `1px solid ${C.border}`, color: C.heading, fontSize: "clamp(11px, 2.8vw, 13px)" }}
                   required
                 />
               </div>
               <div>
-                <label className="block text-sm font-medium mb-1.5" style={{ color: C.secondary }}>Password *</label>
+                <label className="block text-xs sm:text-sm font-medium mb-1.5" style={{ color: C.secondary }}>Password *</label>
                 <input
                   type="password"
                   value={addForm.password}
                   onChange={(e) => setAddForm({ ...addForm, password: e.target.value })}
                   placeholder="Min. 6 characters"
-                  className="w-full px-4 py-2.5 rounded-lg text-sm focus:outline-none"
-                  style={{ background: C.input, border: `1px solid ${C.border}`, color: C.heading }}
+                  className="w-full px-2 sm:px-4 py-2 sm:py-2.5 rounded-lg focus:outline-none"
+                  style={{ background: C.input, border: `1px solid ${C.border}`, color: C.heading, fontSize: "clamp(11px, 2.8vw, 13px)" }}
                   required
                   minLength="6"
                 />
               </div>
-              <div className="grid grid-cols-2 gap-4">
+              <div className="grid grid-cols-1 xs:grid-cols-2 gap-3 sm:gap-4">
                 <div>
-                  <label className="block text-sm font-medium mb-1.5" style={{ color: C.secondary }}>Role</label>
+                  <label className="block text-xs sm:text-sm font-medium mb-1.5" style={{ color: C.secondary }}>Role</label>
                   <select
                     value={addForm.role}
                     onChange={(e) => setAddForm({ ...addForm, role: e.target.value })}
-                    className="w-full px-4 py-2.5 rounded-lg text-sm focus:outline-none"
-                    style={{ background: C.input, border: `1px solid ${C.border}`, color: C.heading }}
+                    className="w-full px-2 sm:px-4 py-2 sm:py-2.5 rounded-lg focus:outline-none"
+                    style={{ background: C.input, border: `1px solid ${C.border}`, color: C.heading, fontSize: "clamp(11px, 2.8vw, 13px)" }}
                   >
                     <option value="user">User</option>
                     <option value="admin">Admin</option>
                   </select>
                 </div>
                 <div>
-                  <label className="block text-sm font-medium mb-1.5" style={{ color: C.secondary }}>Plan</label>
+                  <label className="block text-xs sm:text-sm font-medium mb-1.5" style={{ color: C.secondary }}>Plan</label>
                   <select
                     value={addForm.planId}
                     onChange={(e) => setAddForm({ ...addForm, planId: parseInt(e.target.value) })}
-                    className="w-full px-4 py-2.5 rounded-lg text-sm focus:outline-none"
-                    style={{ background: C.input, border: `1px solid ${C.border}`, color: C.heading }}
+                    className="w-full px-2 sm:px-4 py-2 sm:py-2.5 rounded-lg focus:outline-none"
+                    style={{ background: C.input, border: `1px solid ${C.border}`, color: C.heading, fontSize: "clamp(11px, 2.8vw, 13px)" }}
                   >
                     {plans.map(plan => (<option key={plan._id} value={plan.planId}>{plan.name}</option>))}
                   </select>
                 </div>
               </div>
-              <div className="flex gap-3 pt-2">
+              <div className="flex flex-col xs:flex-row gap-2 sm:gap-3 pt-2">
                 <button
                   type="button"
                   onClick={() => setShowAddModal(false)}
-                  className="flex-1 px-4 py-2.5 rounded-lg text-sm font-medium transition"
-                  style={{ background: C.input, border: `1px solid ${C.border}`, color: C.secondary }}
+                  className="flex-1 px-3 sm:px-4 py-2 sm:py-2.5 rounded-lg font-medium transition"
+                  style={{ background: C.input, border: `1px solid ${C.border}`, color: C.secondary, fontSize: "clamp(11px, 2.8vw, 13px)" }}
                 >
                   Cancel
                 </button>
                 <button
                   type="submit"
                   disabled={addingUser}
-                  className="flex-1 px-4 py-2.5 rounded-lg text-sm font-bold transition disabled:opacity-50 hover:-translate-y-[1px]"
+                  className="flex-1 px-3 sm:px-4 py-2 sm:py-2.5 rounded-lg font-bold transition disabled:opacity-50 hover:-translate-y-[1px]"
                   style={{
                     background: C.goldGradient,
                     color: C.mainBg,
                     border: `1px solid ${C.goldHover}`,
                     boxShadow:
                       "inset 0 1px 1px rgba(255,255,255,.25), 0 4px 14px rgba(246,197,93,.35)",
+                    fontSize: "clamp(11px, 2.8vw, 13px)",
                   }}
                 >
-                  {addingUser ? 'Creating...' : 'Create User'}
+                  {addingUser ? 'Creating...' : 'Create'}
                 </button>
               </div>
             </form>
@@ -1222,48 +1247,50 @@ const AdminDashboard = () => {
 
       {/* ==================== DELETE PLAN MODAL ==================== */}
       {showDeletePlanModal && selectedPlan && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center">
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-2">
           <div
             className="absolute inset-0"
             style={{ background: "rgba(0,12,22,.85)", backdropFilter: "blur(4px)" }}
             onClick={() => setShowDeletePlanModal(false)}
           ></div>
           <div
-            className="relative rounded-2xl shadow-2xl p-6 w-full max-w-md mx-4"
+            className="relative rounded-2xl shadow-2xl p-4 sm:p-6 w-full max-w-md max-h-[95vh] overflow-y-auto"
             style={{ background: C.card, border: `1px solid ${C.border}` }}
           >
-            <div className="text-center mb-6">
+            <div className="text-center mb-4 sm:mb-6">
               <div
-                className="w-14 h-14 rounded-full flex items-center justify-center mx-auto mb-4"
+                className="w-12 h-12 sm:w-14 sm:h-14 rounded-full flex items-center justify-center mx-auto mb-3 sm:mb-4"
                 style={{
                   background: "rgba(255,95,126,.15)",
                   border: "1px solid rgba(255,95,126,.35)",
                 }}
               >
-                <Trash2 size={24} style={{ color: C.rose }} />
+                <Trash2 size={20} className="sm:hidden" style={{ color: C.rose }} />
+                <Trash2 size={24} className="hidden sm:block" style={{ color: C.rose }} />
               </div>
-              <h3 className="text-lg font-bold" style={{ color: C.heading }}>Delete Plan?</h3>
-              <p className="text-sm mt-2" style={{ color: C.secondary }}>
-                This will permanently delete <strong style={{ color: C.heading }}>{selectedPlan.name}</strong> from the system.
+              <h3 className="font-bold" style={{ color: C.heading, fontSize: "clamp(14px, 3.8vw, 18px)" }}>Delete Plan?</h3>
+              <p className="text-xs sm:text-sm mt-2" style={{ color: C.secondary }}>
+                This will permanently delete <strong style={{ color: C.heading }}>{selectedPlan.name}</strong>.
               </p>
             </div>
-            <div className="flex gap-3">
+            <div className="flex gap-2 sm:gap-3">
               <button
                 onClick={() => setShowDeletePlanModal(false)}
-                className="flex-1 px-4 py-2.5 rounded-lg text-sm font-medium transition"
-                style={{ background: C.input, border: `1px solid ${C.border}`, color: C.secondary }}
+                className="flex-1 px-3 sm:px-4 py-2 sm:py-2.5 rounded-lg font-medium transition"
+                style={{ background: C.input, border: `1px solid ${C.border}`, color: C.secondary, fontSize: "clamp(11px, 2.8vw, 13px)" }}
               >
                 Cancel
               </button>
               <button
                 onClick={handleDeletePlan}
-                className="flex-1 px-4 py-2.5 rounded-lg text-sm font-bold transition hover:-translate-y-[1px]"
+                className="flex-1 px-3 sm:px-4 py-2 sm:py-2.5 rounded-lg font-bold transition hover:-translate-y-[1px]"
                 style={{
                   background: `linear-gradient(115deg, ${C.rose}, #ff5f7e)`,
                   color: "#0b0208",
                   border: `1px solid ${C.rose}`,
                   boxShadow:
                     "inset 0 1px 1px rgba(255,255,255,.25), 0 6px 18px rgba(255,95,126,.35)",
+                  fontSize: "clamp(11px, 2.8vw, 13px)",
                 }}
               >
                 Delete
@@ -1275,149 +1302,150 @@ const AdminDashboard = () => {
 
       {/* ==================== ADD PLAN MODAL ==================== */}
       {showAddPlanModal && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center">
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-2">
           <div
             className="absolute inset-0"
             style={{ background: "rgba(0,12,22,.85)", backdropFilter: "blur(4px)" }}
             onClick={() => setShowAddPlanModal(false)}
           ></div>
           <div
-            className="relative rounded-2xl shadow-2xl p-6 w-full max-w-lg mx-4 max-h-[90vh] overflow-y-auto"
+            className="relative rounded-2xl shadow-2xl p-4 sm:p-6 w-full max-w-lg max-h-[95vh] overflow-y-auto"
             style={{ background: C.card, border: `1px solid ${C.border}` }}
           >
-            <div className="flex items-center justify-between mb-6">
-              <div>
-                <h3 className="text-lg font-bold" style={{ color: C.heading }}>Add New Plan</h3>
-                <p className="text-sm" style={{ color: C.secondary }}>Create a new subscription plan</p>
+            <div className="flex items-start justify-between mb-4 sm:mb-6 gap-2">
+              <div className="min-w-0">
+                <h3 className="font-bold" style={{ color: C.heading, fontSize: "clamp(14px, 3.8vw, 18px)" }}>Add New Plan</h3>
+                <p className="text-xs sm:text-sm" style={{ color: C.secondary }}>Create a subscription plan</p>
               </div>
               <button
                 onClick={() => setShowAddPlanModal(false)}
-                className="w-8 h-8 rounded-full flex items-center justify-center transition"
+                className="w-8 h-8 rounded-full flex items-center justify-center transition shrink-0"
                 style={{ background: "rgba(246,197,93,.1)" }}
               >
-                <X size={20} style={{ color: C.secondary }} />
+                <X size={18} style={{ color: C.secondary }} />
               </button>
             </div>
-            <form onSubmit={handleAddPlan} className="space-y-4">
+            <form onSubmit={handleAddPlan} className="space-y-3 sm:space-y-4">
               <div>
-                <label className="block text-sm font-medium mb-1.5" style={{ color: C.secondary }}>Plan Name *</label>
+                <label className="block text-xs sm:text-sm font-medium mb-1.5" style={{ color: C.secondary }}>Plan Name *</label>
                 <input
                   type="text"
                   value={planForm.name}
                   onChange={(e) => setPlanForm({ ...planForm, name: e.target.value })}
                   placeholder="Mystery Pro"
-                  className="w-full px-4 py-2.5 rounded-lg text-sm focus:outline-none"
-                  style={{ background: C.input, border: `1px solid ${C.border}`, color: C.heading }}
+                  className="w-full px-2 sm:px-4 py-2 sm:py-2.5 rounded-lg focus:outline-none"
+                  style={{ background: C.input, border: `1px solid ${C.border}`, color: C.heading, fontSize: "clamp(11px, 2.8vw, 13px)" }}
                   required
                 />
               </div>
               <div>
-                <label className="block text-sm font-medium mb-1.5" style={{ color: C.secondary }}>Slug *</label>
+                <label className="block text-xs sm:text-sm font-medium mb-1.5" style={{ color: C.secondary }}>Slug *</label>
                 <input
                   type="text"
                   value={planForm.slug}
                   onChange={(e) => setPlanForm({ ...planForm, slug: e.target.value.toLowerCase().replace(/\s/g, '-') })}
                   placeholder="mystery-pro"
-                  className="w-full px-4 py-2.5 rounded-lg text-sm focus:outline-none"
-                  style={{ background: C.input, border: `1px solid ${C.border}`, color: C.heading }}
+                  className="w-full px-2 sm:px-4 py-2 sm:py-2.5 rounded-lg focus:outline-none"
+                  style={{ background: C.input, border: `1px solid ${C.border}`, color: C.heading, fontSize: "clamp(11px, 2.8vw, 13px)" }}
                   required
                 />
               </div>
-              <div className="grid grid-cols-2 gap-4">
+              <div className="grid grid-cols-1 xs:grid-cols-2 gap-3 sm:gap-4">
                 <div>
-                  <label className="block text-sm font-medium mb-1.5" style={{ color: C.secondary }}>Plan ID</label>
+                  <label className="block text-xs sm:text-sm font-medium mb-1.5" style={{ color: C.secondary }}>Plan ID</label>
                   <input
                     type="number"
                     value={planForm.planId}
                     onChange={(e) => setPlanForm({ ...planForm, planId: e.target.value })}
                     placeholder="1"
-                    className="w-full px-4 py-2.5 rounded-lg text-sm focus:outline-none"
-                    style={{ background: C.input, border: `1px solid ${C.border}`, color: C.heading }}
+                    className="w-full px-2 sm:px-4 py-2 sm:py-2.5 rounded-lg focus:outline-none"
+                    style={{ background: C.input, border: `1px solid ${C.border}`, color: C.heading, fontSize: "clamp(11px, 2.8vw, 13px)" }}
                   />
                 </div>
                 <div>
-                  <label className="block text-sm font-medium mb-1.5" style={{ color: C.secondary }}>Validity (days)</label>
+                  <label className="block text-xs sm:text-sm font-medium mb-1.5" style={{ color: C.secondary }}>Validity (days)</label>
                   <input
                     type="number"
                     value={planForm.validity_days}
                     onChange={(e) => setPlanForm({ ...planForm, validity_days: parseInt(e.target.value) })}
                     placeholder="365"
-                    className="w-full px-4 py-2.5 rounded-lg text-sm focus:outline-none"
-                    style={{ background: C.input, border: `1px solid ${C.border}`, color: C.heading }}
+                    className="w-full px-2 sm:px-4 py-2 sm:py-2.5 rounded-lg focus:outline-none"
+                    style={{ background: C.input, border: `1px solid ${C.border}`, color: C.heading, fontSize: "clamp(11px, 2.8vw, 13px)" }}
                   />
                 </div>
               </div>
-              <div className="grid grid-cols-2 gap-4">
+              <div className="grid grid-cols-1 xs:grid-cols-2 gap-3 sm:gap-4">
                 <div>
-                  <label className="block text-sm font-medium mb-1.5" style={{ color: C.secondary }}>JVZoo ID</label>
+                  <label className="block text-xs sm:text-sm font-medium mb-1.5" style={{ color: C.secondary }}>JVZoo ID</label>
                   <input
                     type="text"
                     value={planForm.jvzoo_id}
                     onChange={(e) => setPlanForm({ ...planForm, jvzoo_id: e.target.value })}
                     placeholder="444615"
-                    className="w-full px-4 py-2.5 rounded-lg text-sm focus:outline-none"
-                    style={{ background: C.input, border: `1px solid ${C.border}`, color: C.heading }}
+                    className="w-full px-2 sm:px-4 py-2 sm:py-2.5 rounded-lg focus:outline-none"
+                    style={{ background: C.input, border: `1px solid ${C.border}`, color: C.heading, fontSize: "clamp(11px, 2.8vw, 13px)" }}
                   />
                 </div>
                 <div>
-                  <label className="block text-sm font-medium mb-1.5" style={{ color: C.secondary }}>LaunchPad ID</label>
+                  <label className="block text-xs sm:text-sm font-medium mb-1.5" style={{ color: C.secondary }}>LaunchPad ID</label>
                   <input
                     type="text"
                     value={planForm.launchpad_id}
                     onChange={(e) => setPlanForm({ ...planForm, launchpad_id: e.target.value })}
                     placeholder="lp_mystery_pro"
-                    className="w-full px-4 py-2.5 rounded-lg text-sm focus:outline-none"
-                    style={{ background: C.input, border: `1px solid ${C.border}`, color: C.heading }}
+                    className="w-full px-2 sm:px-4 py-2 sm:py-2.5 rounded-lg focus:outline-none"
+                    style={{ background: C.input, border: `1px solid ${C.border}`, color: C.heading, fontSize: "clamp(11px, 2.8vw, 13px)" }}
                   />
                 </div>
               </div>
-              <div className="grid grid-cols-2 gap-4">
+              <div className="grid grid-cols-1 xs:grid-cols-2 gap-3 sm:gap-4">
                 <div>
-                  <label className="block text-sm font-medium mb-1.5" style={{ color: C.secondary }}>Status</label>
+                  <label className="block text-xs sm:text-sm font-medium mb-1.5" style={{ color: C.secondary }}>Status</label>
                   <select
                     value={planForm.status}
                     onChange={(e) => setPlanForm({ ...planForm, status: e.target.value })}
-                    className="w-full px-4 py-2.5 rounded-lg text-sm focus:outline-none"
-                    style={{ background: C.input, border: `1px solid ${C.border}`, color: C.heading }}
+                    className="w-full px-2 sm:px-4 py-2 sm:py-2.5 rounded-lg focus:outline-none"
+                    style={{ background: C.input, border: `1px solid ${C.border}`, color: C.heading, fontSize: "clamp(11px, 2.8vw, 13px)" }}
                   >
                     <option value="active">Active</option>
                     <option value="inactive">Inactive</option>
                   </select>
                 </div>
                 <div>
-                  <label className="block text-sm font-medium mb-1.5" style={{ color: C.secondary }}>Order</label>
+                  <label className="block text-xs sm:text-sm font-medium mb-1.5" style={{ color: C.secondary }}>Order</label>
                   <input
                     type="number"
                     value={planForm.order}
                     onChange={(e) => setPlanForm({ ...planForm, order: parseInt(e.target.value) })}
                     placeholder="0"
-                    className="w-full px-4 py-2.5 rounded-lg text-sm focus:outline-none"
-                    style={{ background: C.input, border: `1px solid ${C.border}`, color: C.heading }}
+                    className="w-full px-2 sm:px-4 py-2 sm:py-2.5 rounded-lg focus:outline-none"
+                    style={{ background: C.input, border: `1px solid ${C.border}`, color: C.heading, fontSize: "clamp(11px, 2.8vw, 13px)" }}
                   />
                 </div>
               </div>
-              <div className="flex gap-3 pt-2">
+              <div className="flex flex-col xs:flex-row gap-2 sm:gap-3 pt-2">
                 <button
                   type="button"
                   onClick={() => setShowAddPlanModal(false)}
-                  className="flex-1 px-4 py-2.5 rounded-lg text-sm font-medium transition"
-                  style={{ background: C.input, border: `1px solid ${C.border}`, color: C.secondary }}
+                  className="flex-1 px-3 sm:px-4 py-2 sm:py-2.5 rounded-lg font-medium transition"
+                  style={{ background: C.input, border: `1px solid ${C.border}`, color: C.secondary, fontSize: "clamp(11px, 2.8vw, 13px)" }}
                 >
                   Cancel
                 </button>
                 <button
                   type="submit"
                   disabled={savingPlan}
-                  className="flex-1 px-4 py-2.5 rounded-lg text-sm font-bold transition disabled:opacity-50 hover:-translate-y-[1px]"
+                  className="flex-1 px-3 sm:px-4 py-2 sm:py-2.5 rounded-lg font-bold transition disabled:opacity-50 hover:-translate-y-[1px]"
                   style={{
                     background: C.goldGradient,
                     color: C.mainBg,
                     border: `1px solid ${C.goldHover}`,
                     boxShadow:
                       "inset 0 1px 1px rgba(255,255,255,.25), 0 4px 14px rgba(246,197,93,.35)",
+                    fontSize: "clamp(11px, 2.8vw, 13px)",
                   }}
                 >
-                  {savingPlan ? 'Creating...' : 'Create Plan'}
+                  {savingPlan ? 'Creating...' : 'Create'}
                 </button>
               </div>
             </form>
@@ -1427,142 +1455,143 @@ const AdminDashboard = () => {
 
       {/* ==================== EDIT PLAN MODAL ==================== */}
       {showEditPlanModal && selectedPlan && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center">
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-2">
           <div
             className="absolute inset-0"
             style={{ background: "rgba(0,12,22,.85)", backdropFilter: "blur(4px)" }}
             onClick={() => setShowEditPlanModal(false)}
           ></div>
           <div
-            className="relative rounded-2xl shadow-2xl p-6 w-full max-w-lg mx-4 max-h-[90vh] overflow-y-auto"
+            className="relative rounded-2xl shadow-2xl p-4 sm:p-6 w-full max-w-lg max-h-[95vh] overflow-y-auto"
             style={{ background: C.card, border: `1px solid ${C.border}` }}
           >
-            <div className="flex items-center justify-between mb-6">
-              <div>
-                <h3 className="text-lg font-bold" style={{ color: C.heading }}>Edit Plan</h3>
-                <p className="text-sm" style={{ color: C.secondary }}>Update plan details</p>
+            <div className="flex items-start justify-between mb-4 sm:mb-6 gap-2">
+              <div className="min-w-0">
+                <h3 className="font-bold" style={{ color: C.heading, fontSize: "clamp(14px, 3.8vw, 18px)" }}>Edit Plan</h3>
+                <p className="text-xs sm:text-sm" style={{ color: C.secondary }}>Update plan details</p>
               </div>
               <button
                 onClick={() => setShowEditPlanModal(false)}
-                className="w-8 h-8 rounded-full flex items-center justify-center transition"
+                className="w-8 h-8 rounded-full flex items-center justify-center transition shrink-0"
                 style={{ background: "rgba(246,197,93,.1)" }}
               >
-                <X size={20} style={{ color: C.secondary }} />
+                <X size={18} style={{ color: C.secondary }} />
               </button>
             </div>
-            <form onSubmit={handleEditPlan} className="space-y-4">
+            <form onSubmit={handleEditPlan} className="space-y-3 sm:space-y-4">
               <div>
-                <label className="block text-sm font-medium mb-1.5" style={{ color: C.secondary }}>Plan Name *</label>
+                <label className="block text-xs sm:text-sm font-medium mb-1.5" style={{ color: C.secondary }}>Plan Name *</label>
                 <input
                   type="text"
                   value={planForm.name}
                   onChange={(e) => setPlanForm({ ...planForm, name: e.target.value })}
-                  className="w-full px-4 py-2.5 rounded-lg text-sm focus:outline-none"
-                  style={{ background: C.input, border: `1px solid ${C.border}`, color: C.heading }}
+                  className="w-full px-2 sm:px-4 py-2 sm:py-2.5 rounded-lg focus:outline-none"
+                  style={{ background: C.input, border: `1px solid ${C.border}`, color: C.heading, fontSize: "clamp(11px, 2.8vw, 13px)" }}
                   required
                 />
               </div>
               <div>
-                <label className="block text-sm font-medium mb-1.5" style={{ color: C.secondary }}>Slug *</label>
+                <label className="block text-xs sm:text-sm font-medium mb-1.5" style={{ color: C.secondary }}>Slug *</label>
                 <input
                   type="text"
                   value={planForm.slug}
                   onChange={(e) => setPlanForm({ ...planForm, slug: e.target.value.toLowerCase().replace(/\s/g, '-') })}
-                  className="w-full px-4 py-2.5 rounded-lg text-sm focus:outline-none"
-                  style={{ background: C.input, border: `1px solid ${C.border}`, color: C.heading }}
+                  className="w-full px-2 sm:px-4 py-2 sm:py-2.5 rounded-lg focus:outline-none"
+                  style={{ background: C.input, border: `1px solid ${C.border}`, color: C.heading, fontSize: "clamp(11px, 2.8vw, 13px)" }}
                   required
                 />
               </div>
-              <div className="grid grid-cols-2 gap-4">
+              <div className="grid grid-cols-1 xs:grid-cols-2 gap-3 sm:gap-4">
                 <div>
-                  <label className="block text-sm font-medium mb-1.5" style={{ color: C.secondary }}>Plan ID</label>
+                  <label className="block text-xs sm:text-sm font-medium mb-1.5" style={{ color: C.secondary }}>Plan ID</label>
                   <input
                     type="number"
                     value={planForm.planId}
                     onChange={(e) => setPlanForm({ ...planForm, planId: e.target.value })}
-                    className="w-full px-4 py-2.5 rounded-lg text-sm focus:outline-none"
-                    style={{ background: C.input, border: `1px solid ${C.border}`, color: C.heading }}
+                    className="w-full px-2 sm:px-4 py-2 sm:py-2.5 rounded-lg focus:outline-none"
+                    style={{ background: C.input, border: `1px solid ${C.border}`, color: C.heading, fontSize: "clamp(11px, 2.8vw, 13px)" }}
                   />
                 </div>
                 <div>
-                  <label className="block text-sm font-medium mb-1.5" style={{ color: C.secondary }}>Validity (days)</label>
+                  <label className="block text-xs sm:text-sm font-medium mb-1.5" style={{ color: C.secondary }}>Validity (days)</label>
                   <input
                     type="number"
                     value={planForm.validity_days}
                     onChange={(e) => setPlanForm({ ...planForm, validity_days: parseInt(e.target.value) })}
-                    className="w-full px-4 py-2.5 rounded-lg text-sm focus:outline-none"
-                    style={{ background: C.input, border: `1px solid ${C.border}`, color: C.heading }}
+                    className="w-full px-2 sm:px-4 py-2 sm:py-2.5 rounded-lg focus:outline-none"
+                    style={{ background: C.input, border: `1px solid ${C.border}`, color: C.heading, fontSize: "clamp(11px, 2.8vw, 13px)" }}
                   />
                 </div>
               </div>
-              <div className="grid grid-cols-2 gap-4">
+              <div className="grid grid-cols-1 xs:grid-cols-2 gap-3 sm:gap-4">
                 <div>
-                  <label className="block text-sm font-medium mb-1.5" style={{ color: C.secondary }}>JVZoo ID</label>
+                  <label className="block text-xs sm:text-sm font-medium mb-1.5" style={{ color: C.secondary }}>JVZoo ID</label>
                   <input
                     type="text"
                     value={planForm.jvzoo_id}
                     onChange={(e) => setPlanForm({ ...planForm, jvzoo_id: e.target.value })}
-                    className="w-full px-4 py-2.5 rounded-lg text-sm focus:outline-none"
-                    style={{ background: C.input, border: `1px solid ${C.border}`, color: C.heading }}
+                    className="w-full px-2 sm:px-4 py-2 sm:py-2.5 rounded-lg focus:outline-none"
+                    style={{ background: C.input, border: `1px solid ${C.border}`, color: C.heading, fontSize: "clamp(11px, 2.8vw, 13px)" }}
                   />
                 </div>
                 <div>
-                  <label className="block text-sm font-medium mb-1.5" style={{ color: C.secondary }}>LaunchPad ID</label>
+                  <label className="block text-xs sm:text-sm font-medium mb-1.5" style={{ color: C.secondary }}>LaunchPad ID</label>
                   <input
                     type="text"
                     value={planForm.launchpad_id}
                     onChange={(e) => setPlanForm({ ...planForm, launchpad_id: e.target.value })}
-                    className="w-full px-4 py-2.5 rounded-lg text-sm focus:outline-none"
-                    style={{ background: C.input, border: `1px solid ${C.border}`, color: C.heading }}
+                    className="w-full px-2 sm:px-4 py-2 sm:py-2.5 rounded-lg focus:outline-none"
+                    style={{ background: C.input, border: `1px solid ${C.border}`, color: C.heading, fontSize: "clamp(11px, 2.8vw, 13px)" }}
                   />
                 </div>
               </div>
-              <div className="grid grid-cols-2 gap-4">
+              <div className="grid grid-cols-1 xs:grid-cols-2 gap-3 sm:gap-4">
                 <div>
-                  <label className="block text-sm font-medium mb-1.5" style={{ color: C.secondary }}>Status</label>
+                  <label className="block text-xs sm:text-sm font-medium mb-1.5" style={{ color: C.secondary }}>Status</label>
                   <select
                     value={planForm.status}
                     onChange={(e) => setPlanForm({ ...planForm, status: e.target.value })}
-                    className="w-full px-4 py-2.5 rounded-lg text-sm focus:outline-none"
-                    style={{ background: C.input, border: `1px solid ${C.border}`, color: C.heading }}
+                    className="w-full px-2 sm:px-4 py-2 sm:py-2.5 rounded-lg focus:outline-none"
+                    style={{ background: C.input, border: `1px solid ${C.border}`, color: C.heading, fontSize: "clamp(11px, 2.8vw, 13px)" }}
                   >
                     <option value="active">Active</option>
                     <option value="inactive">Inactive</option>
                   </select>
                 </div>
                 <div>
-                  <label className="block text-sm font-medium mb-1.5" style={{ color: C.secondary }}>Order</label>
+                  <label className="block text-xs sm:text-sm font-medium mb-1.5" style={{ color: C.secondary }}>Order</label>
                   <input
                     type="number"
                     value={planForm.order}
                     onChange={(e) => setPlanForm({ ...planForm, order: parseInt(e.target.value) })}
-                    className="w-full px-4 py-2.5 rounded-lg text-sm focus:outline-none"
-                    style={{ background: C.input, border: `1px solid ${C.border}`, color: C.heading }}
+                    className="w-full px-2 sm:px-4 py-2 sm:py-2.5 rounded-lg focus:outline-none"
+                    style={{ background: C.input, border: `1px solid ${C.border}`, color: C.heading, fontSize: "clamp(11px, 2.8vw, 13px)" }}
                   />
                 </div>
               </div>
-              <div className="flex gap-3 pt-2">
+              <div className="flex flex-col xs:flex-row gap-2 sm:gap-3 pt-2">
                 <button
                   type="button"
                   onClick={() => setShowEditPlanModal(false)}
-                  className="flex-1 px-4 py-2.5 rounded-lg text-sm font-medium transition"
-                  style={{ background: C.input, border: `1px solid ${C.border}`, color: C.secondary }}
+                  className="flex-1 px-3 sm:px-4 py-2 sm:py-2.5 rounded-lg font-medium transition"
+                  style={{ background: C.input, border: `1px solid ${C.border}`, color: C.secondary, fontSize: "clamp(11px, 2.8vw, 13px)" }}
                 >
                   Cancel
                 </button>
                 <button
                   type="submit"
                   disabled={savingPlan}
-                  className="flex-1 px-4 py-2.5 rounded-lg text-sm font-bold transition disabled:opacity-50 hover:-translate-y-[1px]"
+                  className="flex-1 px-3 sm:px-4 py-2 sm:py-2.5 rounded-lg font-bold transition disabled:opacity-50 hover:-translate-y-[1px]"
                   style={{
                     background: C.goldGradient,
                     color: C.mainBg,
                     border: `1px solid ${C.goldHover}`,
                     boxShadow:
                       "inset 0 1px 1px rgba(255,255,255,.25), 0 4px 14px rgba(246,197,93,.35)",
+                    fontSize: "clamp(11px, 2.8vw, 13px)",
                   }}
                 >
-                  {savingPlan ? 'Saving...' : 'Save Changes'}
+                  {savingPlan ? 'Saving...' : 'Save'}
                 </button>
               </div>
             </form>
@@ -1572,54 +1601,54 @@ const AdminDashboard = () => {
 
       {/* ==================== PAYMENT DETAIL MODAL ==================== */}
       {showPaymentDetailModal && selectedPayment && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center">
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-2">
           <div
             className="absolute inset-0"
             style={{ background: "rgba(0,12,22,.85)", backdropFilter: "blur(4px)" }}
             onClick={() => setShowPaymentDetailModal(false)}
           ></div>
           <div
-            className="relative rounded-2xl shadow-2xl p-6 w-full max-w-2xl mx-4 max-h-[90vh] overflow-y-auto"
+            className="relative rounded-2xl shadow-2xl p-4 sm:p-6 w-full max-w-2xl max-h-[95vh] overflow-y-auto"
             style={{ background: C.card, border: `1px solid ${C.border}` }}
           >
-            <div className="flex items-center justify-between mb-6">
-              <div>
-                <h3 className="text-lg font-bold" style={{ color: C.heading }}>Payment Details</h3>
-                <p className="text-sm" style={{ color: C.secondary }}>
-                  Transaction ID: {selectedPayment.transactionId}
+            <div className="flex items-start justify-between mb-4 sm:mb-6 gap-2">
+              <div className="min-w-0">
+                <h3 className="font-bold" style={{ color: C.heading, fontSize: "clamp(14px, 3.8vw, 18px)" }}>Payment Details</h3>
+                <p className="text-xs sm:text-sm truncate" style={{ color: C.secondary }}>
+                  {selectedPayment.transactionId}
                 </p>
               </div>
               <button
                 onClick={() => setShowPaymentDetailModal(false)}
-                className="w-8 h-8 rounded-full flex items-center justify-center transition"
+                className="w-8 h-8 rounded-full flex items-center justify-center transition shrink-0"
                 style={{ background: "rgba(246,197,93,.1)" }}
               >
-                <X size={20} style={{ color: C.secondary }} />
+                <X size={18} style={{ color: C.secondary }} />
               </button>
             </div>
 
-            <div className="space-y-4">
-              <div className="grid grid-cols-2 gap-4">
-                <div className="p-3 rounded-lg" style={{ background: C.input, border: `1px solid ${C.border}` }}>
-                  <p className="text-xs" style={{ color: C.secondary }}>Buyer</p>
-                  <p className="text-sm font-medium" style={{ color: C.heading }}>{selectedPayment.buyerName}</p>
-                  <p className="text-xs" style={{ color: C.secondary }}>{selectedPayment.buyerEmail}</p>
+            <div className="space-y-2 sm:space-y-4">
+              <div className="grid grid-cols-1 xs:grid-cols-2 gap-2 sm:gap-4">
+                <div className="p-2 sm:p-3 rounded-lg" style={{ background: C.input, border: `1px solid ${C.border}` }}>
+                  <p className="text-[10px] sm:text-xs" style={{ color: C.secondary }}>Buyer</p>
+                  <p className="text-xs sm:text-sm font-medium truncate" style={{ color: C.heading }}>{selectedPayment.buyerName}</p>
+                  <p className="text-[10px] sm:text-xs truncate" style={{ color: C.secondary }}>{selectedPayment.buyerEmail}</p>
                 </div>
-                <div className="p-3 rounded-lg" style={{ background: C.input, border: `1px solid ${C.border}` }}>
-                  <p className="text-xs" style={{ color: C.secondary }}>Amount</p>
-                  <p className="text-sm font-bold" style={{ color: "#0ce4bd" }}>${selectedPayment.amount?.toFixed(2)}</p>
-                  <p className="text-xs" style={{ color: C.secondary }}>{selectedPayment.currency}</p>
+                <div className="p-2 sm:p-3 rounded-lg" style={{ background: C.input, border: `1px solid ${C.border}` }}>
+                  <p className="text-[10px] sm:text-xs" style={{ color: C.secondary }}>Amount</p>
+                  <p className="text-xs sm:text-sm font-bold" style={{ color: "#0ce4bd" }}>${selectedPayment.amount?.toFixed(2)}</p>
+                  <p className="text-[10px] sm:text-xs" style={{ color: C.secondary }}>{selectedPayment.currency}</p>
                 </div>
               </div>
-              <div className="grid grid-cols-2 gap-4">
-                <div className="p-3 rounded-lg" style={{ background: C.input, border: `1px solid ${C.border}` }}>
-                  <p className="text-xs" style={{ color: C.secondary }}>Platform</p>
-                  <p className="text-sm font-medium" style={{ color: C.heading }}>{selectedPayment.platform || 'Unknown'}</p>
+              <div className="grid grid-cols-1 xs:grid-cols-2 gap-2 sm:gap-4">
+                <div className="p-2 sm:p-3 rounded-lg" style={{ background: C.input, border: `1px solid ${C.border}` }}>
+                  <p className="text-[10px] sm:text-xs" style={{ color: C.secondary }}>Platform</p>
+                  <p className="text-xs sm:text-sm font-medium" style={{ color: C.heading }}>{selectedPayment.platform || 'Unknown'}</p>
                 </div>
-                <div className="p-3 rounded-lg" style={{ background: C.input, border: `1px solid ${C.border}` }}>
-                  <p className="text-xs" style={{ color: C.secondary }}>Status</p>
+                <div className="p-2 sm:p-3 rounded-lg" style={{ background: C.input, border: `1px solid ${C.border}` }}>
+                  <p className="text-[10px] sm:text-xs" style={{ color: C.secondary }}>Status</p>
                   <span
-                    className="text-xs px-2 py-1 rounded-full font-medium inline-block mt-1"
+                    className="text-[10px] sm:text-xs px-1.5 sm:px-2 py-0.5 sm:py-1 rounded-full font-medium inline-block mt-1"
                     style={
                       selectedPayment.status === 'completed'
                         ? {
@@ -1642,48 +1671,49 @@ const AdminDashboard = () => {
                   >{selectedPayment.status}</span>
                 </div>
               </div>
-              <div className="p-3 rounded-lg" style={{ background: C.input, border: `1px solid ${C.border}` }}>
-                <p className="text-xs" style={{ color: C.secondary }}>Plan</p>
-                <p className="text-sm font-medium" style={{ color: C.heading }}>
+              <div className="p-2 sm:p-3 rounded-lg" style={{ background: C.input, border: `1px solid ${C.border}` }}>
+                <p className="text-[10px] sm:text-xs" style={{ color: C.secondary }}>Plan</p>
+                <p className="text-xs sm:text-sm font-medium truncate" style={{ color: C.heading }}>
                   {selectedPayment.purchasedPlanName || getPlanName(selectedPayment.purchasedPlanId)}
                 </p>
-                <p className="text-xs" style={{ color: C.secondary }}>
+                <p className="text-[10px] sm:text-xs" style={{ color: C.secondary }}>
                   Validity: {selectedPayment.validityDays || 365} days
                 </p>
               </div>
-              <div className="p-3 rounded-lg" style={{ background: C.input, border: `1px solid ${C.border}` }}>
-                <p className="text-xs" style={{ color: C.secondary }}>Payment Date</p>
-                <p className="text-sm" style={{ color: C.heading }}>
+              <div className="p-2 sm:p-3 rounded-lg" style={{ background: C.input, border: `1px solid ${C.border}` }}>
+                <p className="text-[10px] sm:text-xs" style={{ color: C.secondary }}>Date</p>
+                <p className="text-xs sm:text-sm" style={{ color: C.heading }}>
                   {new Date(selectedPayment.paymentDate || selectedPayment.createdAt).toLocaleString()}
                 </p>
               </div>
-              <div className="p-3 rounded-lg" style={{ background: C.input, border: `1px solid ${C.border}` }}>
-                <p className="text-xs" style={{ color: C.secondary }}>Product</p>
-                <p className="text-sm" style={{ color: C.heading }}>{selectedPayment.productName}</p>
-                <p className="text-xs" style={{ color: C.secondary }}>Product ID: {selectedPayment.productId}</p>
+              <div className="p-2 sm:p-3 rounded-lg" style={{ background: C.input, border: `1px solid ${C.border}` }}>
+                <p className="text-[10px] sm:text-xs" style={{ color: C.secondary }}>Product</p>
+                <p className="text-xs sm:text-sm truncate" style={{ color: C.heading }}>{selectedPayment.productName}</p>
+                <p className="text-[10px] sm:text-xs truncate" style={{ color: C.secondary }}>Product ID: {selectedPayment.productId}</p>
               </div>
               {selectedPayment.ipnData && (
-                <div className="p-3 rounded-lg" style={{ background: C.input, border: `1px solid ${C.border}` }}>
-                  <p className="text-xs mb-2" style={{ color: C.secondary }}>IPN Data (Raw)</p>
+                <div className="p-2 sm:p-3 rounded-lg" style={{ background: C.input, border: `1px solid ${C.border}` }}>
+                  <p className="text-[10px] sm:text-xs mb-1.5 sm:mb-2" style={{ color: C.secondary }}>IPN Data</p>
                   <pre
-                    className="text-xs p-4 rounded-lg overflow-x-auto max-h-[200px] overflow-y-auto"
-                    style={{ background: C.cardSecondary, color: C.gold, border: `1px solid ${C.border}` }}
+                    className="text-[9px] sm:text-xs p-2 sm:p-4 rounded-lg overflow-x-auto max-h-[200px] overflow-y-auto"
+                    style={{ background: C.cardSecondary, color: C.gold, border: `1px solid ${C.border}`, margin: 0 }}
                   >
                     {JSON.stringify(selectedPayment.ipnData, null, 2)}
                   </pre>
                 </div>
               )}
             </div>
-            <div className="mt-6 flex justify-end">
+            <div className="mt-4 sm:mt-6 flex justify-end">
               <button
                 onClick={() => setShowPaymentDetailModal(false)}
-                className="px-4 py-2 rounded-lg text-sm font-bold transition hover:-translate-y-[1px]"
+                className="px-3 sm:px-4 py-2 rounded-lg font-bold transition hover:-translate-y-[1px]"
                 style={{
                   background: C.goldGradient,
                   color: C.mainBg,
                   border: `1px solid ${C.goldHover}`,
                   boxShadow:
                     "inset 0 1px 1px rgba(255,255,255,.25), 0 4px 14px rgba(246,197,93,.35)",
+                  fontSize: "clamp(11px, 2.8vw, 13px)",
                 }}
               >
                 Close
@@ -1708,26 +1738,49 @@ const StatCard = ({ icon, color, value, label }) => {
   };
   const c = colorMap[color];
   return (
-    <div className="rounded-xl p-5" style={{ background: C.card, border: `1px solid ${C.border}` }}>
+    <div
+      className="rounded-xl p-2.5 sm:p-4 md:p-5"
+      style={{ background: C.card, border: `1px solid ${C.border}` }}
+    >
       <div
-        className="w-10 h-10 rounded-lg flex items-center justify-center mb-3"
+        className="w-8 h-8 sm:w-10 sm:h-10 rounded-lg flex items-center justify-center mb-2 sm:mb-3"
         style={{ background: c.bg, border: `1px solid ${c.border}` }}
       >
-        <i className={`fa-solid ${icon}`} style={{ color: c.fg }}></i>
+        <i className={`fa-solid ${icon}`} style={{ color: c.fg, fontSize: "clamp(11px, 2.8vw, 14px)" }}></i>
       </div>
-      <div className="text-2xl font-bold" style={{ color: C.heading }}>{value || 0}</div>
-      <div className="text-xs mt-1" style={{ color: C.secondary }}>{label}</div>
+      <div
+        className="font-bold truncate"
+        style={{ color: C.heading, fontSize: "clamp(16px, 4.5vw, 24px)" }}
+      >
+        {value || 0}
+      </div>
+      <div
+        className="mt-0.5 sm:mt-1 truncate"
+        style={{ color: C.secondary, fontSize: "clamp(9px, 2.4vw, 12px)" }}
+      >
+        {label}
+      </div>
     </div>
   );
 };
 
 const MiniStat = ({ value, label, color }) => (
   <div
-    className="rounded-xl p-5 text-center"
+    className="rounded-xl p-2.5 sm:p-4 md:p-5 text-center"
     style={{ background: C.card, border: `1px solid ${C.border}` }}
   >
-    <div className="text-3xl font-bold" style={{ color }}>{value || 0}</div>
-    <div className="text-xs mt-1" style={{ color: C.secondary }}>{label}</div>
+    <div
+      className="font-bold truncate"
+      style={{ color, fontSize: "clamp(18px, 5vw, 30px)" }}
+    >
+      {value || 0}
+    </div>
+    <div
+      className="mt-0.5 sm:mt-1 truncate"
+      style={{ color: C.secondary, fontSize: "clamp(9px, 2.4vw, 12px)" }}
+    >
+      {label}
+    </div>
   </div>
 );
 
