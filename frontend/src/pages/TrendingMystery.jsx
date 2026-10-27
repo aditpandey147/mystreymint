@@ -289,12 +289,12 @@ export default function TrendingMystery() {
                   {loading ? (
                     <>
                       <Loader2 size={17} className="animate-spin" />
-                      Generating…
+                      Finding…
                     </>
                   ) : (
                     <>
                       <Search size={17} />
-                      Generate Ideas
+                      Find Ideas
                     </>
                   )}
                 </button>
