@@ -47,58 +47,37 @@ import {
 } from "lucide-react";
 
 // ================================================================
-// 🎨 THEME — new :root palette
+// 🎨 THEME
 // ================================================================
 const THEME = {
-  // Sidebar background: deep navy from :root (--sidebar-bg + --main-bg)
   sidebarBg: "linear-gradient(160deg, #00101A 0%, #000C16 100%)",
   sidebarBorder: "#29414C",
-
-  // Nav text
   navDefault: "#F5F5F3",
   navHoverBg: "#031520",
-
-  // Active nav: gold gradient from :root
   navActiveBg: "linear-gradient(135deg, #FFD36D 0%, #F6C55D 50%, #B77B32 100%)",
   navActiveBorder: "#FFD36D",
   navActiveText: "#000C16",
-
-  // Section headers
   sectionText: "#AAB3B9",
-
-  // User area
   divider: "#29414C",
-
-  // Dropdown panel
   dropdownBg: "#031520",
   dropdownBorder: "#29414C",
-
-  // Upgrade card (gold accent)
   upgradeBg: "linear-gradient(120deg, #0C1926, #031520)",
   upgradeBorder: "#29414C",
   goldIcon: "#FFD36D",
-
-  // Gold gradient for buttons and accents
   goldGradient:
     "linear-gradient(135deg, #FFD36D 0%, #F6C55D 50%, #B77B32 100%)",
   goldBorder: "#FFD36D",
   goldText: "#000C16",
-
-  // Primary gold
   gold: "#F6C55D",
   goldHover: "#FFD36D",
-
-  // Turquoise accent
   turquoise: "#00D4D9",
-
-  // Text
   heading: "#F5F5F3",
   secondary: "#AAB3B9",
   muted: "#707F88",
 };
 
 // ================================================================
-// WAVE LOGO — kept as-is
+// WAVE LOGO
 // ================================================================
 function WaveLogo() {
   const heights = [17, 27, 38, 27, 17];
@@ -122,7 +101,7 @@ function WaveLogo() {
 }
 
 // ================================================================
-// BRAND MARK — kept as-is
+// BRAND MARK
 // ================================================================
 function BrandMark() {
   return (
@@ -177,12 +156,14 @@ const Sidebar = () => {
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, []);
 
+  // Close sidebar on outside click (mobile)
   useEffect(() => {
     const handleClickOutside = (event) => {
       if (
         isMobileOpen &&
         sidebarRef.current &&
-        !sidebarRef.current.contains(event.target)
+        !sidebarRef.current.contains(event.target) &&
+        !event.target.closest("[data-hamburger]")
       ) {
         setIsMobileOpen(false);
       }
@@ -229,87 +210,22 @@ const Sidebar = () => {
   }, [user?.planId]);
 
   // ================================================================
-  // NAV ITEMS — unchanged
+  // NAV ITEMS
   // ================================================================
   const navItems = [
-    {
-      path: "/dashboard",
-      label: "Dashboard",
-      icon: LayoutDashboard,
-      show: true,
-    },
-    {
-      path: "/trending",
-      label: "Trending Ideas",
-      icon: Flame,
-      show: true,
-    },
-    {
-      path: "/templates",
-      label: "Mystery Templates",
-      icon: LayoutGrid,
-      show: true,
-    },
-    {
-      path: "/create-mystery",
-      label: "Create Mystery",
-      icon: SquarePen,
-      show: true,
-    },
-    {
-      path: "/my-mysteries",
-      label: "My Mysteries",
-      icon: BookOpen,
-      show: true,
-    },
-    {
-      path: "/unlimited",
-      icon: InfinityIcon,
-      label: "Unlimited",
-      show: has("unlimited"),
-    },
-    {
-      path: "/character-studio",
-      label: "Character Studio",
-      icon: UsersRound,
-      show: has("characterStudio"),
-    },
-    {
-      path: "/clue-studio",
-      label: "Clue & Evidence",
-      icon: Search,
-      show: has("clueStudio"),
-    },
-    {
-      path: "/puzzle-studio",
-      label: "AI Puzzle Studio",
-      icon: PuzzleIcon,
-      show: has("puzzleStudio"),
-    },
-    {
-      path: "/escape-room-ai",
-      label: "Escape Room AI",
-      icon: DoorOpen,
-      show: has("escapeRoom"),
-    },
-    {
-      path: "/sales-kit",
-      label: "Sales Kit",
-      icon: Tag,
-      show: has("salesKit"),
-    },
-    {
-      path: "/party-planner",
-      label: "Party Planner",
-      icon: PartyPopper,
-      show: has("partyPlanner"),
-    },
-    {
-      path: "/dfy-packs",
-      label: "DFY Mystery Packs",
-      icon: Package,
-      show: has("dfy"),
-    },
+    { path: "/dashboard", label: "Dashboard", icon: LayoutDashboard, show: true },
+    { path: "/trending", label: "Trending Ideas", icon: Flame, show: true },
+    { path: "/templates", label: "Mystery Templates", icon: LayoutGrid, show: true },
+    { path: "/create-mystery", label: "Create Mystery", icon: SquarePen, show: true },
+    { path: "/my-mysteries", label: "My Mysteries", icon: BookOpen, show: true },
+    { path: "/unlimited", icon: InfinityIcon, label: "Unlimited", show: has("unlimited") },
+    { path: "/character-studio", label: "Character Studio", icon: UsersRound, show: has("characterStudio") },
+    { path: "/clue-studio", label: "Clue & Evidence", icon: Search, show: has("clueStudio") },
+    { path: "/puzzle-studio", label: "AI Puzzle Studio", icon: PuzzleIcon, show: has("puzzleStudio") },
+    { path: "/escape-room-ai", label: "Escape Room AI", icon: DoorOpen, show: has("escapeRoom") },
+    { path: "/sales-kit", label: "Sales Kit", icon: Tag, show: has("salesKit") },
+    { path: "/party-planner", label: "Party Planner", icon: PartyPopper, show: has("partyPlanner") },
+    { path: "/dfy-packs", label: "DFY Mystery Packs", icon: Package, show: has("dfy") },
     { path: "/agency", label: "Agency", icon: Building2, show: has("agency") },
     { path: "/reseller", label: "Reseller", icon: Gift, show: has("reseller") },
     {
@@ -328,13 +244,7 @@ const Sidebar = () => {
       external: true,
       href: "https://www.podcastai.live/upgrades",
     },
-    {
-      path: "/support",
-      icon: Headset,
-      label: "Support",
-      show: true,
-      target: "_blank",
-    },
+    { path: "/support", icon: Headset, label: "Support", show: true, target: "_blank" },
   ];
 
   const adminNavItem = {
@@ -352,9 +262,6 @@ const Sidebar = () => {
   const toggleMobileSidebar = () => setIsMobileOpen(!isMobileOpen);
   const closeMobileSidebar = () => setIsMobileOpen(false);
 
-  // ================================================================
-  // PLAN BADGE — unchanged
-  // ================================================================
   const getPlanColor = (planName) => {
     const planColors = {
       Free: "bg-slate-700/50 text-slate-300 border border-slate-600/50",
@@ -411,9 +318,6 @@ const Sidebar = () => {
   const visibleNavItems = navItems.filter((item) => item.show);
   const isExternalLink = (item) => item.external === true;
 
-  // ================================================================
-  // THEME ALIASES
-  // ================================================================
   const sidebarBg = THEME.sidebarBg;
   const sidebarBorder = THEME.sidebarBorder;
   const navDefaultText = THEME.navDefault;
@@ -424,50 +328,85 @@ const Sidebar = () => {
   const proCardBg = THEME.dropdownBg;
   const proCardBorder = THEME.dropdownBorder;
 
+  // ================================================================
+  // RENDER
+  // ================================================================
   return (
     <>
       <style>{`
         .mm-sidebar-serif { font-family: 'Playfair Display', Georgia, serif; }
       `}</style>
 
-      {/* Mobile hamburger */}
+      {/* ================================================================
+          MOBILE HAMBURGER — top-left corner
+          ================================================================ */}
       <button
+        data-hamburger
         onClick={toggleMobileSidebar}
-        className="fixed top-4 left-4 z-50 md:hidden p-2 rounded-xl"
+        className="fixed md:hidden z-[60] grid place-items-center"
         style={{
-          background: THEME.sidebarBg,
+          top: 14,
+          left: 14,
+          width: 44,
+          height: 44,
+          borderRadius: 12,
+          background: "rgba(0,16,26,.95)",
           border: `1px solid ${sidebarBorder}`,
-          boxShadow: "0 8px 24px rgba(0,0,0,.35)",
+          boxShadow: "0 8px 24px rgba(0,0,0,.45)",
+          backdropFilter: "blur(10px)",
+          WebkitBackdropFilter: "blur(10px)",
+          cursor: "pointer",
+          transition: "all .2s",
         }}
-        aria-label="Toggle menu"
+        onMouseEnter={(e) => {
+          e.currentTarget.style.borderColor = THEME.gold;
+          e.currentTarget.style.background = "rgba(246,197,93,.12)";
+        }}
+        onMouseLeave={(e) => {
+          e.currentTarget.style.borderColor = sidebarBorder;
+          e.currentTarget.style.background = "rgba(0,16,26,.95)";
+        }}
+        aria-label={isMobileOpen ? "Close menu" : "Open menu"}
       >
         {isMobileOpen ? (
-          <X size={22} style={{ color: THEME.heading }} />
+          <X size={22} style={{ color: THEME.gold }} />
         ) : (
-          <Menu size={22} style={{ color: THEME.heading }} />
+          <Menu size={22} style={{ color: THEME.gold }} />
         )}
       </button>
 
-      {/* Mobile overlay */}
+      {/* ================================================================
+          MOBILE BACKDROP OVERLAY — closes sidebar on tap
+          ================================================================ */}
       {isMobileOpen && (
         <div
-          className="fixed inset-0 z-40 md:hidden animate-fade-in"
-          style={{ background: "rgba(0,0,0,.65)", backdropFilter: "blur(4px)" }}
+          className="fixed inset-0 md:hidden"
+          style={{
+            background: "rgba(0,0,0,.7)",
+            backdropFilter: "blur(4px)",
+            WebkitBackdropFilter: "blur(4px)",
+            zIndex: 40,
+            animation: "fadeIn .2s ease-out",
+          }}
           onClick={closeMobileSidebar}
         />
       )}
 
-      {/* Desktop sidebar */}
+      {/* ================================================================
+          SIDEBAR — desktop fixed, mobile slides in from left
+          ================================================================ */}
       <aside
         ref={sidebarRef}
         className={`
-          hidden md:flex md:flex-col md:w-72 h-screen fixed left-0 top-0
-          ${isMobileOpen ? "translate-x-0" : "-translate-x-full md:translate-x-0"}
+          flex flex-col w-72 h-screen fixed left-0 top-0
+          transition-transform duration-300 ease-out
+          ${isMobileOpen ? "translate-x-0" : "-translate-x-full"}
+          md:translate-x-0
         `}
         style={{
           background: sidebarBg,
           borderRight: `1px solid ${sidebarBorder}`,
-          zIndex: 10,
+          zIndex: 50,
         }}
       >
         {/* LOGO / BRAND */}
@@ -524,10 +463,10 @@ const Sidebar = () => {
           className="flex-1 overflow-y-auto"
           style={{ padding: "18px 16px" }}
         >
-          {/* Admin Panel */}
           {user?.role === "admin" && (
             <NavLink
               to={adminNavItem.path}
+              onClick={closeMobileSidebar}
               className="flex items-center transition-colors duration-150"
               style={({ isActive }) => ({
                 height: 46,
@@ -555,7 +494,6 @@ const Sidebar = () => {
             </NavLink>
           )}
 
-          {/* Main Nav */}
           <div>
             {visibleNavItems.map((item) => {
               const Icon = item.icon;
@@ -567,6 +505,7 @@ const Sidebar = () => {
                     href={item.href}
                     target={item.target || "_blank"}
                     rel="noopener noreferrer"
+                    onClick={closeMobileSidebar}
                     className="flex items-center transition-colors duration-150"
                     style={{
                       height: 46,
@@ -738,11 +677,10 @@ const Sidebar = () => {
             />
           </div>
 
-          {/* Dropdown */}
           {isDropdownOpen && (
             <div
               ref={dropdownRef}
-              className="absolute left-3 right-3 rounded-xl overflow-hidden animate-slide-up z-50"
+              className="absolute left-3 right-3 rounded-xl overflow-hidden z-50"
               style={{
                 bottom: 80,
                 background: THEME.dropdownBg,
@@ -866,81 +804,10 @@ const Sidebar = () => {
         </div>
       </aside>
 
-      {/* MOBILE BOTTOM NAV */}
-      <nav
-        className="md:hidden fixed bottom-0 left-0 right-0 z-30"
-        style={{
-          background: "rgba(0,16,26,.95)",
-          borderTop: `1px solid ${sidebarBorder}`,
-          backdropFilter: "blur(14px)",
-          WebkitBackdropFilter: "blur(14px)",
-        }}
-      >
-        <div
-          className="flex justify-around items-center"
-          style={{ padding: "6px 8px" }}
-        >
-          {visibleNavItems.slice(0, 5).map((item) => {
-            const Icon = item.icon;
-            if (isExternalLink(item)) {
-              return (
-                <a
-                  key={item.path}
-                  href={item.href}
-                  target={item.target || "_blank"}
-                  rel="noopener noreferrer"
-                  className="flex flex-col items-center"
-                  style={{
-                    padding: "6px 8px",
-                    borderRadius: 12,
-                    minWidth: 50,
-                    color: THEME.muted,
-                    textDecoration: "none",
-                  }}
-                >
-                  <Icon size={20} strokeWidth={1.8} className="shrink-0" />
-                </a>
-              );
-            }
-            return (
-              <NavLink
-                key={item.path}
-                to={item.path}
-                className="flex flex-col items-center"
-                style={({ isActive }) => ({
-                  padding: "6px 8px",
-                  borderRadius: 12,
-                  minWidth: 50,
-                  color: isActive ? THEME.navActiveText : THEME.muted,
-                  background: isActive ? navActiveBg : "transparent",
-                  boxShadow: isActive ? navActiveShadow : "none",
-                  textDecoration: "none",
-                  border: isActive
-                    ? `1px solid ${THEME.navActiveBorder}`
-                    : "1px solid transparent",
-                })}
-              >
-                <Icon size={20} strokeWidth={1.8} className="shrink-0" />
-              </NavLink>
-            );
-          })}
-        </div>
-      </nav>
-
       <style>{`
-        @keyframes slide-up {
-          from { opacity: 0; transform: translateY(10px) scale(.95); }
-          to   { opacity: 1; transform: translateY(0) scale(1); }
-        }
-        .animate-slide-up {
-          animation: slide-up .2s ease-out forwards;
-        }
-        @keyframes fade-in {
+        @keyframes fadeIn {
           from { opacity: 0; }
           to   { opacity: 1; }
-        }
-        .animate-fade-in {
-          animation: fade-in .25s ease-out forwards;
         }
         aside nav::-webkit-scrollbar { width: 6px; }
         aside nav::-webkit-scrollbar-track { background: transparent; }
