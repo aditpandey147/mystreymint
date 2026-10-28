@@ -20,6 +20,14 @@ import {
   Gift,
   PlayCircle,
   Star,
+  BookOpen,
+  Search,
+  Puzzle,
+  Package,
+  FileText,
+  KeyRound,
+  Image,
+  Lightbulb,
 } from "lucide-react";
 import Sidebar from "../components/Sidebar";
 import Navbar from "../components/Navbar";
@@ -260,7 +268,9 @@ function RateLimitModal({ info, onClose, onChangeTemplate }) {
           className="absolute top-4 right-4 z-20 grid place-items-center w-8 h-8 rounded-full transition-colors"
           style={{ color: C.secondary }}
           onMouseEnter={(e) => (e.currentTarget.style.background = C.input)}
-          onMouseLeave={(e) => (e.currentTarget.style.background = "transparent")}
+          onMouseLeave={(e) =>
+            (e.currentTarget.style.background = "transparent")
+          }
           aria-label="Close"
         >
           <svg
@@ -320,7 +330,10 @@ function RateLimitModal({ info, onClose, onChangeTemplate }) {
             </div>
           </div>
 
-          <h3 className="text-[20px] font-semibold mb-1.5" style={{ color: C.heading }}>
+          <h3
+            className="text-[20px] font-semibold mb-1.5"
+            style={{ color: C.heading }}
+          >
             {title}
           </h3>
           <p className="text-[12.5px] mb-5" style={{ color: C.secondary }}>
@@ -345,7 +358,10 @@ function RateLimitModal({ info, onClose, onChangeTemplate }) {
             </div>
           </div>
 
-          <p className="text-[12.5px] leading-[1.65] mb-6" style={{ color: C.secondary }}>
+          <p
+            className="text-[12.5px] leading-[1.65] mb-6"
+            style={{ color: C.secondary }}
+          >
             {info.message}
           </p>
 
@@ -358,7 +374,9 @@ function RateLimitModal({ info, onClose, onChangeTemplate }) {
                 background: C.input,
                 color: C.heading,
               }}
-              onMouseEnter={(e) => (e.currentTarget.style.background = C.cardSecondary)}
+              onMouseEnter={(e) =>
+                (e.currentTarget.style.background = C.cardSecondary)
+              }
               onMouseLeave={(e) => (e.currentTarget.style.background = C.input)}
             >
               Browse Templates
@@ -498,7 +516,10 @@ function GenerationLoader({ title, stage }) {
               Generation in Progress{dots}
             </h2>
 
-            <p className="mb-7 leading-[1.6]" style={{ fontSize: 14.5, color: C.secondary }}>
+            <p
+              className="mb-7 leading-[1.6]"
+              style={{ fontSize: 14.5, color: C.secondary }}
+            >
               {title ? (
                 <>
                   <strong style={{ color: C.gold }}>{title}</strong> is being
@@ -524,7 +545,10 @@ function GenerationLoader({ title, stage }) {
               />
             </div>
 
-            <p className="leading-[1.5]" style={{ fontSize: 12, color: C.secondary }}>
+            <p
+              className="leading-[1.5]"
+              style={{ fontSize: 12, color: C.secondary }}
+            >
               Taking you to My Mysteries…
               <br />
               You can watch live progress there.
@@ -548,7 +572,8 @@ function GenerationLoader({ title, stage }) {
               style={{
                 fontSize: 14.5,
                 color: C.secondary,
-                animation: "successFadeUp .5s cubic-bezier(.2,.7,.3,1) .15s both",
+                animation:
+                  "successFadeUp .5s cubic-bezier(.2,.7,.3,1) .15s both",
               }}
             >
               Your mystery is being generated in the background.
@@ -622,8 +647,8 @@ function TemplateCard({ template, isSelected, onClick }) {
   const cover = template.thumbnail
     ? getImageUrl(template.thumbnail)
     : template.coverImage
-    ? getImageUrl(template.coverImage)
-    : null;
+      ? getImageUrl(template.coverImage)
+      : null;
 
   return (
     <button
@@ -631,9 +656,7 @@ function TemplateCard({ template, isSelected, onClick }) {
       onClick={onClick}
       className="text-left relative overflow-hidden transition-all hover:-translate-y-[1px]"
       style={{
-        border: isSelected
-          ? `2px solid ${C.gold}`
-          : `1px solid ${C.border}`,
+        border: isSelected ? `2px solid ${C.gold}` : `1px solid ${C.border}`,
         borderRadius: 10,
         background: C.input,
         color: C.heading,
@@ -730,30 +753,28 @@ export default function CreateProduct() {
   const navigate = useNavigate();
   const location = useLocation();
 
-  const {
-    templateId: preTemplateId = null,
-    template: preTemplate = null,
-  } = location.state || {};
+  const { templateId: preTemplateId = null, template: preTemplate = null } =
+    location.state || {};
 
   // ---- Form state ----
   const [mysteryTitle, setMysteryTitle] = useState(preTemplate?.name || "");
   const [genre, setGenre] = useState(preTemplate?.genre || GENRES[0]);
   const [setting, setSetting] = useState(preTemplate?.setting || SETTINGS[0]);
   const [difficulty, setDifficulty] = useState(
-    preTemplate?.difficulty || DIFFICULTIES[0]
+    preTemplate?.difficulty || DIFFICULTIES[0],
   );
   const [players, setPlayers] = useState(
     preTemplate?.playerCount
       ? `${preTemplate.playerCount} Players`
-      : PLAYER_COUNTS[0]
+      : PLAYER_COUNTS[0],
   );
   const [duration, setDuration] = useState(
     preTemplate?.duration
       ? `${preTemplate.duration} - ${preTemplate.duration + 30} Minutes`
-      : DURATIONS[0]
+      : DURATIONS[0],
   );
   const [audience, setAudience] = useState(
-    preTemplate?.targetAudience || AUDIENCES[0]
+    preTemplate?.targetAudience || AUDIENCES[0],
   );
   const [storyIdea, setStoryIdea] = useState(preTemplate?.storyIdea || "");
 
@@ -762,6 +783,15 @@ export default function CreateProduct() {
   const [templatesLoading, setTemplatesLoading] = useState(true);
   const [selectedTemplate, setSelectedTemplate] = useState(null);
   const [selectedTemplateId, setSelectedTemplateId] = useState(preTemplateId);
+
+  const OUTPUTS = [
+    { label: "Mystery Story PDF", Icon: BookOpen },
+    { label: "Cover Image", Icon: Image },
+    { label: "Suspect Cards", Icon: Users },
+    { label: "Clues & Evidence", Icon: Search },
+    { label: "Puzzle Sheets", Icon: Puzzle },
+    { label: "Solution Guide", Icon: KeyRound },
+  ];
 
   // ---- Generation state ----
   const [generating, setGenerating] = useState(false);
@@ -825,19 +855,14 @@ export default function CreateProduct() {
 
     if (template.setting) setSetting(template.setting);
 
-    if (
-      template.difficulty &&
-      DIFFICULTIES.includes(template.difficulty)
-    ) {
+    if (template.difficulty && DIFFICULTIES.includes(template.difficulty)) {
       setDifficulty(template.difficulty);
     }
 
     if (template.playerCount) {
       // Convert "4-8" → "4 - 8 Players"
       const clean = template.playerCount.replace(/-/g, " - ").trim();
-      const withPlayers = /player/i.test(clean)
-        ? clean
-        : `${clean} Players`;
+      const withPlayers = /player/i.test(clean) ? clean : `${clean} Players`;
       setPlayers(withPlayers);
     }
 
@@ -854,7 +879,7 @@ export default function CreateProduct() {
         Kids: "Kids (8+)",
       };
       setAudience(
-        audienceMap[template.targetAudience] || template.targetAudience
+        audienceMap[template.targetAudience] || template.targetAudience,
       );
     }
 
@@ -909,7 +934,7 @@ export default function CreateProduct() {
           toast.error(
             err.response.data.message ||
               "Rate limit reached. Try again in a moment.",
-            { duration: 6000 }
+            { duration: 6000 },
           );
           return;
         }
@@ -918,7 +943,7 @@ export default function CreateProduct() {
           err.response?.data?.message ||
             err.message ||
             "Generation failed to start",
-          { duration: 6000 }
+          { duration: 6000 },
         );
       });
 
@@ -1080,10 +1105,16 @@ export default function CreateProduct() {
                     1
                   </span>
                   <div>
-                    <h2 className="font-bold" style={{ fontSize: 16, color: C.heading }}>
+                    <h2
+                      className="font-bold"
+                      style={{ fontSize: 16, color: C.heading }}
+                    >
                       Mystery Details
                     </h2>
-                    <p className="mt-1" style={{ fontSize: 13, color: C.secondary }}>
+                    <p
+                      className="mt-1"
+                      style={{ fontSize: 13, color: C.secondary }}
+                    >
                       Tell us what kind of mystery you want to create.
                     </p>
                   </div>
@@ -1137,7 +1168,9 @@ export default function CreateProduct() {
                     value={setting}
                     onChange={setSetting}
                     options={
-                      SETTINGS.includes(setting) ? SETTINGS : [setting, ...SETTINGS]
+                      SETTINGS.includes(setting)
+                        ? SETTINGS
+                        : [setting, ...SETTINGS]
                     }
                   />
                   <SelectField
@@ -1197,10 +1230,16 @@ export default function CreateProduct() {
                     2
                   </span>
                   <div>
-                    <h2 className="font-bold" style={{ fontSize: 16, color: C.heading }}>
+                    <h2
+                      className="font-bold"
+                      style={{ fontSize: 16, color: C.heading }}
+                    >
                       Story Preferences
                     </h2>
-                    <p className="mt-1" style={{ fontSize: 13, color: C.secondary }}>
+                    <p
+                      className="mt-1"
+                      style={{ fontSize: 13, color: C.secondary }}
+                    >
                       Customize your mystery story.
                     </p>
                   </div>
@@ -1265,7 +1304,10 @@ export default function CreateProduct() {
                   )}
                 </button>
 
-                <p className="mt-3" style={{ fontSize: 11, color: C.secondary }}>
+                <p
+                  className="mt-3"
+                  style={{ fontSize: 11, color: C.secondary }}
+                >
                   You will get a complete mystery game kit with story,
                   characters, clues, puzzles, evidence and solution.
                 </p>
@@ -1298,10 +1340,16 @@ export default function CreateProduct() {
                         3
                       </span>
                       <div>
-                        <h2 className="font-bold" style={{ fontSize: 16, color: C.heading }}>
+                        <h2
+                          className="font-bold"
+                          style={{ fontSize: 16, color: C.heading }}
+                        >
                           Choose a Template (Optional)
                         </h2>
-                        <p className="mt-1" style={{ fontSize: 13, color: C.secondary }}>
+                        <p
+                          className="mt-1"
+                          style={{ fontSize: 13, color: C.secondary }}
+                        >
                           Click a template to auto-fill every field below.
                         </p>
                       </div>
@@ -1364,6 +1412,7 @@ export default function CreateProduct() {
                 </section>
 
                 {/* What You'll Get */}
+
                 <section
                   className="rounded-[12px]"
                   style={{
@@ -1383,16 +1432,23 @@ export default function CreateProduct() {
                   </div>
 
                   <div className="grid grid-cols-3 lg:grid-cols-6 gap-3">
-                    {OUTPUTS.map((label, i) => (
+                    {OUTPUTS.map(({ label, Icon }, i) => (
                       <div key={i}>
                         <div
+                          className="grid place-items-center"
                           style={{
                             height: 90,
                             borderRadius: 8,
                             background: C.input,
                             border: `1px solid ${C.border}`,
                           }}
-                        />
+                        >
+                          <Icon
+                            size={28}
+                            strokeWidth={1.6}
+                            style={{ color: C.gold, opacity: 0.85 }}
+                          />
+                        </div>
                         <div
                           className="text-center mt-2.5 leading-[17px]"
                           style={{ fontSize: 11, color: C.heading }}
