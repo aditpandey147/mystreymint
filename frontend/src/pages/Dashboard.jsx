@@ -20,6 +20,8 @@ import {
   Plus,
   Loader2,
   Sparkles,
+  TrendingUp,
+  CheckCircle2,
 } from "lucide-react";
 
 const SERVER_URL = import.meta.env.VITE_SERVER_URL || "http://localhost:5000";
@@ -108,7 +110,7 @@ const ACTION_STYLES = {
 };
 
 // ================================================================
-// RECENT MYSTERIES
+// RECENT MYSTERIES — live from /mysteries
 // ================================================================
 function RecentMysteries() {
   const navigate = useNavigate();
@@ -154,27 +156,24 @@ function RecentMysteries() {
         padding: "13px 15px 9px",
       }}
     >
-      <div className="flex justify-between items-center mb-2 gap-2 flex-wrap">
+      {/* Header — align items center, allow wrap on mobile */}
+      <div className="flex justify-between items-center mb-2 gap-2">
         <h2
           className="font-bold m-0"
-          style={{
-            fontSize: "clamp(16px, 4vw, 21px)",
-            color: C.heading,
-          }}
+          style={{ fontSize: 21, color: C.heading }}
         >
           Recent Mysteries
         </h2>
         <button
           type="button"
           onClick={() => navigate("/my-mysteries")}
-          className="font-semibold transition shrink-0"
+          className="font-semibold transition whitespace-nowrap shrink-0"
           style={{
             color: C.gold,
-            fontSize: "clamp(12px, 3.2vw, 14px)",
+            fontSize: 14,
             background: "transparent",
             border: 0,
             cursor: "pointer",
-            whiteSpace: "nowrap",
           }}
         >
           View All <ArrowRight size={12} className="inline" />
@@ -196,7 +195,7 @@ function RecentMysteries() {
           ))}
         </div>
       ) : mysteries.length === 0 ? (
-        <div className="py-8 text-center">
+        <div className="py-10 text-center">
           <div
             className="grid place-items-center mx-auto mb-3"
             style={{
@@ -209,25 +208,19 @@ function RecentMysteries() {
           >
             <Sparkles size={22} style={{ color: C.gold }} />
           </div>
-          <p
-            style={{
-              fontSize: "clamp(12px, 3.2vw, 14px)",
-              color: C.secondary,
-              marginBottom: 14,
-            }}
-          >
+          <p style={{ fontSize: 14, color: C.secondary, marginBottom: 14 }}>
             No mysteries yet
           </p>
           <button
             onClick={() => navigate("/create-mystery")}
-            className="inline-flex items-center gap-2 h-[40px] px-4 rounded-[10px] text-[12.5px] font-bold"
+            className="inline-flex items-center gap-2 px-5 py-[10px] rounded-[10px] text-[13px] font-bold"
             style={{
               background: C.goldGradient,
               color: C.mainBg,
               border: `1px solid ${C.goldHover}`,
             }}
           >
-            <Plus size={13} />
+            <Plus size={14} />
             Create Your First Mystery
           </button>
         </div>
@@ -238,20 +231,18 @@ function RecentMysteries() {
           return (
             <div
               key={m._id || idx}
-              className="flex items-start"
+              className="flex items-center gap-2.5 sm:gap-4"
               style={{
-                gap: "clamp(8px, 2.5vw, 16px)",
                 borderTop: `1px solid ${C.border}`,
                 paddingTop: 12,
                 paddingBottom: 12,
               }}
             >
-              {/* Cover thumbnail */}
+              {/* Cover thumbnail — fixed aspect ratio, no broken padding trick */}
               <div
-                className="shrink-0 overflow-hidden"
+                className="shrink-0 overflow-hidden relative w-[70px] sm:w-[100px]"
                 style={{
-                  width: "clamp(56px, 16vw, 100px)",
-                  height: "clamp(40px, 11vw, 66px)",
+                  aspectRatio: "3 / 2",
                   border: `1px solid ${C.border}`,
                   borderRadius: 9,
                   background: C.input,
@@ -262,24 +253,25 @@ function RecentMysteries() {
                     src={cover}
                     alt={m.title}
                     loading="lazy"
-                    className="w-full h-full object-cover"
+                    className="absolute inset-0 w-full h-full object-cover"
                     onError={(e) => (e.target.style.display = "none")}
                   />
                 ) : (
-                  <div className="w-full h-full grid place-items-center">
+                  <div className="absolute inset-0 grid place-items-center">
                     <FileText
-                      size={18}
+                      size={20}
                       style={{ color: C.gold, opacity: 0.5 }}
                     />
                   </div>
                 )}
               </div>
 
+              {/* Content — grows, truncates properly */}
               <div className="flex-1 min-w-0">
                 <div
                   className="font-bold truncate"
                   style={{
-                    fontSize: "clamp(12px, 3.4vw, 16px)",
+                    fontSize: 15,
                     marginBottom: 6,
                     color: C.heading,
                   }}
@@ -289,87 +281,96 @@ function RecentMysteries() {
                 </div>
                 <div
                   className="flex items-center flex-wrap"
-                  style={{ gap: "clamp(4px, 1.5vw, 12px)", fontSize: 12 }}
+                  style={{ gap: 8, fontSize: 12 }}
                 >
                   <span
-                    className="rounded-full truncate"
+                    className="rounded-full"
                     style={{
-                      padding: "3px 8px",
+                      padding: "4px 9px",
                       background:
                         pillClass === "pink"
                           ? "#2a0f18"
                           : pillClass === "green"
-                          ? "#052a24"
-                          : C.input,
+                            ? "#052a24"
+                            : C.input,
                       border:
                         pillClass === "pink"
                           ? "1px solid #6b2233"
                           : pillClass === "green"
-                          ? `1px solid ${C.turquoise}55`
-                          : `1px solid ${C.border}`,
+                            ? `1px solid ${C.turquoise}55`
+                            : `1px solid ${C.border}`,
                       color:
                         pillClass === "pink"
                           ? "#ff9eb8"
                           : pillClass === "green"
-                          ? C.turquoise
-                          : C.heading,
+                            ? C.turquoise
+                            : C.heading,
                       fontWeight: 500,
-                      fontSize: "clamp(9px, 2.4vw, 12px)",
-                      maxWidth: "100%",
                     }}
                   >
                     {m.genre || "Mystery"}
                   </span>
                   <span
-                    className="flex items-center whitespace-nowrap"
-                    style={{
-                      color: C.secondary,
-                      gap: 4,
-                      fontSize: "clamp(9px, 2.4vw, 12px)",
-                    }}
+                    className="flex items-center"
+                    style={{ color: C.secondary, gap: 5 }}
                   >
-                    <UsersRound size={10} /> {m.playerCount || "—"}
+                    <UsersRound size={12} /> {m.playerCount || "—"}
                   </span>
                   <span
-                    className="flex items-center whitespace-nowrap"
-                    style={{
-                      color: C.secondary,
-                      gap: 4,
-                      fontSize: "clamp(9px, 2.4vw, 12px)",
-                    }}
+                    className="flex items-center"
+                    style={{ color: C.secondary, gap: 5 }}
                   >
-                    <Clock size={10} />{" "}
-                    {m.duration ? `${m.duration}m` : "—"}
+                    <Clock size={12} /> {m.duration ? `${m.duration} min` : "—"}
                   </span>
                 </div>
               </div>
 
-              <button
-                onClick={() => navigate(`/mystery/${m._id}`)}
-                className="shrink-0 transition-all"
-                style={{
-                  border: `1px solid ${C.border}`,
-                  background: C.input,
-                  color: C.gold,
-                  borderRadius: 8,
-                  padding: "6px 12px",
-                  fontWeight: 600,
-                  fontSize: "clamp(10px, 2.6vw, 13px)",
-                  cursor: "pointer",
-                  whiteSpace: "nowrap",
-                  alignSelf: "center",
-                }}
-                onMouseEnter={(e) => {
-                  e.currentTarget.style.borderColor = C.gold;
-                  e.currentTarget.style.background = C.cardSecondary;
-                }}
-                onMouseLeave={(e) => {
-                  e.currentTarget.style.borderColor = C.border;
-                  e.currentTarget.style.background = C.input;
-                }}
-              >
-                View
-              </button>
+              {/* Actions — grouped together, aligned right, never wrap awkwardly */}
+              <div className="shrink-0 flex items-center gap-1 sm:gap-2">
+                <button
+                  className="transition-colors"
+                  style={{
+                    padding: "8px 6px",
+                    color: C.secondary,
+                    background: "transparent",
+                    border: 0,
+                    cursor: "pointer",
+                  }}
+                  onMouseEnter={(e) =>
+                    (e.currentTarget.style.color = C.heading)
+                  }
+                  onMouseLeave={(e) =>
+                    (e.currentTarget.style.color = C.secondary)
+                  }
+                >
+                  <MoreVertical size={16} />
+                </button>
+
+                <button
+                  onClick={() => navigate(`/mystery/${m._id}`)}
+                  className="transition-all px-3 sm:px-[22px] py-2 sm:py-[10px]"
+                  style={{
+                    border: `1px solid ${C.border}`,
+                    background: C.input,
+                    color: C.gold,
+                    borderRadius: 8,
+                    fontWeight: 600,
+                    fontSize: 13,
+                    cursor: "pointer",
+                    whiteSpace: "nowrap",
+                  }}
+                  onMouseEnter={(e) => {
+                    e.currentTarget.style.borderColor = C.gold;
+                    e.currentTarget.style.background = C.cardSecondary;
+                  }}
+                  onMouseLeave={(e) => {
+                    e.currentTarget.style.borderColor = C.border;
+                    e.currentTarget.style.background = C.input;
+                  }}
+                >
+                  View
+                </button>
+              </div>
             </div>
           );
         })
@@ -377,9 +378,8 @@ function RecentMysteries() {
     </div>
   );
 }
-
 // ================================================================
-// FEATURED TEMPLATES
+// FEATURED TEMPLATES — live from /templates
 // ================================================================
 function FeaturedTemplates() {
   const navigate = useNavigate();
@@ -441,35 +441,33 @@ function FeaturedTemplates() {
         padding: "13px 15px 15px",
       }}
     >
-      <div className="flex justify-between items-center mb-3 gap-2 flex-wrap">
+      <div className="flex justify-between items-center mb-3 gap-2 flex-wrap sm:flex-nowrap">
         <h2
           className="font-bold m-0"
-          style={{ fontSize: "clamp(16px, 4vw, 21px)", color: C.heading }}
+          style={{ fontSize: 21, color: C.heading }}
         >
           Featured Templates
         </h2>
         <button
           type="button"
           onClick={() => navigate("/templates")}
-          className="font-semibold transition shrink-0"
+          className="font-semibold transition whitespace-nowrap"
           style={{
             color: C.gold,
-            fontSize: "clamp(12px, 3vw, 14px)",
+            fontSize: 14,
             background: "transparent",
             border: 0,
             cursor: "pointer",
-            whiteSpace: "nowrap",
           }}
           onMouseEnter={(e) => (e.currentTarget.style.color = C.goldHover)}
           onMouseLeave={(e) => (e.currentTarget.style.color = C.gold)}
         >
-          Browse All <span className="hidden sm:inline">Templates</span>{" "}
-          <ArrowRight size={12} className="inline" />
+          Browse All Templates <ArrowRight size={12} className="inline" />
         </button>
       </div>
 
       {loading ? (
-        <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-2 sm:gap-3">
+        <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3">
           {Array.from({ length: 6 }).map((_, i) => (
             <div
               key={i}
@@ -477,14 +475,14 @@ function FeaturedTemplates() {
               style={{
                 border: `1px solid ${C.border}`,
                 background: C.cardSecondary,
-                height: "clamp(120px, 32vw, 160px)",
+                paddingBottom: "68%",
               }}
             />
           ))}
         </div>
       ) : templates.length === 0 ? (
-        <div className="py-6 text-center">
-          <p style={{ fontSize: 12, color: C.secondary }}>
+        <div className="py-8 text-center">
+          <p style={{ fontSize: 13, color: C.secondary }}>
             No templates available yet.
           </p>
         </div>
@@ -494,8 +492,8 @@ function FeaturedTemplates() {
             const cover = t.thumbnail
               ? getImageUrl(t.thumbnail)
               : t.coverImage
-              ? getImageUrl(t.coverImage)
-              : null;
+                ? getImageUrl(t.coverImage)
+                : null;
             return (
               <div
                 key={t._id}
@@ -512,6 +510,7 @@ function FeaturedTemplates() {
                   (e.currentTarget.style.borderColor = C.border)
                 }
               >
+                {/* Cover image — padding bottom instead of fixed height */}
                 <div
                   className="relative"
                   style={{
@@ -531,20 +530,19 @@ function FeaturedTemplates() {
                   ) : (
                     <div className="absolute inset-0 grid place-items-center">
                       <Sparkles
-                        size={18}
+                        size={20}
                         style={{ color: C.gold, opacity: 0.5 }}
                       />
                     </div>
                   )}
                   {t.isFeatured && (
                     <span
-                      className="absolute top-1 right-1 px-1 py-0.5 rounded-full"
+                      className="absolute top-1.5 right-1.5 px-1.5 py-0.5 rounded-full"
                       style={{
                         background: C.gold,
                         color: C.mainBg,
-                        fontSize: 8,
+                        fontSize: 8.5,
                         fontWeight: 700,
-                        lineHeight: 1,
                       }}
                     >
                       ★
@@ -552,13 +550,10 @@ function FeaturedTemplates() {
                   )}
                 </div>
 
-                <div style={{ padding: "6px 8px" }}>
+                <div style={{ padding: "8px 10px" }}>
                   <div
                     className="font-bold truncate"
-                    style={{
-                      fontSize: "clamp(10px, 2.8vw, 14px)",
-                      color: C.heading,
-                    }}
+                    style={{ fontSize: 13, color: C.heading }}
                     title={t.name}
                   >
                     {t.name}
@@ -566,9 +561,9 @@ function FeaturedTemplates() {
                   <div
                     className="truncate"
                     style={{
-                      fontSize: "clamp(9px, 2.4vw, 12px)",
+                      fontSize: 12,
                       color: C.secondary,
-                      marginTop: 3,
+                      marginTop: 6,
                     }}
                   >
                     {t.genre || t.category || "Mystery"}
@@ -604,13 +599,13 @@ export default function Dashboard() {
         if (res.data?.success) {
           const list = res.data.data || [];
           const completed = list.filter(
-            (m) => m.generationStatus === "completed"
+            (m) => m.generationStatus === "completed",
           ).length;
           const generating = list.filter(
             (m) =>
               m.generationStatus === "generating" ||
               m.generationStatus === "pending" ||
-              m.generationStatus === "validating"
+              m.generationStatus === "validating",
           ).length;
           setStats({
             total: String(list.length),
@@ -656,7 +651,7 @@ export default function Dashboard() {
     },
     {
       value: stats.templates,
-      label: "Templates",
+      label: "Templates Available",
       trend: "↑ live",
       trendColor: C.turquoise,
       icon: Users,
@@ -672,182 +667,185 @@ export default function Dashboard() {
     >
       <Sidebar />
 
-      <div className="flex-1 ml-0 md:ml-[18rem] flex flex-col min-h-screen min-w-0">
+      <div className="flex-1 ml-0 md:ml-[18rem] flex flex-col min-h-screen">
         <Navbar />
 
         <main
           className="flex-1 overflow-y-auto"
-          style={{
-            padding: "clamp(12px, 3vw, 20px) clamp(8px, 2vw, 12px) clamp(12px, 3vw, 20px) clamp(12px, 3vw, 20px)",
-          }}
+          style={{ padding: "20px 12px 20px 20px" }}
         >
-          <div className="max-w-[1650px] mx-auto min-w-0">
-            {/* HERO */}
+          <div className="max-w-[1650px] mx-auto">
+            {/* HERO — padding based, no fixed heights */}
             <section
-              className="rounded-[12px] overflow-hidden relative mb-4"
+              className="rounded-[12px] overflow-hidden relative mb-[19px]"
               style={{
                 background: "#000000",
-                paddingTop: "clamp(24px, 5vw, 40px)",
-                paddingBottom: "clamp(24px, 5vw, 40px)",
-                minHeight: "clamp(280px, 50vw, 360px)",
+                paddingTop: "40px",
+                paddingBottom: "40px",
+                paddingLeft: "30px",
+                paddingRight: "30px",
               }}
             >
+              {/* Background image */}
               <div
-                className="absolute inset-0"
-                style={{
-                  backgroundImage: `url(${heroBg})`,
-                  backgroundSize: "cover",
-                  backgroundPosition: "center right",
-                  backgroundRepeat: "no-repeat",
-                  zIndex: 0,
-                }}
+                className="absolute inset-0 z-0 bg-cover bg-[center_right] bg-no-repeat"
+                style={{ backgroundImage: `url(${heroBg})` }}
               />
-              <div
-                className="absolute inset-0 pointer-events-none"
-                style={{
-                  background:
-                    "linear-gradient(90deg, rgba(0,0,0,.92), rgba(0,0,0,.72) 42%, rgba(0,0,0,.35) 80%, rgba(0,0,0,.15) 100%)",
-                  zIndex: 1,
-                }}
-              />
-              <div
-                className="absolute inset-x-0 bottom-0 pointer-events-none"
-                style={{
-                  height: "40%",
-                  background:
-                    "linear-gradient(180deg, transparent, rgba(0,0,0,.45))",
-                  zIndex: 1,
-                }}
-              />
-              <div
-                className="relative z-10"
-                style={{
-                  paddingLeft: "clamp(16px, 4vw, 29px)",
-                  paddingRight: "clamp(16px, 4vw, 29px)",
-                }}
-              >
-                <div
-                  className="inline-flex items-center gap-2 mb-3"
-                  style={{
-                    padding: "5px 12px",
-                    borderRadius: 999,
-                    background: "rgba(246,197,93,.12)",
-                    border: `1px solid ${C.gold}55`,
-                    color: C.gold,
-                    fontSize: "clamp(9px, 2.4vw, 12px)",
-                    fontWeight: 600,
-                    letterSpacing: "clamp(0.8px, 0.3vw, 1.5px)",
-                    textTransform: "uppercase",
-                  }}
-                >
-                  <span
+
+              {/* Dark gradient overlay */}
+              <div className="absolute inset-0 z-[1] pointer-events-none bg-[linear-gradient(90deg,rgba(0,0,0,.92)_0%,rgba(0,0,0,.72)_45%,rgba(0,0,0,.35)_82%,rgba(0,0,0,.15)_100%)]" />
+
+              {/* Soft bottom fade */}
+              <div className="absolute inset-x-0 bottom-0 z-[1] h-[40%] pointer-events-none bg-[linear-gradient(180deg,transparent,rgba(0,0,0,.45))]" />
+
+              {/* Content */}
+              <div className="relative z-10 flex flex-wrap items-end justify-between gap-4">
+                <div>
+                  {/* Eyebrow */}
+                  <div
+                    className="inline-flex items-center gap-2 mb-3 px-[12px] py-[5px] rounded-full"
                     style={{
-                      width: 6,
-                      height: 6,
-                      borderRadius: "50%",
-                      background: C.gold,
-                      boxShadow: `0 0 8px ${C.gold}`,
+                      background: "rgba(246,197,93,.12)",
+                      border: `1px solid ${C.gold}55`,
+                      color: C.gold,
+                      fontSize: 10.5,
+                      fontWeight: 600,
+                      letterSpacing: "1.5px",
+                      textTransform: "uppercase",
                     }}
-                  />
-                  AI Mystery Game Creator
+                  >
+                    <span
+                      className="w-[5px] h-[5px] rounded-full"
+                      style={{
+                        background: C.gold,
+                        boxShadow: `0 0 8px ${C.gold}`,
+                      }}
+                    />
+                    AI Mystery Game Creator
+                  </div>
+
+                  {/* Heading */}
+                  <h1
+                    className="font-['Playfair_Display',Georgia,serif] mb-2.5"
+                    style={{
+                      fontSize: "clamp(32px,5.5vw,54px)",
+                      lineHeight: 1.1,
+                      letterSpacing: "-0.4px",
+                      fontWeight: 500,
+                      color: "#ffffff",
+                      maxWidth: 620,
+                    }}
+                  >
+                    Turn One Simple Idea Into a{" "}
+                    <em className="not-italic" style={{ color: C.gold }}>
+                      Complete Mystery Game
+                    </em>{" "}
+                    With AI
+                  </h1>
+
+                  {/* Description */}
+                  <p
+                    className="leading-[22px] max-w-[560px] mb-3"
+                    style={{
+                      fontSize: "clamp(12.5px, 1.3vw, 14.5px)",
+                      color: C.heading,
+                    }}
+                  >
+                    Stories, suspects, clues, puzzles and beautiful game kits —
+                    ready to play or sell.
+                  </p>
+
+                  {/* Stats badges */}
+                  <div className="flex flex-wrap items-center gap-2 mb-4">
+                    <span
+                      className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full"
+                      style={{
+                        background: "rgba(246,197,93,.12)",
+                        border: `1px solid ${C.gold}45`,
+                        color: C.gold,
+                        fontSize: 11,
+                        fontWeight: 600,
+                      }}
+                    >
+                      <Sparkles size={11} />
+                      AI-Generated
+                    </span>
+
+                    <span
+                      className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full"
+                      style={{
+                        background: "rgba(0,212,217,.12)",
+                        border: `1px solid ${C.cyan}45`,
+                        color: C.cyan,
+                        fontSize: 11,
+                        fontWeight: 600,
+                      }}
+                    >
+                      <CheckCircle2 size={11} />
+                      Ready to Play
+                    </span>
+
+                    <span
+                      className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full"
+                      style={{
+                        background: "rgba(246,197,93,.08)",
+                        border: `1px solid ${C.gold}30`,
+                        color: C.secondary,
+                        fontSize: 11,
+                        fontWeight: 600,
+                      }}
+                    >
+                      <Download size={11} />
+                      PDF + ZIP
+                    </span>
+                  </div>
                 </div>
 
-                <h1
-                  style={{
-                    fontFamily: "'Playfair Display', Georgia, serif",
-                    fontSize: "clamp(22px, 6vw, 54px)",
-                    lineHeight: 1.1,
-                    letterSpacing: "-0.5px",
-                    fontWeight: 500,
-                    margin: "0 0 12px",
-                    color: "#ffffff",
-                  }}
-                >
-                  Turn One Simple Idea Into a
-                  <br />
-                  Complete{" "}
-                  <em style={{ fontStyle: "normal", color: C.gold }}>
-                    Mystery Game
-                  </em>
-                  <br />
-                  <em style={{ fontStyle: "normal", color: C.gold }}>
-                    With AI
-                  </em>
-                </h1>
-
-                <p
-                  style={{
-                    fontSize: "clamp(12px, 3vw, 19px)",
-                    lineHeight: 1.6,
-                    margin: "0 0 clamp(16px, 4vw, 24px)",
-                    color: C.heading,
-                    maxWidth: 620,
-                  }}
-                >
-                  Stories, suspects, clues, puzzles and beautiful game kits
-                  <br className="hidden sm:block" />— ready to play or sell.
-                </p>
-
-                <div className="flex flex-wrap items-center gap-2 sm:gap-3">
+                {/* Action buttons */}
+                <div className="flex flex-col sm:flex-row gap-2.5">
+                  {/* Primary — Gold gradient */}
                   <button
+                    type="button"
                     onClick={() => navigate("/create-mystery")}
-                    className="flex items-center transition-all hover:-translate-y-[1px]"
-                    style={{
-                      height: "clamp(42px, 10vw, 50px)",
-                      paddingLeft: "clamp(14px, 3vw, 24px)",
-                      paddingRight: "clamp(14px, 3vw, 24px)",
-                      fontSize: "clamp(12px, 3vw, 16px)",
-                      gap: "clamp(6px, 1.5vw, 14px)",
-                      background: C.goldGradient,
-                      color: "#000C16",
-                      border: `1px solid ${C.goldHover}`,
-                      borderRadius: 11,
-                      fontWeight: 700,
-                      boxShadow:
-                        "inset 0 1px 1px rgba(255,255,255,.25), 0 8px 22px rgba(246,197,93,.35)",
-                      cursor: "pointer",
-                      whiteSpace: "nowrap",
-                    }}
-                    onMouseEnter={(e) =>
-                      (e.currentTarget.style.filter = "brightness(1.08)")
-                    }
-                    onMouseLeave={(e) =>
-                      (e.currentTarget.style.filter = "brightness(1)")
-                    }
+                    className="flex items-center justify-center h-[44px] px-[20px] gap-2 text-[13px] font-bold text-[#000C16] bg-[linear-gradient(135deg,#FFD36D_0%,#F6C55D_50%,#B77B32_100%)] border border-[#FFD36D] rounded-[10px] shadow-[inset_0_1px_1px_rgba(255,255,255,.25),0_8px_22px_rgba(246,197,93,.35)] transition-all hover:-translate-y-[1px] hover:brightness-110 hover:shadow-[inset_0_1px_1px_rgba(255,255,255,.35),0_10px_28px_rgba(246,197,93,.5)] active:translate-y-0"
                   >
                     <Plus size={16} />
-                    Create Mystery
+                    Create New Mystery
                     <ArrowRight size={16} />
                   </button>
 
+                  {/* Secondary — Dark with gold border */}
                   <button
+                    type="button"
                     onClick={() => navigate("/templates")}
-                    className="flex items-center transition-all hover:-translate-y-[1px]"
+                    className="flex items-center justify-center h-[44px] px-[18px] gap-2 text-[13px] font-semibold rounded-[10px] transition-all hover:-translate-y-[1px]"
                     style={{
-                      height: "clamp(42px, 10vw, 50px)",
-                      paddingLeft: "clamp(12px, 3vw, 22px)",
-                      paddingRight: "clamp(12px, 3vw, 22px)",
-                      fontSize: "clamp(11px, 2.8vw, 15px)",
-                      gap: "clamp(5px, 1.2vw, 10px)",
-                      background: "rgba(255,255,255,.06)",
-                      color: C.heading,
-                      border: "1px solid rgba(255,255,255,.18)",
-                      borderRadius: 11,
-                      fontWeight: 600,
-                      backdropFilter: "blur(6px)",
-                      WebkitBackdropFilter: "blur(6px)",
-                      cursor: "pointer",
-                      whiteSpace: "nowrap",
+                      background: "rgba(3,21,32,.8)",
+                      color: C.gold,
+                      border: `1px solid ${C.gold}66`,
+                      backdropFilter: "blur(8px)",
+                      WebkitBackdropFilter: "blur(8px)",
+                      boxShadow: "inset 0 1px 1px rgba(255,255,255,.06)",
+                    }}
+                    onMouseEnter={(e) => {
+                      e.currentTarget.style.background = "rgba(246,197,93,.15)";
+                      e.currentTarget.style.color = C.goldHover;
+                      e.currentTarget.style.borderColor = C.gold;
+                    }}
+                    onMouseLeave={(e) => {
+                      e.currentTarget.style.background = "rgba(3,21,32,.8)";
+                      e.currentTarget.style.color = C.gold;
+                      e.currentTarget.style.borderColor = `${C.gold}66`;
                     }}
                   >
-                    Templates
+                    Browse Templates
                   </button>
                 </div>
               </div>
             </section>
 
             {/* STATS */}
-            <section className="grid grid-cols-2 lg:grid-cols-4 gap-2 sm:gap-3 mb-4">
+            <section className="grid grid-cols-2 lg:grid-cols-4 gap-2 sm:gap-3 mb-[18px]">
               {STATS.map((s, i) => {
                 const Icon = s.icon;
                 return (
@@ -857,47 +855,41 @@ export default function Dashboard() {
                     style={{
                       border: `1px solid ${C.border}`,
                       background: C.card,
-                      padding: "clamp(8px, 2.5vw, 12px)",
-                      gap: "clamp(8px, 2vw, 14px)",
-                      minWidth: 0,
+                      padding: 10,
+                      gap: 10,
                     }}
                   >
                     <div
-                      className="grid place-items-center shrink-0"
+                      className="grid place-items-center shrink-0 w-11 h-11 sm:w-14 sm:h-14"
                       style={{
-                        width: "clamp(40px, 11vw, 56px)",
-                        height: "clamp(40px, 11vw, 56px)",
-                        borderRadius: "clamp(10px, 3vw, 14px)",
+                        borderRadius: 12,
                         color: s.iconColor,
                         background: s.iconBg,
                       }}
                     >
+                      <Icon size={22} strokeWidth={1.8} className="sm:hidden" />
                       <Icon
-                        size={22}
+                        size={26}
                         strokeWidth={1.8}
-                        style={{
-                          width: "clamp(18px, 5vw, 26px)",
-                          height: "clamp(18px, 5vw, 26px)",
-                        }}
+                        className="hidden sm:block"
                       />
                     </div>
                     <div className="min-w-0 flex-1">
                       <div
-                        className="font-bold leading-none truncate"
+                        className="font-bold leading-none"
                         style={{
-                          fontSize: "clamp(18px, 5vw, 34px)",
+                          fontSize: "clamp(22px, 3vw, 34px)",
                           color: C.heading,
                         }}
                       >
                         {s.value}
                       </div>
                       <div
-                        className="mt-1 truncate"
+                        className="mt-1"
                         style={{
-                          fontSize: "clamp(10px, 2.6vw, 15px)",
+                          fontSize: "clamp(11px, 1.3vw, 15px)",
                           color: C.secondary,
                         }}
-                        title={s.label}
                       >
                         {s.label}
                       </div>
@@ -923,7 +915,7 @@ export default function Dashboard() {
             </section>
 
             {/* PANELS */}
-            <section className="grid grid-cols-1 lg:grid-cols-[1.425fr_1fr] gap-3 sm:gap-4 mb-4">
+            <section className="grid grid-cols-1 lg:grid-cols-[1.425fr_1fr] gap-4 mb-[18px]">
               <RecentMysteries />
 
               <div
@@ -937,16 +929,13 @@ export default function Dashboard() {
                 <div className="flex justify-between items-center mb-2">
                   <h2
                     className="font-bold m-0"
-                    style={{
-                      fontSize: "clamp(16px, 4vw, 21px)",
-                      color: C.heading,
-                    }}
+                    style={{ fontSize: 21, color: C.heading }}
                   >
                     Quick Actions
                   </h2>
                 </div>
 
-                <div className="grid grid-cols-1 xs:grid-cols-2 gap-3">
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 sm:gap-3">
                   {QUICK_ACTIONS.map((a, idx) => {
                     const Icon = a.icon;
                     const S = ACTION_STYLES[a.color];
@@ -957,22 +946,18 @@ export default function Dashboard() {
                         style={{
                           border: `1px solid ${S.border}`,
                           background: S.bg,
-                          minHeight: "clamp(88px, 22vw, 105px)",
                           display: "flex",
-                          gap: "clamp(8px, 2vw, 14px)",
-                          padding: "clamp(8px, 2vw, 12px)",
+                          gap: 10,
+                          padding: "12px 10px 12px 10px",
                           color: C.heading,
                           cursor: "pointer",
-                          minWidth: 0,
                         }}
                         onClick={() => navigate(a.path)}
                       >
                         <div
-                          className="grid place-items-center shrink-0"
+                          className="grid place-items-center shrink-0 w-10 h-10 sm:w-12 sm:h-12"
                           style={{
-                            width: "clamp(36px, 9vw, 48px)",
-                            height: "clamp(36px, 9vw, 48px)",
-                            borderRadius: "clamp(9px, 2.5vw, 13px)",
+                            borderRadius: 12,
                             background: S.iconBg,
                             color: S.iconColor,
                           }}
@@ -980,43 +965,45 @@ export default function Dashboard() {
                           <Icon
                             size={20}
                             strokeWidth={1.8}
-                            style={{
-                              width: "clamp(16px, 4.5vw, 24px)",
-                              height: "clamp(16px, 4.5vw, 24px)",
-                            }}
+                            className="sm:hidden"
+                          />
+                          <Icon
+                            size={24}
+                            strokeWidth={1.8}
+                            className="hidden sm:block"
                           />
                         </div>
-                        <div className="min-w-0 flex-1 pr-4">
+                        <div className="min-w-0 flex-1">
                           <div
-                            className="font-bold truncate"
+                            className="font-bold"
                             style={{
-                              fontSize: "clamp(11px, 2.8vw, 14px)",
-                              marginTop: "clamp(4px, 1.5vw, 10px)",
+                              fontSize: 13,
+                              marginTop: 6,
+                              lineHeight: "18px",
+                              whiteSpace: "normal",
                               color: C.heading,
                             }}
-                            title={a.title}
                           >
                             {a.title}
                           </div>
                           <div
-                            className="truncate"
                             style={{
-                              fontSize: "clamp(10px, 2.4vw, 13px)",
-                              lineHeight: 1.4,
-                              marginTop: 2,
+                              fontSize: 12,
+                              lineHeight: "18px",
+                              marginTop: 4,
                               color: C.secondary,
+                              whiteSpace: "pre-line",
                             }}
-                            title={a.desc.replace(/\n/g, " ")}
                           >
-                            {a.desc.replace(/\n/g, " ")}
+                            {a.desc}
                           </div>
                         </div>
                         <ArrowRight
-                          size={12}
+                          size={14}
                           style={{
                             position: "absolute",
-                            bottom: "clamp(6px, 1.5vw, 10px)",
-                            right: "clamp(8px, 2vw, 12px)",
+                            bottom: 10,
+                            right: 12,
                             color: S.arrowColor,
                           }}
                         />
