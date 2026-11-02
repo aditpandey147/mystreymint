@@ -242,7 +242,7 @@ const Sidebar = () => {
       show: true,
       target: "_blank",
       external: true,
-      href: "https://www.podcastai.live/upgrades",
+      href: "https://www.mysterymintai.live/upgrades",
     },
     { path: "/support", icon: Headset, label: "Support", show: true, target: "_blank" },
   ];
