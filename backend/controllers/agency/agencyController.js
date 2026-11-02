@@ -13,7 +13,7 @@ function hasAgencyPlan(user) {
   if (user.role === 'admin') return true;
 
   const plans = Array.isArray(user.planId) ? user.planId : [user.planId];
-  return plans.includes(12);
+  return plans.includes(13);
 }
 
 // ================================================================
