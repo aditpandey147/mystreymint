@@ -3,7 +3,7 @@ import React, { useState, useRef, useEffect } from "react";
 import { useAuth } from "../../context/AuthContext";
 import Sidebar from "../../components/Sidebar";
 import Navbar from "../../components/Navbar";
-import videoThumbnail from "../../assets/video-thumbnail.jpg";
+import videoThumbnail from "../../assets/video-thumbnail.png";
 import {
   Play,
   BookOpen,
@@ -51,9 +51,7 @@ const Training = () => {
   const [thumbnailError, setThumbnailError] = useState(false);
   const faqContainerRef = useRef(null);
 
-  // Demo Video Configuration
-  const VIDEO_ID = "YOUR_VIDEO_ID"; // Replace with your YouTube video ID
-  const videoUrl = `https://www.youtube.com/embed/${VIDEO_ID}`;
+  const videoUrl = `https://drive.google.com/file/d/1fuM_H7oV1vkT-7HO46jh6gI0zIn9z10p/preview`;
 
   // ================================================================
   // FAQ DATA — MysteryMint AI specific
