@@ -5,21 +5,16 @@ const { SendMailClient } = require("zeptomail");
 // 📧 EMAIL CONFIGURATION
 // ============================================================
 
-// ✅ Token
 const ZEPTOMAIL_TOKEN =
   process.env.ZEPTOMAIL_API_KEY || process.env.ZEPTOMAIL_TOKEN;
 
-// ✅ Email addresses (with fallbacks)
 const FROM_EMAIL = process.env.WELCOME_EMAIL;
 const ALERTS_EMAIL = process.env.ALERTS_EMAIL;
 const WELCOME_EMAIL = process.env.WELCOME_EMAIL;
 
-// ✅ Names - Updated to AI Digital Product Factory
-const WELCOME_NAME = process.env.WELCOME_NAME || "AI Digital Product Factory";
-const ALERTS_NAME =
-  process.env.ALERTS_NAME || "AI Digital Product Factory Alerts";
+const WELCOME_NAME = process.env.WELCOME_NAME || "MysteryMint AI";
+const ALERTS_NAME = process.env.ALERTS_NAME || "MysteryMint AI Alerts";
 
-// ✅ SAFE logging
 console.log("📧 Email Configuration:");
 console.log(`   Token: ${ZEPTOMAIL_TOKEN ? "✅ Set" : "❌ Not Set"}`);
 console.log(`   Welcome Email: ${WELCOME_EMAIL}`);
@@ -27,7 +22,6 @@ console.log(`   Alert Email: ${ALERTS_EMAIL}`);
 console.log(`   Welcome Name: ${WELCOME_NAME}`);
 console.log(`   Alert Name: ${ALERTS_NAME}`);
 
-// ✅ Initialize ZeptoMail client
 let client = null;
 
 if (ZEPTOMAIL_TOKEN) {
@@ -90,52 +84,50 @@ exports.sendWelcomeEmail = async (user, password) => {
           },
         },
       ],
-      subject: "🎙️ Welcome to PodcastAI! Your account is ready",
+      subject: "🎭 Welcome to MysteryMint AI",
       htmlbody: `
     <div style="font-family: 'Inter', Arial, sans-serif; max-width: 600px; margin: 0 auto; background: #FFFFFF; border-radius: 16px; overflow: hidden; box-shadow: 0 4px 20px rgba(0,0,0,0.08);">
       
-      <!-- Header — Purple → Blue gradient -->
-      <div style="background: linear-gradient(135deg, #6e35ed 0%, #3477ff 100%); padding: 40px 24px 32px; text-align: center; position: relative;">
-        <div style="position: relative; z-index: 1;">
-          <div style="display: inline-block; background: rgba(255,255,255,0.2); padding: 6px 16px; border-radius: 50px; margin-bottom: 12px;">
-            <span style="color: #FFFFFF; font-size: 11px; font-weight: 600; letter-spacing: 1.5px; text-transform: uppercase;">Account Activated</span>
-          </div>
-          <h1 style="color: #FFFFFF; margin: 0; font-size: 24px; font-weight: 700;">Welcome to PodcastAI! 🎙️</h1>
-          <p style="color: #E0D5FF; margin: 8px 0 0; font-size: 14px; font-weight: 500;">Your account has been created successfully</p>
+      <!-- Header — Gold gradient on dark -->
+      <div style="background: linear-gradient(135deg, #FFD36D 0%, #F6C55D 50%, #B77B32 100%); padding: 40px 24px 32px; text-align: center;">
+        <div style="display: inline-block; background: rgba(0,12,22,0.15); padding: 6px 16px; border-radius: 50px; margin-bottom: 12px;">
+          <span style="color: #000C16; font-size: 11px; font-weight: 700; letter-spacing: 1.5px; text-transform: uppercase;">Account Activated</span>
         </div>
+        <h1 style="color: #000C16; margin: 0; font-size: 24px; font-weight: 700;">Welcome to MysteryMint AI 🎭</h1>
+        <p style="color: #000C16; opacity: 0.85; margin: 8px 0 0; font-size: 14px; font-weight: 500;">Your account is ready</p>
       </div>
       
       <!-- Body -->
       <div style="padding: 32px 28px;">
-        <p style="color: #1F2937; font-size: 15px; margin: 0 0 16px; font-weight: 500;">
-          Hi <strong style="color: #111827;">${user.name || "there"}</strong> 👋,
+        <p style="color: #0b1a22; font-size: 15px; margin: 0 0 16px; font-weight: 500;">
+          Hi <strong style="color: #000C16;">${user.name || "there"}</strong> 👋,
         </p>
         <p style="color: #6B7280; font-size: 14px; margin: 0 0 24px; line-height: 1.7;">
-          Thank you for signing up with <strong style="color: #111827;">PodcastAI</strong>! Your account is now active and ready to use. Start creating amazing AI-powered podcast videos with host &amp; guest dialogues, AI covers, and trending topics — in minutes.
+          Your <strong style="color: #000C16;">MysteryMint AI</strong> account is now active. Create complete, ready-to-play mystery games in minutes.
         </p>
         
-        <!-- Credentials Box — purple-tinted -->
-        <div style="background: linear-gradient(135deg, #F5F0FF 0%, #EEE7FF 100%); border: 1px solid #C4B5FD; border-radius: 12px; padding: 20px; margin-bottom: 24px;">
+        <!-- Credentials Box — gold-tinted -->
+        <div style="background: linear-gradient(135deg, #FFFBEB 0%, #FEF3C7 100%); border: 1px solid #F6C55D; border-radius: 12px; padding: 20px; margin-bottom: 24px;">
           <div style="display: flex; align-items: flex-start; gap: 14px;">
-            <div style="background: linear-gradient(135deg, #6e35ed 0%, #3477ff 100%); width: 40px; height: 40px; border-radius: 10px; display: flex; align-items: center; justify-content: center; flex-shrink: 0;">
+            <div style="background: linear-gradient(135deg, #FFD36D 0%, #B77B32 100%); width: 40px; height: 40px; border-radius: 10px; display: flex; align-items: center; justify-content: center; flex-shrink: 0;">
               <span style="font-size: 20px;">🔑</span>
             </div>
             <div>
-              <p style="color: #4C1D95; font-size: 14px; font-weight: 600; margin: 0;">Your Login Credentials</p>
-              <div style="color: #5B21B6; font-size: 13px; margin: 6px 0 0; line-height: 1.8;">
+              <p style="color: #78350F; font-size: 14px; font-weight: 600; margin: 0;">Your Login Credentials</p>
+              <div style="color: #92400E; font-size: 13px; margin: 6px 0 0; line-height: 1.8;">
                 <strong>Email:</strong> ${user.email}<br>
                 <strong>Password:</strong> ${password || user.email}
               </div>
-              <p style="color: #7C3AED; font-size: 11px; margin: 6px 0 0; display: flex; align-items: center; gap: 4px;">
+              <p style="color: #B45309; font-size: 11px; margin: 6px 0 0;">
                 ⚠️ Please change your password after login
               </p>
             </div>
           </div>
         </div>
 
-        <!-- CTA Button — purple → blue gradient -->
+        <!-- CTA Button -->
         <div style="text-align: center;">
-          <a href="${frontendUrl}/dashboard" style="display: inline-block; background: linear-gradient(135deg, #6e35ed 0%, #3477ff 100%); color: #FFFFFF; padding: 14px 36px; border-radius: 10px; text-decoration: none; font-size: 14px; font-weight: 600; box-shadow: 0 4px 12px rgba(110, 53, 237, 0.35);">
+          <a href="${frontendUrl}/dashboard" style="display: inline-block; background: linear-gradient(135deg, #FFD36D 0%, #F6C55D 50%, #B77B32 100%); color: #000C16; padding: 14px 36px; border-radius: 10px; text-decoration: none; font-size: 14px; font-weight: 700; box-shadow: 0 4px 12px rgba(246, 197, 93, 0.35);">
             Go to Dashboard →
           </a>
         </div>
@@ -144,7 +136,7 @@ exports.sendWelcomeEmail = async (user, password) => {
       <!-- Footer -->
       <div style="border-top: 1px solid #E5E7EB; padding: 20px 24px; text-align: center; background: #F9FAFB;">
         <p style="color: #9CA3AF; font-size: 12px; margin: 0 0 4px;">
-          <strong style="color: #6B7280;">PodcastAI</strong>
+          <strong style="color: #000C16;">MysteryMint AI</strong>
         </p>
         <p style="color: #9CA3AF; font-size: 11px; margin: 0;">
           © ${new Date().getFullYear()} All rights reserved. · 
@@ -200,7 +192,7 @@ exports.sendPasswordResetEmail = async (user, resetUrl) => {
       process.env.WELCOME_EMAIL ||
       process.env.ALERTS_EMAIL ||
       "no-reply@albinolabs.com";
-    const fromName = process.env.WELCOME_NAME || "AI Digital Product Factory";
+    const fromName = process.env.WELCOME_NAME || "MysteryMint AI";
 
     console.log(`📧 Sending password reset email to: ${user.email}`);
 
@@ -217,52 +209,49 @@ exports.sendPasswordResetEmail = async (user, resetUrl) => {
           },
         },
       ],
-      subject: "🔑 Reset Your AI Digital Product Factory Password",
+      subject: "🔑 Reset Your MysteryMint AI Password",
       htmlbody: `
         <div style="font-family: 'Inter', Arial, sans-serif; max-width: 600px; margin: 0 auto; background: #FFFFFF; border-radius: 16px; overflow: hidden; box-shadow: 0 4px 20px rgba(0,0,0,0.08);">
           
-          <!-- Header -->
-          <div style="background: linear-gradient(135deg, #FACC15 0%, #F59E0B 100%); padding: 32px 24px; text-align: center;">
-            <div style="display: inline-block; background: rgba(255,255,255,0.2); padding: 6px 16px; border-radius: 50px; margin-bottom: 12px;">
-              <span style="color: #FFFFFF; font-size: 11px; font-weight: 600; letter-spacing: 1.5px; text-transform: uppercase;">Password Reset</span>
+          <!-- Header — Gold gradient -->
+          <div style="background: linear-gradient(135deg, #FFD36D 0%, #F6C55D 50%, #B77B32 100%); padding: 32px 24px; text-align: center;">
+            <div style="display: inline-block; background: rgba(0,12,22,0.15); padding: 6px 16px; border-radius: 50px; margin-bottom: 12px;">
+              <span style="color: #000C16; font-size: 11px; font-weight: 700; letter-spacing: 1.5px; text-transform: uppercase;">Password Reset</span>
             </div>
-            <h1 style="color: #111827; margin: 0; font-size: 22px; font-weight: 700;">🔑 Reset Your Password</h1>
-            <p style="color: #78350F; margin: 8px 0 0; font-size: 14px;">AI Digital Product Factory Password Reset Request</p>
+            <h1 style="color: #000C16; margin: 0; font-size: 22px; font-weight: 700;">🔑 Reset Your Password</h1>
+            <p style="color: #000C16; opacity: 0.8; margin: 8px 0 0; font-size: 14px;">MysteryMint AI Password Reset Request</p>
           </div>
           
           <!-- Body -->
           <div style="padding: 32px 28px;">
-            <p style="color: #1F2937; font-size: 15px; margin: 0 0 16px; font-weight: 500;">
-              Hi <strong style="color: #111827;">${user.name || "there"}</strong>,
+            <p style="color: #0b1a22; font-size: 15px; margin: 0 0 16px; font-weight: 500;">
+              Hi <strong style="color: #000C16;">${user.name || "there"}</strong>,
             </p>
             <p style="color: #6B7280; font-size: 14px; margin: 0 0 24px; line-height: 1.7;">
-              We received a request to reset your AI Digital Product Factory account password. Click the button below to create a new password.
+              We received a request to reset your MysteryMint AI account password.
             </p>
             
             <div style="text-align: center; margin: 32px 0;">
-              <a href="${resetUrl}" style="display: inline-block; background: linear-gradient(135deg, #FACC15 0%, #F59E0B 100%); color: #111827; padding: 14px 36px; border-radius: 10px; text-decoration: none; font-size: 14px; font-weight: 600; box-shadow: 0 4px 12px rgba(250, 204, 21, 0.35);">
+              <a href="${resetUrl}" style="display: inline-block; background: linear-gradient(135deg, #FFD36D 0%, #F6C55D 50%, #B77B32 100%); color: #000C16; padding: 14px 36px; border-radius: 10px; text-decoration: none; font-size: 14px; font-weight: 700; box-shadow: 0 4px 12px rgba(246, 197, 93, 0.35);">
                 Reset Password →
               </a>
             </div>
 
-            <div style="background: #FEF3C7; border: 1px solid #FCD34D; border-radius: 10px; padding: 16px; margin-bottom: 24px;">
-              <p style="color: #92400E; font-size: 12px; margin: 0; display: flex; align-items: center; gap: 8px;">
+            <div style="background: #FFFBEB; border: 1px solid #FCD34D; border-radius: 10px; padding: 16px; margin-bottom: 24px;">
+              <p style="color: #92400E; font-size: 12px; margin: 0;">
                 ⏰ This link will expire in <strong>1 hour</strong>
               </p>
             </div>
             
-            <p style="color: #6B7280; font-size: 12px; margin: 0 0 8px;">
-              If you didn't request this, please ignore this email.
-            </p>
-            <p style="color: #9CA3AF; font-size: 11px; margin: 0;">
-              For security, never share this link with anyone.
+            <p style="color: #6B7280; font-size: 12px; margin: 0;">
+              If you didn't request this, ignore this email.
             </p>
           </div>
           
           <!-- Footer -->
           <div style="border-top: 1px solid #E5E7EB; padding: 20px 24px; text-align: center; background: #F9FAFB;">
             <p style="color: #9CA3AF; font-size: 12px; margin: 0 0 4px;">
-              <strong style="color: #6B7280;">AI Digital Product Factory</strong>
+              <strong style="color: #000C16;">MysteryMint AI</strong>
             </p>
             <p style="color: #9CA3AF; font-size: 11px; margin: 0;">
               © ${new Date().getFullYear()} All rights reserved. · 
@@ -326,7 +315,7 @@ exports.testEmailConfig = async () => {
       await client.sendMail({
         from: {
           address: WELCOME_EMAIL,
-          name: "AI Digital Product Factory Test",
+          name: "MysteryMint AI Test",
         },
         to: [
           {
@@ -336,14 +325,14 @@ exports.testEmailConfig = async () => {
             },
           },
         ],
-        subject: "🧪 Test Email from AI Digital Product Factory",
+        subject: "🧪 Test Email from MysteryMint AI",
         htmlbody: `
           <div style="font-family: Arial, sans-serif; max-width: 500px; margin: 0 auto; padding: 20px; background: #FFFFFF; border-radius: 12px; border: 1px solid #E5E7EB;">
-            <h2 style="color: #111827;">🧪 Test Email</h2>
-            <p style="color: #6B7280;">This is a test email to verify your ZeptoMail configuration for <strong>AI Digital Product Factory</strong>.</p>
+            <h2 style="color: #000C16;">🧪 Test Email</h2>
+            <p style="color: #6B7280;">Test email for <strong>MysteryMint AI</strong>.</p>
             <p style="color: #6B7280;">✅ Email configuration is working correctly!</p>
             <hr style="border: none; border-top: 1px solid #E5E7EB; margin: 16px 0;">
-            <p style="color: #9CA3AF; font-size: 12px;">Sent from AI Digital Product Factory</p>
+            <p style="color: #9CA3AF; font-size: 12px;">Sent from MysteryMint AI</p>
           </div>
         `,
       });
