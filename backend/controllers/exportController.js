@@ -1,3 +1,4 @@
+ 
 // backend/controllers/exportController.js
 const fs = require("fs");
 const fsp = require("fs/promises");
@@ -6,7 +7,6 @@ const Mystery = require("../models/Mystery");
 const Export = require("../models/Export");
 const pdfService = require("../services/pdfService");
 const zipService = require("../services/zipService");
-const { isDemoMode, getDemoPdfPath } = require("../services/demoService");
 
 // ================================================================
 // 📁 PATH HELPERS
@@ -32,7 +32,7 @@ function toAbsolutePath(p) {
 const EXPORTABLE_STATUSES = ["completed", "needs_review"];
 
 // ================================================================
-// 🏗️ BUILD ALL EXPORTS FOR A MYSTERY — WITH CACHING + DEMO MODE
+// 🏗️ BUILD ALL EXPORTS FOR A MYSTERY — WITH CACHING
 // POST /api/mysteries/:id/export
 // ================================================================
 exports.buildExports = async (req, res) => {
@@ -42,54 +42,6 @@ exports.buildExports = async (req, res) => {
   const forceRebuild = req.query.rebuild === "1";
 
   try {
-    // ─────────────────────────────────────────────────────────
-    // 🎭 DEMO MODE — return list of demo PDFs, no ZIP build
-    // ─────────────────────────────────────────────────────────
-    if (isDemoMode()) {
-      console.log(`🎭 [Demo] buildExports called — returning demo PDF list`);
-
-      const DEMO_KINDS = [
-        "story",
-        "suspects",
-        "clues",
-        "puzzles",
-        "solution",
-        "instructions",
-      ];
-
-      const demoPdfs = DEMO_KINDS.map((kind) => {
-        const pdf = getDemoPdfPath(kind);
-        if (!pdf) return null;
-        return {
-          id: `demo-${kind}`,
-          kind,
-          fileName: pdf.fileName,
-          fileSize: pdf.size,
-          downloadUrl: `/mysteries/${mysteryId}/pdf/${kind}/download`,
-        };
-      }).filter(Boolean);
-
-      return res.json({
-        success: true,
-        message: "Demo kit — download PDFs individually",
-        cached: true,
-        demo: true,
-        mysteryId,
-        zip: null, // No ZIP in demo mode
-        pdfs: demoPdfs,
-        cover: {
-          id: "demo-cover",
-          url: "/demo/images/cover.png",
-          downloadUrl: "/demo/images/cover.png",
-        },
-        meta: { elapsedMs: Date.now() - startedAt },
-      });
-    }
-
-    // ─────────────────────────────────────────────────────────
-    // NORMAL MODE
-    // ─────────────────────────────────────────────────────────
-
     // ---------- LOAD MYSTERY ----------
     const mystery = await Mystery.findOne({ _id: mysteryId, userId });
     if (!mystery) {
@@ -424,43 +376,6 @@ exports.listExports = async (req, res) => {
     const userId = req.user.id || req.user._id;
     const mysteryId = req.params.id;
 
-    // 🎭 DEMO MODE — return list of demo files
-    if (isDemoMode()) {
-      const DEMO_KINDS = [
-        "story",
-        "suspects",
-        "clues",
-        "puzzles",
-        "solution",
-        "instructions",
-      ];
-
-      const demoExports = DEMO_KINDS.map((kind) => {
-        const pdf = getDemoPdfPath(kind);
-        if (!pdf) return null;
-        return {
-          id: `demo-${kind}`,
-          type: "pdf",
-          kind,
-          fileName: pdf.fileName,
-          fileSize: pdf.size,
-          mimeType: "application/pdf",
-          status: "ready",
-          error: null,
-          createdAt: new Date().toISOString(),
-          downloadUrl: `/mysteries/${mysteryId}/pdf/${kind}/download`,
-        };
-      }).filter(Boolean);
-
-      return res.json({
-        success: true,
-        demo: true,
-        count: demoExports.length,
-        data: demoExports,
-      });
-    }
-
-    // Normal mode
     const mystery = await Mystery.findOne({ _id: mysteryId, userId });
     if (!mystery) {
       return res
@@ -499,22 +414,13 @@ exports.listExports = async (req, res) => {
 };
 
 // ================================================================
-// 🧹 CLEAR EXPORT CACHE
+// 🧹 CLEAR EXPORT CACHE (optional endpoint)
 // DELETE /api/mysteries/:id/exports/cache
 // ================================================================
 exports.clearExportCache = async (req, res) => {
   try {
     const userId = req.user.id || req.user._id;
     const mysteryId = req.params.id;
-
-    // 🎭 DEMO MODE — nothing to clear
-    if (isDemoMode()) {
-      return res.json({
-        success: true,
-        demo: true,
-        message: "Demo mode — nothing to clear",
-      });
-    }
 
     const mystery = await Mystery.findOne({ _id: mysteryId, userId });
     if (!mystery) {
