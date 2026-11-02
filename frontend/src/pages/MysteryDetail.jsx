@@ -1,3 +1,4 @@
+ 
 // frontend/src/pages/MysteryDetail.jsx
 import React, { useState, useEffect, useMemo } from "react";
 import { useParams, useNavigate } from "react-router-dom";
@@ -22,7 +23,6 @@ import {
   Star,
   X,
   Lock,
-  ChevronRight,
 } from "lucide-react";
 import Sidebar from "../components/Sidebar";
 import Navbar from "../components/Navbar";
@@ -47,7 +47,6 @@ const C = {
   secondary: "#9AAEBD",
   border: "#2A3B48",
   darkGold: "#B77A1D",
-  danger: "#ff8fa8",
 };
 
 // ================================================================
@@ -412,192 +411,6 @@ function PdfBar({ mysteryId, kind, fileName, description }) {
 }
 
 // ================================================================
-// 🧠 PUZZLE HINTS (collapsed by default)
-// ================================================================
-function PuzzleHints({ hints, puzzleId }) {
-  const [open, setOpen] = useState(false);
-  if (!hints?.length) return null;
-
-  return (
-    <div
-      className="rounded-[8px]"
-      style={{ background: C.input, border: `1px solid ${C.cyan}33` }}
-    >
-      <button
-        type="button"
-        onClick={() => setOpen((v) => !v)}
-        className="w-full flex items-center justify-between px-3 py-2.5"
-        style={{
-          background: "transparent",
-          border: "none",
-          cursor: "pointer",
-          color: C.cyan,
-          fontSize: 11,
-          fontWeight: 700,
-          letterSpacing: "1.2px",
-          textTransform: "uppercase",
-        }}
-      >
-        <span className="flex items-center gap-2">
-          <Lightbulb size={12} />
-          {open ? "Hide hints" : `Show hints (${hints.length})`}
-        </span>
-        <span style={{ fontSize: 16, lineHeight: 1 }}>{open ? "−" : "+"}</span>
-      </button>
-      {open && (
-        <ul className="list-disc pl-8 pr-3 pb-3 space-y-1">
-          {hints.map((h, i) => (
-            <li
-              key={`${puzzleId}-${i}`}
-              style={{
-                fontSize: 13,
-                color: C.secondary,
-                lineHeight: 1.55,
-              }}
-            >
-              {h}
-            </li>
-          ))}
-        </ul>
-      )}
-    </div>
-  );
-}
-
-// ================================================================
-// 🔒 SEALED EVIDENCE GATE
-// ================================================================
-function SealedEvidence({ evidence: e }) {
-  const [code, setCode] = useState("");
-  const [unlocked, setUnlocked] = useState(false);
-  const [error, setError] = useState("");
-
-  const submit = (ev) => {
-    ev.preventDefault();
-    if (String(code).trim() === String(e.unlockCode ?? "")) {
-      setUnlocked(true);
-      setError("");
-    } else {
-      setError("Incorrect code. Check your puzzle answers.");
-    }
-  };
-
-  if (unlocked) {
-    return (
-      <div
-        className="rounded-[10px] p-5"
-        style={{
-          border: `1px solid ${C.gold}`,
-          background: C.input,
-        }}
-      >
-        <div
-          style={{
-            fontSize: 10,
-            textTransform: "uppercase",
-            letterSpacing: "1.5px",
-            color: C.gold,
-            fontWeight: 700,
-            marginBottom: 3,
-          }}
-        >
-          {e.type} · Unlocked
-        </div>
-        <h3
-          className="font-bold mb-3"
-          style={{ fontSize: 16, color: C.heading }}
-        >
-          {e.title}
-        </h3>
-        <div
-          className="whitespace-pre-line leading-[1.75]"
-          style={{
-            fontSize: 14,
-            color: C.heading,
-            fontFamily: "'Courier New', Courier, monospace",
-          }}
-        >
-          {e.body}
-        </div>
-      </div>
-    );
-  }
-
-  return (
-    <div
-      className="rounded-[10px] p-5"
-      style={{
-        border: `1.5px dashed ${C.gold}88`,
-        background: "rgba(245,185,66,.06)",
-        textAlign: "center",
-      }}
-    >
-      <div
-        className="grid place-items-center mx-auto mb-3"
-        style={{
-          width: 54,
-          height: 54,
-          borderRadius: "50%",
-          background: "rgba(245,185,66,.14)",
-          border: `1px solid ${C.gold}66`,
-        }}
-      >
-        <Lock size={22} style={{ color: C.gold }} />
-      </div>
-      <h3
-        className="font-['Playfair_Display',Georgia,serif] font-semibold mb-1"
-        style={{ fontSize: 18, color: C.heading }}
-      >
-        {e.title}
-      </h3>
-      <p className="mb-4" style={{ fontSize: 13, color: C.secondary }}>
-        This packet is sealed. Solve the linked puzzles and enter the
-        three-digit code to open it.
-      </p>
-      <form
-        onSubmit={submit}
-        className="flex flex-wrap items-center justify-center gap-2"
-      >
-        <input
-          value={code}
-          onChange={(ev) => setCode(ev.target.value.replace(/\D/g, "").slice(0, 6))}
-          placeholder="Enter code"
-          inputMode="numeric"
-          className="rounded-[9px] px-3 h-[40px] text-center font-bold"
-          style={{
-            background: C.input,
-            color: C.heading,
-            border: `1px solid ${C.border}`,
-            outline: "none",
-            fontSize: 16,
-            width: 160,
-            letterSpacing: ".4em",
-            fontFamily: "'Courier New', Courier, monospace",
-          }}
-        />
-        <button
-          type="submit"
-          className="h-[40px] px-4 rounded-[9px] font-bold text-[13px]"
-          style={{
-            background: C.gold,
-            color: C.mainBg,
-            border: `1px solid ${C.goldHover}`,
-            cursor: "pointer",
-          }}
-        >
-          Unlock
-        </button>
-      </form>
-      {error && (
-        <p className="mt-2" style={{ fontSize: 12.5, color: C.danger }}>
-          {error}
-        </p>
-      )}
-    </div>
-  );
-}
-
-// ================================================================
 // 🎯 MAIN PAGE
 // ================================================================
 export default function MysteryDetail() {
@@ -705,23 +518,19 @@ export default function MysteryDetail() {
       }
     });
 
-    const chapters = Array.isArray(story?.chapters) ? story.chapters : [];
-
     const hasStory =
       story &&
-      (chapters.length > 0 ||
-        story.introduction ||
+      (story.introduction ||
         story.background ||
         story.settingDescription ||
         story.mainIncident ||
         story.crimeDiscovery ||
         story.investigationOpening ||
-        (story.suspensefulDevelopments?.length > 0) ||
+        story.suspensefulDevelopments?.length > 0 ||
         story.finalChallenge);
 
     return {
       story,
-      chapters,
       characters,
       clues,
       evidence,
@@ -776,7 +585,6 @@ export default function MysteryDetail() {
 
   const {
     story,
-    chapters,
     characters,
     clues,
     evidence,
@@ -792,12 +600,7 @@ export default function MysteryDetail() {
 
   const tabs = [
     { id: "overview", label: "Overview", icon: LayoutGrid },
-    hasStory && {
-      id: "story",
-      label: "Story",
-      icon: BookOpen,
-      count: chapters.length || undefined,
-    },
+    hasStory && { id: "story", label: "Story", icon: BookOpen },
     characters.length > 0 && {
       id: "characters",
       label: "Characters",
@@ -1033,7 +836,7 @@ export default function MysteryDetail() {
       );
     }
 
-    // ---------- STORY (chapters-aware) ----------
+    // ---------- STORY ----------
     if (activeTab === "story") {
       return (
         <Section>
@@ -1050,249 +853,169 @@ export default function MysteryDetail() {
             description="Download or view this section as a standalone PDF (full-bleed cover included)."
           />
 
-          {/* PRIMARY: chapter-based narrative */}
-          {chapters.length > 0 ? (
-            <div className="space-y-5">
-              {chapters.map((ch, idx) => (
-                <div
-                  key={ch.id || idx}
-                  className="rounded-[10px] p-5"
-                  style={{
-                    background: C.input,
-                    border: `1px solid ${C.border}`,
-                  }}
-                >
-                  <div
-                    style={{
-                      fontSize: 10.5,
-                      textTransform: "uppercase",
-                      letterSpacing: "1.4px",
-                      color: C.gold,
-                      fontWeight: 700,
-                      marginBottom: 6,
-                    }}
-                  >
-                    Chapter {ch.chapterNumber ?? idx + 1}
-                  </div>
-                  <h3
-                    className="font-['Playfair_Display',Georgia,serif] font-semibold mb-3"
-                    style={{ fontSize: 19, color: C.heading }}
-                  >
-                    {ch.title || `Chapter ${idx + 1}`}
-                  </h3>
-                  <p
-                    className="leading-[1.75] whitespace-pre-line"
-                    style={{ fontSize: 14.5, color: C.heading }}
-                  >
-                    {ch.body}
-                  </p>
-
-                  {sceneImages[idx] && idx % 6 === 0 && (
-                    <SceneImage
-                      url={sceneImages[idx].url}
-                      caption={sceneImages[idx].location}
-                    />
-                  )}
-                </div>
-              ))}
-
-              <div
-                className="rounded-[10px] p-5 text-center"
-                style={{
-                  background: "rgba(245,185,66,.08)",
-                  border: `1px solid ${C.gold}55`,
-                }}
+          {story.introduction && (
+            <div className="mb-6">
+              <h3
+                className="font-['Playfair_Display',Georgia,serif] font-semibold mb-2"
+                style={{ fontSize: 17, color: C.gold }}
               >
-                <p
-                  className="mb-3"
-                  style={{ fontSize: 14, color: C.heading }}
-                >
-                  The narrative ends here. The investigation begins now.
-                </p>
-                <button
-                  type="button"
-                  onClick={() => setActiveTab("clues")}
-                  className="inline-flex items-center gap-2 h-[42px] px-5 rounded-[10px] font-bold text-[13px]"
-                  style={{
-                    background: C.gold,
-                    color: C.mainBg,
-                    border: `1px solid ${C.goldHover}`,
-                    cursor: "pointer",
-                  }}
-                >
-                  Begin Investigation
-                  <ChevronRight size={15} />
-                </button>
-              </div>
+                Introduction
+              </h3>
+              <p
+                className="leading-[1.75] whitespace-pre-line"
+                style={{ fontSize: 14.5, color: C.heading }}
+              >
+                {story.introduction}
+              </p>
+              {sceneImages[0] && (
+                <SceneImage
+                  url={sceneImages[0].url}
+                  caption={sceneImages[0].location}
+                />
+              )}
             </div>
-          ) : (
-            /* FALLBACK: legacy flat-field story */
-            <>
-              {story.introduction && (
-                <div className="mb-6">
-                  <h3
-                    className="font-['Playfair_Display',Georgia,serif] font-semibold mb-2"
-                    style={{ fontSize: 17, color: C.gold }}
-                  >
-                    Introduction
-                  </h3>
-                  <p
-                    className="leading-[1.75] whitespace-pre-line"
+          )}
+
+          {story.background && (
+            <div className="mb-6">
+              <h3
+                className="font-['Playfair_Display',Georgia,serif] font-semibold mb-2"
+                style={{ fontSize: 17, color: C.gold }}
+              >
+                Background
+              </h3>
+              <p
+                className="leading-[1.75] whitespace-pre-line"
+                style={{ fontSize: 14.5, color: C.heading }}
+              >
+                {story.background}
+              </p>
+            </div>
+          )}
+
+          {story.settingDescription && (
+            <div className="mb-6">
+              <h3
+                className="font-['Playfair_Display',Georgia,serif] font-semibold mb-2"
+                style={{ fontSize: 17, color: C.gold }}
+              >
+                The Setting
+              </h3>
+              <p
+                className="leading-[1.75] whitespace-pre-line"
+                style={{ fontSize: 14.5, color: C.heading }}
+              >
+                {story.settingDescription}
+              </p>
+              {sceneImages[1] && (
+                <SceneImage
+                  url={sceneImages[1].url}
+                  caption={sceneImages[1].location}
+                />
+              )}
+            </div>
+          )}
+
+          {story.mainIncident && (
+            <div className="mb-6">
+              <h3
+                className="font-['Playfair_Display',Georgia,serif] font-semibold mb-2"
+                style={{ fontSize: 17, color: C.gold }}
+              >
+                The Incident
+              </h3>
+              <p
+                className="leading-[1.75] whitespace-pre-line"
+                style={{ fontSize: 14.5, color: C.heading }}
+              >
+                {story.mainIncident}
+              </p>
+            </div>
+          )}
+
+          {story.crimeDiscovery && (
+            <div className="mb-6">
+              <h3
+                className="font-['Playfair_Display',Georgia,serif] font-semibold mb-2"
+                style={{ fontSize: 17, color: C.gold }}
+              >
+                The Discovery
+              </h3>
+              <p
+                className="leading-[1.75] whitespace-pre-line"
+                style={{ fontSize: 14.5, color: C.heading }}
+              >
+                {story.crimeDiscovery}
+              </p>
+              {sceneImages[2] && (
+                <SceneImage
+                  url={sceneImages[2].url}
+                  caption={sceneImages[2].location}
+                />
+              )}
+            </div>
+          )}
+
+          {story.investigationOpening && (
+            <div className="mb-6">
+              <h3
+                className="font-['Playfair_Display',Georgia,serif] font-semibold mb-2"
+                style={{ fontSize: 17, color: C.gold }}
+              >
+                The Investigation Begins
+              </h3>
+              <p
+                className="leading-[1.75] whitespace-pre-line"
+                style={{ fontSize: 14.5, color: C.heading }}
+              >
+                {story.investigationOpening}
+              </p>
+            </div>
+          )}
+
+          {story.suspensefulDevelopments?.length > 0 && (
+            <div className="mb-6">
+              <h3
+                className="font-['Playfair_Display',Georgia,serif] font-semibold mb-2"
+                style={{ fontSize: 17, color: C.gold }}
+              >
+                Developments
+              </h3>
+              <ul className="list-disc pl-6 space-y-1.5">
+                {story.suspensefulDevelopments.map((d, i) => (
+                  <li
+                    key={i}
+                    className="leading-[1.7]"
                     style={{ fontSize: 14.5, color: C.heading }}
                   >
-                    {story.introduction}
-                  </p>
-                  {sceneImages[0] && (
-                    <SceneImage
-                      url={sceneImages[0].url}
-                      caption={sceneImages[0].location}
-                    />
-                  )}
-                </div>
-              )}
+                    {d}
+                  </li>
+                ))}
+              </ul>
+            </div>
+          )}
 
-              {story.background && (
-                <div className="mb-6">
-                  <h3
-                    className="font-['Playfair_Display',Georgia,serif] font-semibold mb-2"
-                    style={{ fontSize: 17, color: C.gold }}
-                  >
-                    Background
-                  </h3>
-                  <p
-                    className="leading-[1.75] whitespace-pre-line"
-                    style={{ fontSize: 14.5, color: C.heading }}
-                  >
-                    {story.background}
-                  </p>
-                </div>
-              )}
-
-              {story.settingDescription && (
-                <div className="mb-6">
-                  <h3
-                    className="font-['Playfair_Display',Georgia,serif] font-semibold mb-2"
-                    style={{ fontSize: 17, color: C.gold }}
-                  >
-                    The Setting
-                  </h3>
-                  <p
-                    className="leading-[1.75] whitespace-pre-line"
-                    style={{ fontSize: 14.5, color: C.heading }}
-                  >
-                    {story.settingDescription}
-                  </p>
-                  {sceneImages[1] && (
-                    <SceneImage
-                      url={sceneImages[1].url}
-                      caption={sceneImages[1].location}
-                    />
-                  )}
-                </div>
-              )}
-
-              {story.mainIncident && (
-                <div className="mb-6">
-                  <h3
-                    className="font-['Playfair_Display',Georgia,serif] font-semibold mb-2"
-                    style={{ fontSize: 17, color: C.gold }}
-                  >
-                    The Incident
-                  </h3>
-                  <p
-                    className="leading-[1.75] whitespace-pre-line"
-                    style={{ fontSize: 14.5, color: C.heading }}
-                  >
-                    {story.mainIncident}
-                  </p>
-                </div>
-              )}
-
-              {story.crimeDiscovery && (
-                <div className="mb-6">
-                  <h3
-                    className="font-['Playfair_Display',Georgia,serif] font-semibold mb-2"
-                    style={{ fontSize: 17, color: C.gold }}
-                  >
-                    The Discovery
-                  </h3>
-                  <p
-                    className="leading-[1.75] whitespace-pre-line"
-                    style={{ fontSize: 14.5, color: C.heading }}
-                  >
-                    {story.crimeDiscovery}
-                  </p>
-                  {sceneImages[2] && (
-                    <SceneImage
-                      url={sceneImages[2].url}
-                      caption={sceneImages[2].location}
-                    />
-                  )}
-                </div>
-              )}
-
-              {story.investigationOpening && (
-                <div className="mb-6">
-                  <h3
-                    className="font-['Playfair_Display',Georgia,serif] font-semibold mb-2"
-                    style={{ fontSize: 17, color: C.gold }}
-                  >
-                    The Investigation Begins
-                  </h3>
-                  <p
-                    className="leading-[1.75] whitespace-pre-line"
-                    style={{ fontSize: 14.5, color: C.heading }}
-                  >
-                    {story.investigationOpening}
-                  </p>
-                </div>
-              )}
-
-              {story.suspensefulDevelopments?.length > 0 && (
-                <div className="mb-6">
-                  <h3
-                    className="font-['Playfair_Display',Georgia,serif] font-semibold mb-2"
-                    style={{ fontSize: 17, color: C.gold }}
-                  >
-                    Developments
-                  </h3>
-                  <ul className="list-disc pl-6 space-y-1.5">
-                    {story.suspensefulDevelopments.map((d, i) => (
-                      <li
-                        key={i}
-                        className="leading-[1.7]"
-                        style={{ fontSize: 14.5, color: C.heading }}
-                      >
-                        {d}
-                      </li>
-                    ))}
-                  </ul>
-                </div>
-              )}
-
-              {story.finalChallenge && (
-                <div
-                  className="rounded-[10px] p-4"
-                  style={{
-                    background: "rgba(245,185,66,.08)",
-                    border: `1px solid ${C.gold}55`,
-                  }}
-                >
-                  <h3
-                    className="font-['Playfair_Display',Georgia,serif] font-semibold mb-2"
-                    style={{ fontSize: 17, color: C.gold }}
-                  >
-                    Your Final Challenge
-                  </h3>
-                  <p
-                    className="leading-[1.7] whitespace-pre-line"
-                    style={{ fontSize: 14.5, color: C.heading }}
-                  >
-                    {story.finalChallenge}
-                  </p>
-                </div>
-              )}
-            </>
+          {story.finalChallenge && (
+            <div
+              className="rounded-[10px] p-4"
+              style={{
+                background: "rgba(245,185,66,.08)",
+                border: `1px solid ${C.gold}55`,
+              }}
+            >
+              <h3
+                className="font-['Playfair_Display',Georgia,serif] font-semibold mb-2"
+                style={{ fontSize: 17, color: C.gold }}
+              >
+                Your Final Challenge
+              </h3>
+              <p
+                className="leading-[1.7] whitespace-pre-line"
+                style={{ fontSize: 14.5, color: C.heading }}
+              >
+                {story.finalChallenge}
+              </p>
+            </div>
           )}
         </Section>
       );
@@ -1455,7 +1178,7 @@ export default function MysteryDetail() {
             {clues.map((cl) => {
               const importanceColor =
                 cl.importance === "Critical"
-                  ? C.danger
+                  ? "#ff8fa8"
                   : cl.importance === "Major"
                   ? C.gold
                   : C.cyan;
@@ -1504,22 +1227,6 @@ export default function MysteryDetail() {
                     >
                       {cl.importance}
                     </span>
-                    {cl.isRedHerring && (
-                      <span
-                        className="px-2 py-0.5 rounded-full"
-                        style={{
-                          fontSize: 10,
-                          background: "rgba(255,143,168,.12)",
-                          border: `1px solid ${C.danger}66`,
-                          color: C.danger,
-                          fontWeight: 600,
-                          textTransform: "uppercase",
-                          letterSpacing: ".5px",
-                        }}
-                      >
-                        Red Herring
-                      </span>
-                    )}
                   </div>
                   <p
                     className="leading-[1.65]"
@@ -1536,8 +1243,30 @@ export default function MysteryDetail() {
                     </p>
                   )}
                   {cl.hint && (
-                    <div className="mt-3">
-                      <PuzzleHints hints={[cl.hint]} puzzleId={`clue-${cl.id}`} />
+                    <div
+                      className="mt-3 flex items-start gap-2 p-2.5 rounded-[6px]"
+                      style={{
+                        background: "rgba(245,185,66,.08)",
+                        border: `1px solid ${C.gold}45`,
+                      }}
+                    >
+                      <Lightbulb
+                        size={13}
+                        style={{
+                          color: C.gold,
+                          marginTop: 2,
+                          flexShrink: 0,
+                        }}
+                      />
+                      <span
+                        style={{
+                          fontSize: 12.5,
+                          color: C.goldHover,
+                          lineHeight: 1.5,
+                        }}
+                      >
+                        {cl.hint}
+                      </span>
                     </div>
                   )}
                 </div>
@@ -1548,7 +1277,7 @@ export default function MysteryDetail() {
       );
     }
 
-    // ---------- EVIDENCE (sealed-aware) ----------
+    // ---------- EVIDENCE ----------
     if (activeTab === "evidence") {
       return (
         <Section>
@@ -1566,54 +1295,50 @@ export default function MysteryDetail() {
           />
 
           <div className="space-y-4">
-            {evidence.map((e) =>
-              e.isSealed ? (
-                <SealedEvidence key={e.id} evidence={e} />
-              ) : (
+            {evidence.map((e) => (
+              <div
+                key={e.id}
+                className="rounded-[10px] p-5"
+                style={{
+                  border: `1px dashed ${C.border}`,
+                  background: C.input,
+                }}
+              >
                 <div
-                  key={e.id}
-                  className="rounded-[10px] p-5"
-                  style={{
-                    border: `1px dashed ${C.border}`,
-                    background: C.input,
-                  }}
+                  className="mb-3 pb-3"
+                  style={{ borderBottom: `1px solid ${C.border}` }}
                 >
                   <div
-                    className="mb-3 pb-3"
-                    style={{ borderBottom: `1px solid ${C.border}` }}
-                  >
-                    <div
-                      style={{
-                        fontSize: 10,
-                        textTransform: "uppercase",
-                        letterSpacing: "1.5px",
-                        color: C.gold,
-                        fontWeight: 700,
-                        marginBottom: 3,
-                      }}
-                    >
-                      {e.type}
-                    </div>
-                    <h3
-                      className="font-bold"
-                      style={{ fontSize: 16, color: C.heading }}
-                    >
-                      {e.title}
-                    </h3>
-                  </div>
-                  <div
-                    className="whitespace-pre-line leading-[1.75]"
                     style={{
-                      fontSize: 14,
-                      color: C.heading,
-                      fontFamily: "'Courier New', Courier, monospace",
+                      fontSize: 10,
+                      textTransform: "uppercase",
+                      letterSpacing: "1.5px",
+                      color: C.gold,
+                      fontWeight: 700,
+                      marginBottom: 3,
                     }}
                   >
-                    {e.body}
+                    {e.type}
                   </div>
+                  <h3
+                    className="font-bold"
+                    style={{ fontSize: 16, color: C.heading }}
+                  >
+                    {e.title}
+                  </h3>
                 </div>
-              )
-            )}
+                <div
+                  className="whitespace-pre-line leading-[1.75]"
+                  style={{
+                    fontSize: 14,
+                    color: C.heading,
+                    fontFamily: "'Courier New', Courier, monospace",
+                  }}
+                >
+                  {e.body}
+                </div>
+              </div>
+            ))}
           </div>
         </Section>
       );
@@ -1686,8 +1411,42 @@ export default function MysteryDetail() {
                   {p.question}
                 </p>
 
-                {/* NEVER render p.answer or p.explanation here */}
-                <PuzzleHints hints={p.hints} puzzleId={p.id} />
+                {p.hints?.length > 0 && (
+                  <div
+                    className="rounded-[8px] p-3"
+                    style={{
+                      background: C.input,
+                      border: `1px solid ${C.cyan}33`,
+                    }}
+                  >
+                    <div
+                      style={{
+                        fontSize: 10,
+                        textTransform: "uppercase",
+                        letterSpacing: "1.3px",
+                        color: C.cyan,
+                        fontWeight: 700,
+                        marginBottom: 6,
+                      }}
+                    >
+                      Hints
+                    </div>
+                    <ul className="list-disc pl-5 space-y-1">
+                      {p.hints.map((h, i) => (
+                        <li
+                          key={i}
+                          style={{
+                            fontSize: 13,
+                            color: C.secondary,
+                            lineHeight: 1.55,
+                          }}
+                        >
+                          {h}
+                        </li>
+                      ))}
+                    </ul>
+                  </div>
+                )}
               </div>
             ))}
           </div>
@@ -1726,7 +1485,7 @@ export default function MysteryDetail() {
               >
                 <div
                   className="shrink-0 font-['Playfair_Display',Georgia,serif] font-bold"
-                  style={{ fontSize: 15, color: C.gold, minWidth: 72 }}
+                  style={{ fontSize: 15, color: C.gold, minWidth: 62 }}
                 >
                   {ev.time}
                 </div>
@@ -1751,14 +1510,6 @@ export default function MysteryDetail() {
                   >
                     {ev.description || ev.event}
                   </p>
-                  {ev.source && (
-                    <p
-                      className="mt-1 italic"
-                      style={{ fontSize: 11.5, color: C.secondary }}
-                    >
-                      Source: {ev.source}
-                    </p>
-                  )}
                 </div>
               </div>
             ))}
@@ -2111,7 +1862,6 @@ function CharacterModal({ character, portraitUrl, onClose }) {
             color: C.secondary,
             backdropFilter: "blur(6px)",
             WebkitBackdropFilter: "blur(6px)",
-            cursor: "pointer",
           }}
           onMouseEnter={(e) => {
             e.currentTarget.style.color = C.gold;
@@ -2306,7 +2056,7 @@ function CharacterModal({ character, portraitUrl, onClose }) {
                   <div
                     className="flex items-center gap-2 mb-2"
                     style={{
-                      color: C.danger,
+                      color: "#ff8fa8",
                       fontSize: 11,
                       fontWeight: 700,
                       textTransform: "uppercase",
