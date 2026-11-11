@@ -9,6 +9,8 @@ import FeatureRoute from "./components/features/FeatureRoute"; // 👈 NEW
 import HomeNavbar from "./components/HomeNavbar";
 import Footer from "./components/Footer";
 
+import ImpersonationBanner from "./components/ImpersonationBanner";
+
 // Auth
 import Login from "./pages/auth/Login";
 import Signup from "./pages/auth/Signup";
@@ -123,6 +125,7 @@ function App() {
     <AuthProvider>
       <AIProfitProvider>
         <Toaster position="top-right" />
+        <ImpersonationBanner />
         <Layout>
           <Routes>
             {/* Root redirect */}
