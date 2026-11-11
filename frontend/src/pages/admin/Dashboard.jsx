@@ -1,4 +1,4 @@
-// pages/admin/Dashboard.jsx
+// frontend/src/pages/admin/Dashboard.jsx
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
@@ -11,11 +11,11 @@ import {
   Mail, Phone, MoreVertical, Check, AlertCircle, RefreshCw, Clock, Award,
   Star, Zap, Rocket, Settings, Headphones, TrendingUp, BarChart3, PieChart,
   DollarSign, ShoppingCart, Gift, Ticket, Layers, Grid, List, FileText,
-  Download, Printer, Copy, Share2,
+  Download, Printer, Copy, Share2, LogIn, EyeOff, Lock, Sparkles,
 } from 'lucide-react';
 
 // ================================================================
-// 🎨 THEME — matches the rest of the app
+// 🎨 THEME
 // ================================================================
 const C = {
   mainBg: "#000C16",
@@ -55,6 +55,7 @@ const AdminDashboard = () => {
   const [showEditPlanModal, setShowEditPlanModal] = useState(false);
   const [showPaymentDetailModal, setShowPaymentDetailModal] = useState(false);
   const [showSubscriptionModal, setShowSubscriptionModal] = useState(false);
+  const [showImpersonateModal, setShowImpersonateModal] = useState(false);
   const [selectedUser, setSelectedUser] = useState(null);
   const [selectedPlan, setSelectedPlan] = useState(null);
   const [selectedPayment, setSelectedPayment] = useState(null);
@@ -62,11 +63,14 @@ const AdminDashboard = () => {
   const [addForm, setAddForm] = useState({ name: '', email: '', password: '', planId: 1, role: 'user' });
   const [planForm, setPlanForm] = useState({ name: '', slug: '', planId: '', jvzoo_id: '', launchpad_id: '', validity_days: 365, status: 'active', order: 0 });
   const [subscriptionForm, setSubscriptionForm] = useState({ planId: '', transactionId: '', source: 'Admin', amount: 0 });
+  const [impersonateReason, setImpersonateReason] = useState('');
   const [addingUser, setAddingUser] = useState(false);
   const [savingUser, setSavingUser] = useState(false);
   const [savingPlan, setSavingPlan] = useState(false);
   const [addingSubscription, setAddingSubscription] = useState(false);
   const [removingSubscription, setRemovingSubscription] = useState(false);
+  const [impersonating, setImpersonating] = useState(false);
+  const [showPassword, setShowPassword] = useState(false);
 
   useEffect(() => {
     if (user?.role !== 'admin') { navigate('/dashboard'); return; }
@@ -116,6 +120,7 @@ const AdminDashboard = () => {
       await api.post('/admin/users', addForm);
       toast.success('User created successfully!'); setShowAddModal(false);
       setAddForm({ name: '', email: '', password: '', planId: 1, role: 'user' });
+      setShowPassword(false);
       fetchUsers(); fetchStats();
     } catch (error) { toast.error(error.response?.data?.message || 'Failed to create user'); }
     finally { setAddingUser(false); }
@@ -124,6 +129,65 @@ const AdminDashboard = () => {
     try { const response = await api.patch(`/admin/users/${userId}/toggle-status`); toast.success(response.data.message); fetchUsers(); }
     catch (error) { toast.error('Failed to update status'); }
   };
+
+  // ==================== IMPERSONATION ====================
+  const openImpersonateModal = (u) => {
+    if (u.role === 'admin') {
+      toast.error('Cannot impersonate another admin');
+      return;
+    }
+    setSelectedUser(u);
+    setImpersonateReason('');
+    setShowImpersonateModal(true);
+  };
+
+  const handleImpersonate = async () => {
+    if (!selectedUser) return;
+    setImpersonating(true);
+    try {
+      const currentAdminToken = localStorage.getItem('token');
+      const currentAdminUser = localStorage.getItem('user');
+
+      const res = await api.post(
+        `/admin/impersonate/${selectedUser._id}`,
+        { reason: impersonateReason || 'Admin support' },
+        { headers: { Authorization: `Bearer ${currentAdminToken}` } }
+      );
+
+      if (!res.data?.success) {
+        throw new Error(res.data?.message || 'Impersonation failed');
+      }
+
+      // 1) Preserve admin session for later restore
+      localStorage.setItem('adminToken', currentAdminToken);
+      if (currentAdminUser) localStorage.setItem('adminUser', currentAdminUser);
+
+      // 2) Save impersonated session
+      localStorage.setItem('token', res.data.token);
+      if (res.data.user) localStorage.setItem('user', JSON.stringify(res.data.user));
+      localStorage.setItem('impersonatedBy', JSON.stringify(res.data.impersonatedBy));
+
+      // 3) Update axios defaults so the next API call uses the new token
+      api.defaults.headers.common['x-auth-token'] = res.data.token;
+      api.defaults.headers.common['Authorization'] = `Bearer ${res.data.token}`;
+
+      toast.success(`Now viewing as ${selectedUser.name}`);
+      setShowImpersonateModal(false);
+      setSelectedUser(null);
+
+      // 4) Hard reload so AuthContext fetches with the new token
+      window.location.href = '/dashboard';
+    } catch (error) {
+      toast.error(
+        error.response?.data?.message ||
+        error.message ||
+        'Failed to impersonate'
+      );
+    } finally {
+      setImpersonating(false);
+    }
+  };
+
   const openSubscriptionModal = (user) => {
     setSelectedUser(user);
     setSubscriptionForm({ planId: '', transactionId: `ADMIN_${Date.now()}`, source: 'Admin', amount: 0 });
@@ -188,7 +252,7 @@ const AdminDashboard = () => {
     <div className="flex h-screen" style={{ background: C.mainBg }}>
       <Sidebar />
       <div className="flex-1 ml-0 md:ml-[18rem] overflow-auto">
-        {/* Header — responsive stacking on small devices */}
+        {/* Header */}
         <div
           className="px-4 sm:px-6 py-3 sm:py-4 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 sm:gap-0 sticky top-0 z-10"
           style={{
@@ -232,7 +296,7 @@ const AdminDashboard = () => {
         </div>
 
         <div className="p-4 sm:p-6">
-          {/* Tabs — horizontally scrollable on small devices */}
+          {/* Tabs */}
           <div
             className="flex gap-1 mb-4 sm:mb-6 rounded-lg p-1 w-fit max-w-full overflow-x-auto"
             style={{ background: C.card, border: `1px solid ${C.border}` }}
@@ -322,7 +386,7 @@ const AdminDashboard = () => {
                 className="rounded-xl overflow-x-auto"
                 style={{ background: C.card, border: `1px solid ${C.border}` }}
               >
-                <table className="w-full min-w-[900px]">
+                <table className="w-full min-w-[1000px]">
                   <thead>
                     <tr
                       style={{
@@ -403,7 +467,6 @@ const AdminDashboard = () => {
                               </div>
                             </td>
 
-                            {/* AGENCY COLUMN */}
                             <td className="px-4 py-3">
                               {isAgencyOwner ? (
                                 <span
@@ -456,6 +519,24 @@ const AdminDashboard = () => {
                             </td>
                             <td className="px-4 py-3">
                               <div className="flex items-center justify-center gap-2">
+                                {/* Login as user */}
+                                <button
+                                  onClick={() => openImpersonateModal(u)}
+                                  disabled={u.role === 'admin'}
+                                  title={u.role === 'admin' ? 'Cannot login as another admin' : 'Login as this user'}
+                                  className="transition hover:brightness-125 disabled:opacity-30 disabled:cursor-not-allowed"
+                                  style={{
+                                    color: C.gold,
+                                    background: "rgba(246,197,93,.1)",
+                                    border: `1px solid ${C.gold}45`,
+                                    borderRadius: 6,
+                                    padding: "4px 6px",
+                                    display: "flex",
+                                    alignItems: "center",
+                                  }}
+                                >
+                                  <LogIn size={14} />
+                                </button>
                                 <button
                                   onClick={() => openSubscriptionModal(u)}
                                   className="text-xs font-medium flex items-center gap-1 transition hover:brightness-125"
@@ -734,6 +815,151 @@ const AdminDashboard = () => {
           )}
         </div>
       </div>
+
+      {/* ==================== IMPERSONATE USER MODAL ==================== */}
+      {showImpersonateModal && selectedUser && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center">
+          <div
+            className="absolute inset-0"
+            style={{ background: "rgba(0,12,22,.85)", backdropFilter: "blur(4px)" }}
+            onClick={() => !impersonating && setShowImpersonateModal(false)}
+          ></div>
+          <div
+            className="relative rounded-2xl shadow-2xl p-5 sm:p-7 w-full max-w-lg mx-3 sm:mx-4"
+            style={{
+              background: C.card,
+              border: `1px solid ${C.gold}55`,
+              boxShadow: "0 20px 60px rgba(246,197,93,.15)",
+            }}
+          >
+            <div className="flex items-start justify-between mb-5 gap-3">
+              <div className="flex items-start gap-3 min-w-0">
+                <div
+                  className="grid place-items-center shrink-0"
+                  style={{
+                    width: 48,
+                    height: 48,
+                    borderRadius: 12,
+                    background: "linear-gradient(140deg, #3a2a11, #5a3e18)",
+                    border: `1px solid ${C.darkGold}`,
+                  }}
+                >
+                  <LogIn size={22} style={{ color: C.gold }} />
+                </div>
+                <div className="min-w-0">
+                  <h3 className="text-lg font-bold" style={{ color: C.heading }}>
+                    Login as User
+                  </h3>
+                  <p className="text-sm truncate" style={{ color: C.secondary }}>
+                    You'll be signed in as this user (session expires in 1 hour)
+                  </p>
+                </div>
+              </div>
+              <button
+                onClick={() => !impersonating && setShowImpersonateModal(false)}
+                disabled={impersonating}
+                className="w-8 h-8 rounded-full flex items-center justify-center transition shrink-0 disabled:opacity-50"
+                style={{ background: "rgba(246,197,93,.1)" }}
+              >
+                <X size={20} style={{ color: C.secondary }} />
+              </button>
+            </div>
+
+            <div
+              className="rounded-lg p-4 mb-5"
+              style={{ background: C.input, border: `1px solid ${C.border}` }}
+            >
+              <div className="flex items-center gap-3">
+                <div
+                  className="w-10 h-10 rounded-full flex items-center justify-center shrink-0"
+                  style={{
+                    background: "rgba(246,197,93,.15)",
+                    border: `1px solid ${C.gold}55`,
+                  }}
+                >
+                  <span className="text-sm font-bold" style={{ color: C.gold }}>
+                    {selectedUser.name?.charAt(0)?.toUpperCase()}
+                  </span>
+                </div>
+                <div className="min-w-0">
+                  <p className="text-sm font-medium truncate" style={{ color: C.heading }}>
+                    {selectedUser.name}
+                  </p>
+                  <p className="text-xs truncate" style={{ color: C.secondary }}>
+                    {selectedUser.email}
+                  </p>
+                </div>
+              </div>
+            </div>
+
+            <div className="mb-5">
+              <label className="block text-sm font-medium mb-2" style={{ color: C.secondary }}>
+                Reason (optional, for audit log)
+              </label>
+              <input
+                type="text"
+                value={impersonateReason}
+                onChange={(e) => setImpersonateReason(e.target.value)}
+                placeholder="e.g. Support ticket #123 — user reported login issue"
+                className="w-full px-4 py-2.5 rounded-lg text-sm focus:outline-none"
+                style={{
+                  background: C.input,
+                  border: `1px solid ${C.border}`,
+                  color: C.heading,
+                }}
+                disabled={impersonating}
+                maxLength={500}
+              />
+            </div>
+
+            <div
+              className="rounded-lg p-3 mb-5 flex items-start gap-2.5"
+              style={{
+                background: "rgba(255,207,112,.08)",
+                border: `1px solid ${C.gold}45`,
+              }}
+            >
+              <AlertCircle size={16} style={{ color: C.gold, marginTop: 2, flexShrink: 0 }} />
+              <p style={{ fontSize: 12, color: C.secondary, lineHeight: 1.5 }}>
+                All actions during impersonation will be logged. Your admin session will be preserved — you can return at any time via the "Exit" banner at the top of the page.
+              </p>
+            </div>
+
+            <div className="flex flex-col xs:flex-row gap-3">
+              <button
+                onClick={() => setShowImpersonateModal(false)}
+                disabled={impersonating}
+                className="flex-1 px-4 py-2.5 rounded-lg text-sm font-medium transition disabled:opacity-50"
+                style={{
+                  background: C.input,
+                  border: `1px solid ${C.border}`,
+                  color: C.secondary,
+                }}
+              >
+                Cancel
+              </button>
+              <button
+                onClick={handleImpersonate}
+                disabled={impersonating}
+                className="flex-1 px-4 py-2.5 rounded-lg text-sm font-bold transition disabled:opacity-50 hover:-translate-y-[1px] flex items-center justify-center gap-2"
+                style={{
+                  background: C.goldGradient,
+                  color: C.mainBg,
+                  border: `1px solid ${C.goldHover}`,
+                  boxShadow:
+                    "inset 0 1px 1px rgba(255,255,255,.25), 0 4px 14px rgba(246,197,93,.35)",
+                }}
+              >
+                {impersonating ? (
+                  <><RefreshCw size={15} className="animate-spin" /> Logging in...</>
+                ) : (
+                  <><LogIn size={15} /> Login as {selectedUser.name?.split(' ')[0]}</>
+                )}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* ==================== SUBSCRIPTION MANAGEMENT MODAL ==================== */}
       {showSubscriptionModal && selectedUser && (
@@ -1108,94 +1334,260 @@ const AdminDashboard = () => {
         <div className="fixed inset-0 z-50 flex items-center justify-center">
           <div
             className="absolute inset-0"
-            style={{ background: "rgba(0,12,22,.85)", backdropFilter: "blur(4px)" }}
-            onClick={() => setShowAddModal(false)}
+            style={{ background: "rgba(0,12,22,.88)", backdropFilter: "blur(6px)" }}
+            onClick={() => !addingUser && setShowAddModal(false)}
           ></div>
           <div
-            className="relative rounded-2xl shadow-2xl p-4 sm:p-6 w-full max-w-lg mx-3 sm:mx-4 max-h-[90vh] overflow-y-auto"
-            style={{ background: C.card, border: `1px solid ${C.border}` }}
+            className="relative rounded-2xl shadow-2xl w-full max-w-2xl mx-3 sm:mx-4 max-h-[92vh] overflow-y-auto"
+            style={{
+              background: C.card,
+              border: `1px solid ${C.border}`,
+              boxShadow: "0 20px 60px rgba(0,0,0,.55)",
+            }}
           >
-            <div className="flex items-center justify-between mb-6 gap-3">
-              <div className="min-w-0">
-                <h3 className="text-lg font-bold" style={{ color: C.heading }}>Add New User</h3>
-                <p className="text-sm" style={{ color: C.secondary }}>Create a user account manually</p>
+            <div
+              className="px-5 sm:px-7 py-5 border-b flex items-start justify-between gap-3"
+              style={{
+                borderColor: C.border,
+                background: `linear-gradient(180deg, rgba(246,197,93,.06), transparent)`,
+              }}
+            >
+              <div className="flex items-start gap-3.5 min-w-0">
+                <div
+                  className="grid place-items-center shrink-0"
+                  style={{
+                    width: 52,
+                    height: 52,
+                    borderRadius: 14,
+                    background: "linear-gradient(140deg, #3a2a11, #5a3e18)",
+                    border: `1px solid ${C.darkGold}`,
+                    boxShadow: "0 0 24px rgba(183,123,50,.25)",
+                  }}
+                >
+                  <UserPlus size={24} style={{ color: C.gold }} />
+                </div>
+                <div className="min-w-0">
+                  <h3 className="text-xl font-bold" style={{ color: C.heading }}>
+                    Add New User
+                  </h3>
+                  <p className="text-sm mt-0.5" style={{ color: C.secondary }}>
+                    Create a user account manually — they'll receive a welcome email with login credentials
+                  </p>
+                </div>
               </div>
               <button
-                onClick={() => setShowAddModal(false)}
-                className="w-8 h-8 rounded-full flex items-center justify-center transition shrink-0"
+                onClick={() => !addingUser && setShowAddModal(false)}
+                disabled={addingUser}
+                className="w-9 h-9 rounded-full flex items-center justify-center transition shrink-0 disabled:opacity-50 hover:bg-white/5"
                 style={{ background: "rgba(246,197,93,.1)" }}
               >
                 <X size={20} style={{ color: C.secondary }} />
               </button>
             </div>
-            <form onSubmit={handleAddUser} className="space-y-4">
-              <div>
-                <label className="block text-sm font-medium mb-1.5" style={{ color: C.secondary }}>Full Name *</label>
-                <input
-                  type="text"
-                  value={addForm.name}
-                  onChange={(e) => setAddForm({ ...addForm, name: e.target.value })}
-                  placeholder="John Doe"
-                  className="w-full px-4 py-2.5 rounded-lg text-sm focus:outline-none"
-                  style={{ background: C.input, border: `1px solid ${C.border}`, color: C.heading }}
-                  required
-                />
-              </div>
-              <div>
-                <label className="block text-sm font-medium mb-1.5" style={{ color: C.secondary }}>Email *</label>
-                <input
-                  type="email"
-                  value={addForm.email}
-                  onChange={(e) => setAddForm({ ...addForm, email: e.target.value })}
-                  placeholder="john@example.com"
-                  className="w-full px-4 py-2.5 rounded-lg text-sm focus:outline-none"
-                  style={{ background: C.input, border: `1px solid ${C.border}`, color: C.heading }}
-                  required
-                />
-              </div>
-              <div>
-                <label className="block text-sm font-medium mb-1.5" style={{ color: C.secondary }}>Password *</label>
-                <input
-                  type="password"
-                  value={addForm.password}
-                  onChange={(e) => setAddForm({ ...addForm, password: e.target.value })}
-                  placeholder="Min. 6 characters"
-                  className="w-full px-4 py-2.5 rounded-lg text-sm focus:outline-none"
-                  style={{ background: C.input, border: `1px solid ${C.border}`, color: C.heading }}
-                  required
-                  minLength="6"
-                />
-              </div>
-              <div className="grid grid-cols-1 xs:grid-cols-2 gap-3 sm:gap-4">
-                <div>
-                  <label className="block text-sm font-medium mb-1.5" style={{ color: C.secondary }}>Role</label>
-                  <select
-                    value={addForm.role}
-                    onChange={(e) => setAddForm({ ...addForm, role: e.target.value })}
-                    className="w-full px-4 py-2.5 rounded-lg text-sm focus:outline-none"
-                    style={{ background: C.input, border: `1px solid ${C.border}`, color: C.heading }}
+
+            <form onSubmit={handleAddUser} className="px-5 sm:px-7 py-6">
+              <div className="mb-6">
+                <div className="flex items-center gap-2 mb-4">
+                  <div
+                    className="grid place-items-center"
+                    style={{
+                      width: 26,
+                      height: 26,
+                      borderRadius: 8,
+                      background: "rgba(246,197,93,.12)",
+                      border: `1px solid ${C.gold}45`,
+                    }}
                   >
-                    <option value="user">User</option>
-                    <option value="admin">Admin</option>
-                  </select>
+                    <Sparkles size={13} style={{ color: C.gold }} />
+                  </div>
+                  <h4 className="text-sm font-semibold uppercase tracking-wide" style={{ color: C.gold }}>
+                    Personal Information
+                  </h4>
                 </div>
-                <div>
-                  <label className="block text-sm font-medium mb-1.5" style={{ color: C.secondary }}>Plan</label>
-                  <select
-                    value={addForm.planId}
-                    onChange={(e) => setAddForm({ ...addForm, planId: parseInt(e.target.value) })}
-                    className="w-full px-4 py-2.5 rounded-lg text-sm focus:outline-none"
-                    style={{ background: C.input, border: `1px solid ${C.border}`, color: C.heading }}
-                  >
-                    {plans.map(plan => (<option key={plan._id} value={plan.planId}>{plan.name}</option>))}
-                  </select>
+
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                  <div>
+                    <label className="block text-sm font-medium mb-1.5" style={{ color: C.heading }}>
+                      Full Name <span style={{ color: C.rose }}>*</span>
+                    </label>
+                    <input
+                      type="text"
+                      value={addForm.name}
+                      onChange={(e) => setAddForm({ ...addForm, name: e.target.value })}
+                      placeholder="John Doe"
+                      className="w-full px-4 py-3 rounded-lg text-sm focus:outline-none transition"
+                      style={{ background: C.input, border: `1px solid ${C.border}`, color: C.heading }}
+                      onFocus={(e) => (e.target.style.borderColor = C.gold)}
+                      onBlur={(e) => (e.target.style.borderColor = C.border)}
+                      required
+                      disabled={addingUser}
+                    />
+                  </div>
+
+                  <div>
+                    <label className="block text-sm font-medium mb-1.5" style={{ color: C.heading }}>
+                      Email Address <span style={{ color: C.rose }}>*</span>
+                    </label>
+                    <div className="relative">
+                      <Mail
+                        size={15}
+                        className="absolute left-3.5 top-1/2 -translate-y-1/2 pointer-events-none"
+                        style={{ color: C.muted }}
+                      />
+                      <input
+                        type="email"
+                        value={addForm.email}
+                        onChange={(e) => setAddForm({ ...addForm, email: e.target.value })}
+                        placeholder="john@example.com"
+                        className="w-full pl-10 pr-4 py-3 rounded-lg text-sm focus:outline-none transition"
+                        style={{ background: C.input, border: `1px solid ${C.border}`, color: C.heading }}
+                        onFocus={(e) => (e.target.style.borderColor = C.gold)}
+                        onBlur={(e) => (e.target.style.borderColor = C.border)}
+                        required
+                        disabled={addingUser}
+                      />
+                    </div>
+                  </div>
                 </div>
               </div>
-              <div className="flex flex-col xs:flex-row gap-3 pt-2">
+
+              <div className="mb-6">
+                <div className="flex items-center gap-2 mb-4">
+                  <div
+                    className="grid place-items-center"
+                    style={{
+                      width: 26,
+                      height: 26,
+                      borderRadius: 8,
+                      background: "rgba(246,197,93,.12)",
+                      border: `1px solid ${C.gold}45`,
+                    }}
+                  >
+                    <Lock size={13} style={{ color: C.gold }} />
+                  </div>
+                  <h4 className="text-sm font-semibold uppercase tracking-wide" style={{ color: C.gold }}>
+                    Login Credentials
+                  </h4>
+                </div>
+
+                <div>
+                  <label className="block text-sm font-medium mb-1.5" style={{ color: C.heading }}>
+                    Password <span style={{ color: C.rose }}>*</span>
+                  </label>
+                  <div className="relative">
+                    <Lock
+                      size={15}
+                      className="absolute left-3.5 top-1/2 -translate-y-1/2 pointer-events-none"
+                      style={{ color: C.muted }}
+                    />
+                    <input
+                      type={showPassword ? 'text' : 'password'}
+                      value={addForm.password}
+                      onChange={(e) => setAddForm({ ...addForm, password: e.target.value })}
+                      placeholder="Minimum 6 characters"
+                      className="w-full pl-10 pr-12 py-3 rounded-lg text-sm focus:outline-none transition"
+                      style={{ background: C.input, border: `1px solid ${C.border}`, color: C.heading }}
+                      onFocus={(e) => (e.target.style.borderColor = C.gold)}
+                      onBlur={(e) => (e.target.style.borderColor = C.border)}
+                      required
+                      minLength="6"
+                      disabled={addingUser}
+                    />
+                    <button
+                      type="button"
+                      onClick={() => setShowPassword((s) => !s)}
+                      className="absolute right-3 top-1/2 -translate-y-1/2 p-1 rounded transition hover:bg-white/5"
+                      tabIndex={-1}
+                    >
+                      {showPassword ? (
+                        <EyeOff size={16} style={{ color: C.secondary }} />
+                      ) : (
+                        <Eye size={16} style={{ color: C.secondary }} />
+                      )}
+                    </button>
+                  </div>
+                  <p className="text-xs mt-1.5" style={{ color: C.muted }}>
+                    User can change this after their first login
+                  </p>
+                </div>
+              </div>
+
+              <div className="mb-6">
+                <div className="flex items-center gap-2 mb-4">
+                  <div
+                    className="grid place-items-center"
+                    style={{
+                      width: 26,
+                      height: 26,
+                      borderRadius: 8,
+                      background: "rgba(246,197,93,.12)",
+                      border: `1px solid ${C.gold}45`,
+                    }}
+                  >
+                    <Crown size={13} style={{ color: C.gold }} />
+                  </div>
+                  <h4 className="text-sm font-semibold uppercase tracking-wide" style={{ color: C.gold }}>
+                    Access Level
+                  </h4>
+                </div>
+
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                  <div>
+                    <label className="block text-sm font-medium mb-1.5" style={{ color: C.heading }}>
+                      Role
+                    </label>
+                    <select
+                      value={addForm.role}
+                      onChange={(e) => setAddForm({ ...addForm, role: e.target.value })}
+                      className="w-full px-4 py-3 rounded-lg text-sm focus:outline-none transition"
+                      style={{ background: C.input, border: `1px solid ${C.border}`, color: C.heading }}
+                      disabled={addingUser}
+                    >
+                      <option value="user">User</option>
+                      <option value="admin">Admin</option>
+                    </select>
+                  </div>
+
+                  <div>
+                    <label className="block text-sm font-medium mb-1.5" style={{ color: C.heading }}>
+                      Plan
+                    </label>
+                    <select
+                      value={addForm.planId}
+                      onChange={(e) => setAddForm({ ...addForm, planId: parseInt(e.target.value) })}
+                      className="w-full px-4 py-3 rounded-lg text-sm focus:outline-none transition"
+                      style={{ background: C.input, border: `1px solid ${C.border}`, color: C.heading }}
+                      disabled={addingUser}
+                    >
+                      {plans.map(plan => (
+                        <option key={plan._id} value={plan.planId}>
+                          {plan.name} — ${plan.price || 0}
+                        </option>
+                      ))}
+                    </select>
+                  </div>
+                </div>
+              </div>
+
+              <div
+                className="rounded-lg p-3.5 mb-6 flex items-start gap-2.5"
+                style={{
+                  background: "rgba(246,197,93,.06)",
+                  border: `1px solid ${C.gold}35`,
+                }}
+              >
+                <AlertCircle size={16} style={{ color: C.gold, marginTop: 1, flexShrink: 0 }} />
+                <p style={{ fontSize: 12.5, color: C.secondary, lineHeight: 1.55 }}>
+                  A welcome email will be sent automatically with the login credentials. You can change the password and plan later from the Users tab.
+                </p>
+              </div>
+
+              <div className="flex flex-col-reverse sm:flex-row gap-3">
                 <button
                   type="button"
                   onClick={() => setShowAddModal(false)}
-                  className="flex-1 px-4 py-2.5 rounded-lg text-sm font-medium transition"
+                  disabled={addingUser}
+                  className="sm:flex-1 px-4 py-3 rounded-lg text-sm font-medium transition disabled:opacity-50"
                   style={{ background: C.input, border: `1px solid ${C.border}`, color: C.secondary }}
                 >
                   Cancel
@@ -1203,7 +1595,7 @@ const AdminDashboard = () => {
                 <button
                   type="submit"
                   disabled={addingUser}
-                  className="flex-1 px-4 py-2.5 rounded-lg text-sm font-bold transition disabled:opacity-50 hover:-translate-y-[1px]"
+                  className="sm:flex-1 px-4 py-3 rounded-lg text-sm font-bold transition disabled:opacity-50 hover:-translate-y-[1px] flex items-center justify-center gap-2"
                   style={{
                     background: C.goldGradient,
                     color: C.mainBg,
@@ -1212,7 +1604,11 @@ const AdminDashboard = () => {
                       "inset 0 1px 1px rgba(255,255,255,.25), 0 4px 14px rgba(246,197,93,.35)",
                   }}
                 >
-                  {addingUser ? 'Creating...' : 'Create User'}
+                  {addingUser ? (
+                    <><RefreshCw size={16} className="animate-spin" /> Creating...</>
+                  ) : (
+                    <><UserPlus size={16} /> Create User</>
+                  )}
                 </button>
               </div>
             </form>
