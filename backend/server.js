@@ -23,6 +23,7 @@ const aiRankerRoutes = require("./routes/agents/aiRanker");
 const subscriptionRoutes = require("./routes/auth/subscriptionRoutes");
 const adminRoutes = require("./routes/auth/admin");
 const agencyRoutes = require('./routes/agency/agencyRoutes');
+const adminImpersonate = require("./routes/auth/adminImpersonate");
 
 // ================================================================
 // STATIC FILE HEADERS — lets images load cross-origin
@@ -157,6 +158,7 @@ app.use("/api/ai-ranker", aiRankerRoutes);
 app.use("/api/ai-profit", aiProfitRoutes);
 app.use("/api/subscription", subscriptionRoutes);
 app.use("/api/admin", adminRoutes);
+app.use("/api/admin", adminImpersonate);
 app.use("/api/mysteries", require("./routes/mystery"));
 app.use("/api", require("./routes/export")); 
 app.use("/api/templates", require("./routes/mysteryTemplate"));
