@@ -364,6 +364,7 @@ const mysterySchema = new mongoose.Schema(
     generationProgress: { type: Number, default: 0, min: 0, max: 100 },
     currentStage: { type: String, default: "" },
     generationError: { type: String, default: null },
+     completedAt: { type: Date, default: null, index: true },
 
     // ---------- GENERATED CONTENT ----------
     blueprint: { type: mongoose.Schema.Types.Mixed, default: null },
@@ -428,6 +429,7 @@ const mysterySchema = new mongoose.Schema(
 // ================================================================
 mysterySchema.index({ userId: 1, createdAt: -1 });
 mysterySchema.index({ userId: 1, generationStatus: 1 });
+mysterySchema.index({ userId: 1, completedAt: -1 });
 
 // ================================================================
 // METHODS
