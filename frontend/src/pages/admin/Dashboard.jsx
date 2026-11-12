@@ -408,7 +408,7 @@ const AdminDashboard = () => {
                     ) : (
                       filteredUsers.map((u) => {
                         const userPlanIds = Array.isArray(u.planId) ? u.planId : [u.planId || 1];
-                        const isAgencyOwner = userPlanIds.includes(8) && !u.ownerId;
+                        const isAgencyOwner = userPlanIds.includes(13) && !u.ownerId;
                         const isAgencyMember = !!u.ownerId;
                         return (
                           <tr key={u._id} className="transition" style={{ borderBottom: `1px solid rgba(41,65,76,.5)` }}>
