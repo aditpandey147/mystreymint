@@ -64,7 +64,7 @@ const Support = () => {
   const [activeTab, setActiveTab] = useState("credentials");
 
   const APP_URL =
-    import.meta.env.VITE_APP_URL || "https://podcastai.albinolabs.com";
+    import.meta.env.VITE_APP_URL || "https://mysterymint.albinolabs.com/";
   const SUPPORT_DESK_URL = "https://supportalbinolabs.tawk.help/";
 
   const userCredentials = {
