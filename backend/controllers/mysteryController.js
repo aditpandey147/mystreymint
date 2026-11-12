@@ -28,7 +28,7 @@ const IN_PROGRESS_STATUSES = ["generating", "pending", "validating"];
 const COMPLETED_STATUSES = ["completed", "needs_review"];
 
 // How long the user must wait after a successful completion
-const GENERATION_COOLDOWN_MS = 5 * 60 * 1000; // 5 minutes
+const GENERATION_COOLDOWN_MS = 3 * 60 * 1000; // 5 minutes
 
 /**
  * Blocks if the user already has a mystery in flight.
