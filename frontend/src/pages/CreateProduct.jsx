@@ -23,11 +23,9 @@ import {
   BookOpen,
   Search,
   Puzzle,
-  Package,
-  FileText,
   KeyRound,
   Image,
-  Lightbulb,
+  LayoutGrid,
 } from "lucide-react";
 import Sidebar from "../components/Sidebar";
 import Navbar from "../components/Navbar";
@@ -68,7 +66,7 @@ const getImageUrl = (path) => {
 };
 
 // ================================================================
-// STATIC DATA (fallback dropdown values)
+// STATIC DATA
 // ================================================================
 const GENRES = [
   "Murder Mystery",
@@ -91,15 +89,6 @@ const DIFFICULTIES = ["Medium", "Easy", "Hard"];
 const PLAYER_COUNTS = ["4 - 8 Players", "2 - 4 Players", "8 - 12 Players"];
 const DURATIONS = ["60 - 90 Minutes", "30 - 60 Minutes", "90 - 120 Minutes"];
 const AUDIENCES = ["Adults (16+)", "Families", "Kids (8+)"];
-
-const OUTPUTS = [
-  "Mystery Story PDF",
-  "Cover Image",
-  "Suspect Cards",
-  "Clues & Evidence",
-  "Puzzle Sheets",
-  "Solution Guide",
-];
 
 // ================================================================
 // SELECT FIELD
@@ -156,10 +145,13 @@ function SelectField({ label, icon: Icon, value, onChange, options }) {
 }
 
 // ================================================================
-// RATE LIMIT MODAL
+// RATE LIMIT MODAL — handles cooldown AND in_progress
 // ================================================================
-function RateLimitModal({ info, onClose, onChangeTemplate }) {
-  const [secondsLeft, setSecondsLeft] = useState(info?.waitSeconds || 0);
+function RateLimitModal({ info, onClose, onChangeTemplate, onViewMine }) {
+  // Only count down when reason === "cooldown"
+  const [secondsLeft, setSecondsLeft] = useState(
+    info?.reason === "cooldown" ? info.waitSeconds || 0 : 0,
+  );
 
   useEffect(() => {
     const prev = document.body.style.overflow;
@@ -170,7 +162,7 @@ function RateLimitModal({ info, onClose, onChangeTemplate }) {
   }, []);
 
   useEffect(() => {
-    if (!info) return;
+    if (!info || info.reason !== "cooldown") return;
     setSecondsLeft(info.waitSeconds || 0);
     const t = setInterval(() => {
       setSecondsLeft((s) => {
@@ -194,6 +186,8 @@ function RateLimitModal({ info, onClose, onChangeTemplate }) {
 
   if (!info) return null;
 
+  const isInProgress = info.reason === "in_progress";
+
   const reasonMeta = {
     cooldown: {
       Icon: Hourglass,
@@ -202,6 +196,14 @@ function RateLimitModal({ info, onClose, onChangeTemplate }) {
       glow: "rgba(246,197,93,.15)",
       title: "Almost Ready, Creator",
       subtitle: "A quick pause keeps the quality high.",
+    },
+    in_progress: {
+      Icon: Loader2,
+      color: C.cyan,
+      accent: "rgba(0,212,217,.5)",
+      glow: "rgba(0,212,217,.15)",
+      title: "Already Generating",
+      subtitle: "We're finishing your previous mystery.",
     },
     daily_limit: {
       Icon: Calendar,
@@ -287,6 +289,7 @@ function RateLimitModal({ info, onClose, onChangeTemplate }) {
         </button>
 
         <div className="relative px-7 pt-8 pb-7 text-center">
+          {/* Ring / icon */}
           <div
             className="relative mx-auto mb-6"
             style={{ width: ringSize, height: ringSize }}
@@ -313,10 +316,16 @@ function RateLimitModal({ info, onClose, onChangeTemplate }) {
                 strokeWidth={stroke}
                 strokeLinecap="round"
                 strokeDasharray={circumference}
-                strokeDashoffset={offset}
+                strokeDashoffset={isInProgress ? 0 : offset}
                 style={{
-                  transition: "stroke-dashoffset 1s linear",
+                  transition: isInProgress
+                    ? "none"
+                    : "stroke-dashoffset 1s linear",
                   filter: `drop-shadow(0 0 8px ${color})`,
+                  animation: isInProgress
+                    ? "spinRing 1.6s linear infinite"
+                    : "none",
+                  transformOrigin: "50% 50%",
                 }}
               />
             </svg>
@@ -326,7 +335,12 @@ function RateLimitModal({ info, onClose, onChangeTemplate }) {
                 background: `radial-gradient(circle, ${glow}, transparent 70%)`,
               }}
             >
-              <Icon size={36} strokeWidth={1.8} style={{ color }} />
+              <Icon
+                size={36}
+                strokeWidth={1.8}
+                style={{ color }}
+                className={isInProgress ? "animate-spin" : ""}
+              />
             </div>
           </div>
 
@@ -340,61 +354,144 @@ function RateLimitModal({ info, onClose, onChangeTemplate }) {
             {subtitle}
           </p>
 
-          <div
-            className="rounded-[14px] px-5 py-4 mb-5"
-            style={{ background: C.input, border: `1px solid ${C.border}` }}
-          >
+          {/* Timer box (only for cooldown) OR status card (in_progress) */}
+          {isInProgress ? (
             <div
-              className="text-[10px] uppercase tracking-[1.4px] font-semibold mb-1.5"
-              style={{ color: C.secondary }}
+              className="rounded-[14px] px-5 py-4 mb-5 text-left"
+              style={{ background: C.input, border: `1px solid ${C.border}` }}
             >
-              {secondsLeft > 0 ? "Available in" : "Ready to create"}
+              <div
+                className="text-[10px] uppercase tracking-[1.4px] font-semibold mb-2 flex items-center gap-1.5"
+                style={{ color: C.cyan }}
+              >
+                <LayoutGrid size={11} />
+                Currently generating
+              </div>
+              {info.activeTitle && (
+                <div
+                  className="text-[14px] font-bold truncate mb-1"
+                  style={{ color: C.heading }}
+                  title={info.activeTitle}
+                >
+                  {info.activeTitle}
+                </div>
+              )}
+              <div
+                className="text-[11.5px]"
+                style={{ color: C.secondary }}
+              >
+                {info.currentStage || "In progress"}
+                {typeof info.generationProgress === "number" && (
+                  <> · {info.generationProgress}%</>
+                )}
+              </div>
             </div>
+          ) : (
             <div
-              className="text-[26px] font-bold tabular-nums"
-              style={{ color, textShadow: `0 0 20px ${glow}` }}
+              className="rounded-[14px] px-5 py-4 mb-5"
+              style={{ background: C.input, border: `1px solid ${C.border}` }}
             >
-              {formatTime(secondsLeft)}
+              <div
+                className="text-[10px] uppercase tracking-[1.4px] font-semibold mb-1.5"
+                style={{ color: C.secondary }}
+              >
+                {secondsLeft > 0 ? "Available in" : "Ready to create"}
+              </div>
+              <div
+                className="text-[26px] font-bold tabular-nums"
+                style={{ color, textShadow: `0 0 20px ${glow}` }}
+              >
+                {formatTime(secondsLeft)}
+              </div>
             </div>
-          </div>
+          )}
 
           <p
             className="text-[12.5px] leading-[1.65] mb-6"
             style={{ color: C.secondary }}
           >
-            {info.message}
+            {isInProgress
+              ? "We're activating the commercial license for your previous mystery. Please allow up to 5 minutes before submitting your next request."
+              : info.message}
           </p>
 
+          {/* Actions */}
           <div className="flex items-center gap-2.5">
-            <button
-              onClick={onChangeTemplate}
-              className="flex-1 h-[44px] rounded-[11px] text-[12.5px] font-medium transition-all"
-              style={{
-                border: `1px solid ${C.border}`,
-                background: C.input,
-                color: C.heading,
-              }}
-              onMouseEnter={(e) =>
-                (e.currentTarget.style.background = C.cardSecondary)
-              }
-              onMouseLeave={(e) => (e.currentTarget.style.background = C.input)}
-            >
-              Browse Templates
-            </button>
-            <button
-              onClick={onClose}
-              className="flex-1 h-[44px] rounded-[11px] text-[12.5px] font-semibold transition-all hover:brightness-110"
-              style={{
-                background: C.goldGradient,
-                color: C.mainBg,
-                border: `1px solid ${C.goldHover}`,
-                boxShadow: "inset 0 1px 1px rgba(255,255,255,.2)",
-              }}
-            >
-              Got it
-            </button>
+            {isInProgress ? (
+              <>
+                <button
+                  onClick={onClose}
+                  className="flex-1 h-[44px] rounded-[11px] text-[12.5px] font-medium transition-all"
+                  style={{
+                    border: `1px solid ${C.border}`,
+                    background: C.input,
+                    color: C.heading,
+                  }}
+                  onMouseEnter={(e) =>
+                    (e.currentTarget.style.background = C.cardSecondary)
+                  }
+                  onMouseLeave={(e) =>
+                    (e.currentTarget.style.background = C.input)
+                  }
+                >
+                  Got it
+                </button>
+                <button
+                  onClick={onViewMine}
+                  className="flex-1 h-[44px] rounded-[11px] text-[12.5px] font-semibold transition-all hover:brightness-110 flex items-center justify-center gap-1.5"
+                  style={{
+                    background: C.goldGradient,
+                    color: C.mainBg,
+                    border: `1px solid ${C.goldHover}`,
+                    boxShadow: "inset 0 1px 1px rgba(255,255,255,.2)",
+                  }}
+                >
+                  View My Mysteries
+                  <ArrowRight size={13} />
+                </button>
+              </>
+            ) : (
+              <>
+                <button
+                  onClick={onChangeTemplate}
+                  className="flex-1 h-[44px] rounded-[11px] text-[12.5px] font-medium transition-all"
+                  style={{
+                    border: `1px solid ${C.border}`,
+                    background: C.input,
+                    color: C.heading,
+                  }}
+                  onMouseEnter={(e) =>
+                    (e.currentTarget.style.background = C.cardSecondary)
+                  }
+                  onMouseLeave={(e) =>
+                    (e.currentTarget.style.background = C.input)
+                  }
+                >
+                  Browse Templates
+                </button>
+                <button
+                  onClick={onClose}
+                  className="flex-1 h-[44px] rounded-[11px] text-[12.5px] font-semibold transition-all hover:brightness-110"
+                  style={{
+                    background: C.goldGradient,
+                    color: C.mainBg,
+                    border: `1px solid ${C.goldHover}`,
+                    boxShadow: "inset 0 1px 1px rgba(255,255,255,.2)",
+                  }}
+                >
+                  Got it
+                </button>
+              </>
+            )}
           </div>
         </div>
+
+        <style>{`
+          @keyframes spinRing {
+            from { transform: rotate(0deg); }
+            to   { transform: rotate(360deg); }
+          }
+        `}</style>
       </div>
     </div>
   );
@@ -667,7 +764,6 @@ function TemplateCard({ template, isSelected, onClick }) {
           : "none",
       }}
     >
-      {/* Thumbnail */}
       <div
         className="relative"
         style={{
@@ -706,7 +802,6 @@ function TemplateCard({ template, isSelected, onClick }) {
         )}
       </div>
 
-      {/* Info */}
       <div style={{ padding: "8px 10px" }}>
         <div
           className="font-bold truncate"
@@ -809,7 +904,6 @@ export default function CreateProduct() {
         const res = await api.get("/templates");
         if (!cancelled && res.data?.success) {
           const list = res.data.data || [];
-          // Show 8 templates (featured first)
           const sorted = [...list].sort((a, b) => {
             if (a.isFeatured && !b.isFeatured) return -1;
             if (!a.isFeatured && b.isFeatured) return 1;
@@ -830,10 +924,9 @@ export default function CreateProduct() {
   }, []);
 
   // ================================================================
-  // APPLY TEMPLATE → AUTO-FILL ALL FIELDS
+  // APPLY TEMPLATE
   // ================================================================
   const applyTemplate = (template) => {
-    // Toggle deselect
     if (selectedTemplateId === template._id) {
       setSelectedTemplateId(null);
       setSelectedTemplate(null);
@@ -843,13 +936,11 @@ export default function CreateProduct() {
     setSelectedTemplateId(template._id);
     setSelectedTemplate(template);
 
-    // Auto-fill every field
     if (template.name) setMysteryTitle(template.name);
 
     if (template.genre && GENRES.includes(template.genre)) {
       setGenre(template.genre);
     } else if (template.genre) {
-      // If genre not in list, still set it (select will show a fallback)
       setGenre(template.genre);
     }
 
@@ -860,7 +951,6 @@ export default function CreateProduct() {
     }
 
     if (template.playerCount) {
-      // Convert "4-8" → "4 - 8 Players"
       const clean = template.playerCount.replace(/-/g, " - ").trim();
       const withPlayers = /player/i.test(clean) ? clean : `${clean} Players`;
       setPlayers(withPlayers);
@@ -872,7 +962,6 @@ export default function CreateProduct() {
     }
 
     if (template.targetAudience) {
-      // "Adults" → "Adults (16+)"
       const audienceMap = {
         Adults: "Adults (16+)",
         Families: "Families",
@@ -891,7 +980,7 @@ export default function CreateProduct() {
   };
 
   // ================================================================
-  // GENERATE
+  // GENERATE — now handles both cooldown AND in_progress
   // ================================================================
   const handleGenerate = () => {
     if (!mysteryTitle.trim()) {
@@ -930,15 +1019,23 @@ export default function CreateProduct() {
       .catch((err) => {
         console.error("❌ Generation request failed:", err);
 
+        // ⬇️ Rate limit (cooldown OR in_progress) — pass full payload to modal
         if (err.response?.status === 429 && err.response?.data?.rateLimited) {
-          toast.error(
-            err.response.data.message ||
-              "Rate limit reached. Try again in a moment.",
-            { duration: 6000 },
-          );
+          const payload = err.response.data;
+          setGenerating(false);
+          setRateLimit(payload);
+
+          // Toast title changes by reason
+          const toastMsg =
+            payload.reason === "in_progress"
+              ? "A mystery is already being generated"
+              : payload.message ||
+                "Rate limit reached. Try again in a moment.";
+          toast.error(toastMsg, { duration: 5000 });
           return;
         }
 
+        setGenerating(false);
         toast.error(
           err.response?.data?.message ||
             err.message ||
@@ -947,6 +1044,7 @@ export default function CreateProduct() {
         );
       });
 
+    // Success path (optimistic — show loader, then redirect)
     setTimeout(() => {
       setLoaderStage("success");
 
@@ -1315,7 +1413,6 @@ export default function CreateProduct() {
 
               {/* RIGHT COLUMN */}
               <div className="flex flex-col gap-4">
-                {/* Step 3 — Templates from DB */}
                 <section
                   className="rounded-[12px]"
                   style={{
@@ -1411,8 +1508,6 @@ export default function CreateProduct() {
                   )}
                 </section>
 
-                {/* What You'll Get */}
-
                 <section
                   className="rounded-[12px]"
                   style={{
@@ -1476,6 +1571,10 @@ export default function CreateProduct() {
           onChangeTemplate={() => {
             setRateLimit(null);
             navigate("/templates");
+          }}
+          onViewMine={() => {
+            setRateLimit(null);
+            navigate("/my-mysteries");
           }}
         />
       )}
