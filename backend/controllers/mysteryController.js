@@ -1,4 +1,3 @@
- 
 // backend/controllers/mysteryController.js
 const fs = require("fs");
 const fsp = require("fs/promises");
@@ -18,6 +17,79 @@ const {
 // ================================================================
 const UPLOADS_ROOT = path.join(__dirname, "../uploads/mysteries");
 const PUBLIC_PREFIX = "/uploads/mysteries";
+
+// ================================================================
+// 🚦 GENERATION GUARDS
+// ================================================================
+// Statuses that mean "a generation is still running right now"
+const IN_PROGRESS_STATUSES = ["generating", "pending", "validating"];
+
+// Statuses that mean "a generation finished successfully"
+const COMPLETED_STATUSES = ["completed", "needs_review"];
+
+// How long the user must wait after a successful completion
+const GENERATION_COOLDOWN_MS = 5 * 60 * 1000; // 5 minutes
+
+/**
+ * Blocks if the user already has a mystery in flight.
+ * Returns { blocked: false } or
+ * { blocked: true, activeMysteryId, activeTitle, currentStage, generationProgress }.
+ */
+async function checkActiveGeneration(userId) {
+  if (!userId) return { blocked: false };
+
+  const active = await Mystery.findOne(
+    {
+      userId,
+      generationStatus: { $in: IN_PROGRESS_STATUSES },
+    },
+    "generationStatus generationProgress currentStage title",
+  )
+    .sort({ createdAt: -1 })
+    .lean();
+
+  if (!active) return { blocked: false };
+
+  return {
+    blocked: true,
+    activeMysteryId: String(active._id),
+    activeTitle: active.title || "Untitled Mystery",
+    currentStage: active.currentStage || "Generating",
+    generationProgress: active.generationProgress || 0,
+  };
+}
+
+/**
+ * Blocks if the user's last COMPLETED mystery finished < 5 minutes ago.
+ * Returns { blocked: false } or
+ * { blocked: true, waitSeconds, lastCompletedAt, lastCompletedTitle }.
+ */
+async function checkGenerationCooldown(userId) {
+  if (!userId) return { blocked: false };
+
+  const last = await Mystery.findOne(
+    {
+      userId,
+      generationStatus: { $in: COMPLETED_STATUSES },
+      completedAt: { $exists: true, $ne: null },
+    },
+    "completedAt title",
+  )
+    .sort({ completedAt: -1 })
+    .lean();
+
+  if (!last || !last.completedAt) return { blocked: false };
+
+  const elapsed = Date.now() - new Date(last.completedAt).getTime();
+  if (elapsed >= GENERATION_COOLDOWN_MS) return { blocked: false };
+
+  return {
+    blocked: true,
+    waitSeconds: Math.ceil((GENERATION_COOLDOWN_MS - elapsed) / 1000),
+    lastCompletedAt: last.completedAt,
+    lastCompletedTitle: last.title || "Untitled Mystery",
+  };
+}
 
 // ================================================================
 // 🧠 SYSTEM PROMPTS
@@ -524,6 +596,38 @@ exports.generateMystery = async (req, res) => {
         .json({ success: false, message: "Not authenticated" });
     }
 
+    // 🚦 GUARD #1 — only ONE generation at a time
+    const active = await checkActiveGeneration(userId);
+    if (active.blocked) {
+      return res.status(429).json({
+        success: false,
+        rateLimited: true,
+        reason: "in_progress",
+        activeMysteryId: active.activeMysteryId,
+        activeTitle: active.activeTitle,
+        currentStage: active.currentStage,
+        generationProgress: active.generationProgress,
+        message: `A mystery ("${active.activeTitle}") is still being generated. Please wait for it to finish before starting another.`,
+      });
+    }
+
+    // ⏳ GUARD #2 — 5-minute cooldown after last successful completion
+    const cooldown = await checkGenerationCooldown(userId);
+    if (cooldown.blocked) {
+      const mins = Math.floor(cooldown.waitSeconds / 60);
+      const secs = cooldown.waitSeconds % 60;
+      const pretty = mins > 0 ? `${mins}m ${secs}s` : `${secs}s`;
+      return res.status(429).json({
+        success: false,
+        rateLimited: true,
+        reason: "cooldown",
+        waitSeconds: cooldown.waitSeconds,
+        lastCompletedAt: cooldown.lastCompletedAt,
+        lastCompletedTitle: cooldown.lastCompletedTitle,
+        message: `Please wait ${pretty} before generating another mystery. Your last one ("${cooldown.lastCompletedTitle}") just completed.`,
+      });
+    }
+
     const input = {
       title: title.trim(),
       genre,
@@ -809,6 +913,7 @@ async function runMysteryPipeline(mysteryId, input, includeImages) {
         generationStatus: finalStatus,
         generationProgress: 100,
         currentStage: "Completed",
+        completedAt: new Date(), // ⏳ triggers the 5-min cooldown
         blueprint,
         story,
         characters,
@@ -869,6 +974,7 @@ exports.listMysteries = async (req, res) => {
       generationStatus: m.generationStatus || "pending",
       generationProgress: m.generationProgress || 0,
       currentStage: m.currentStage || "",
+      completedAt: m.completedAt || null,
       images: { cover: m.images?.cover || null },
       createdAt: m.createdAt,
       updatedAt: m.updatedAt,
@@ -1040,9 +1146,7 @@ exports.testBlueprint = async (req, res) => {
 };
 
 // ================================================================
-// 📄 PDF KIND CONFIG — one entry per section
-// `base` comes from pdfService.buildBaseData(), so every image
-// (cover, scenes, portraits) is already embedded as a data URL.
+// 📄 PDF KIND CONFIG
 // ================================================================
 const PDF_KINDS = {
   story: {
@@ -1117,14 +1221,10 @@ async function buildSinglePdf(mysteryDoc, kind, { forceRebuild = false } = {}) {
 
   const outFile = path.join(pdfDir, cfg.fileName);
 
-  // ─────────────────────────────────────────────────────────
-  // 🎯 CACHE CHECK — if the file exists and is non-empty, skip rebuild
-  // ─────────────────────────────────────────────────────────
   if (!forceRebuild) {
     try {
       const existing = await fsp.stat(outFile);
       if (existing.size > 1000) {
-        // File exists and is > 1KB (real PDF)
         console.log(
           `♻️  [${kind}] Cached PDF found — ${(existing.size / 1024).toFixed(0)} KB`,
         );
@@ -1139,16 +1239,12 @@ async function buildSinglePdf(mysteryDoc, kind, { forceRebuild = false } = {}) {
         };
       }
     } catch (err) {
-      // File doesn't exist — fall through to build
       if (err.code !== "ENOENT") {
         console.warn(`⚠️ Cache check failed for ${kind}:`, err.message);
       }
     }
   }
 
-  // ─────────────────────────────────────────────────────────
-  // 🖨️ BUILD — only runs on first request (or forceRebuild)
-  // ─────────────────────────────────────────────────────────
   console.log(`🖨️  [${kind}] Building PDF from scratch…`);
 
   const base = await buildBaseData(mystery);
@@ -1162,7 +1258,6 @@ async function buildSinglePdf(mysteryDoc, kind, { forceRebuild = false } = {}) {
   });
 
   const stat = await fsp.stat(outFile);
-
   console.log(`✅ [${kind}] PDF built — ${(stat.size / 1024).toFixed(0)} KB`);
 
   return {
@@ -1175,9 +1270,9 @@ async function buildSinglePdf(mysteryDoc, kind, { forceRebuild = false } = {}) {
     cached: false,
   };
 }
+
 // ================================================================
-// 👁️ VIEW PDF — inline in browser tab
-// GET /api/mysteries/:id/pdf/:kind
+// 👁️ VIEW PDF
 // ================================================================
 exports.viewMysteryPdf = async (req, res) => {
   try {
@@ -1224,9 +1319,9 @@ exports.viewMysteryPdf = async (req, res) => {
     }
   }
 };
+
 // ================================================================
-// ⬇️ DOWNLOAD PDF — as attachment
-// GET /api/mysteries/:id/pdf/:kind/download
+// ⬇️ DOWNLOAD PDF
 // ================================================================
 exports.downloadMysteryPdf = async (req, res) => {
   try {
@@ -1274,8 +1369,7 @@ exports.downloadMysteryPdf = async (req, res) => {
 };
 
 // ================================================================
-// 📊 PDF STATUS — which PDFs already exist on disk
-// GET /api/mysteries/:id/pdf/status
+// 📊 PDF STATUS
 // ================================================================
 exports.getPdfStatus = async (req, res) => {
   try {
